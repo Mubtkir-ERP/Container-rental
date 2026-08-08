@@ -1,0 +1,126 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "autoname": "format:CLI-{####}",
+ "creation": "2026-08-01 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "basic_section",
+  "client_name",
+  "client_type",
+  "mobile_no",
+  "column_break_basic",
+  "account_type",
+  "current_balance",
+  "addresses_section",
+  "addresses",
+  "notes_section",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "basic_section",
+   "fieldtype": "Section Break",
+   "label": "بيانات العميل"
+  },
+  {
+   "fieldname": "client_name",
+   "fieldtype": "Data",
+   "label": "اسم العميل",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "default": "فرد",
+   "fieldname": "client_type",
+   "fieldtype": "Select",
+   "label": "نوع العميل",
+   "options": "فرد\nشركة",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "mobile_no",
+   "fieldtype": "Data",
+   "label": "رقم الجوال",
+   "options": "Phone",
+   "reqd": 1,
+   "in_list_view": 1,
+   "description": "يُستخدم لإرسال رسائل واتساب"
+  },
+  {
+   "fieldname": "column_break_basic",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "نقدي",
+   "fieldname": "account_type",
+   "fieldtype": "Select",
+   "label": "نوع الحساب",
+   "options": "نقدي\nآجل",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "current_balance",
+   "fieldtype": "Currency",
+   "label": "الرصيد الحالي",
+   "read_only": 1,
+   "description": "إجمالي المستحق على العميل"
+  },
+  {
+   "fieldname": "addresses_section",
+   "fieldtype": "Section Break",
+   "label": "العناوين / المواقع"
+  },
+  {
+   "fieldname": "addresses",
+   "fieldtype": "Table",
+   "label": "العناوين",
+   "options": "Client Address"
+  },
+  {
+   "fieldname": "notes_section",
+   "fieldtype": "Section Break",
+   "label": ""
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Text",
+   "label": "ملاحظات"
+  }
+ ],
+ "links": [],
+ "modified": "2026-08-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Container Rental",
+ "name": "Client",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1, "delete": 1, "email": 1, "export": 1, "print": 1,
+   "read": 1, "report": 1, "role": "System Manager", "share": 1, "write": 1
+  },
+  {
+   "create": 1, "delete": 1, "email": 1, "export": 1, "print": 1,
+   "read": 1, "report": 1, "role": "Container Manager", "share": 1, "write": 1
+  },
+  {
+   "create": 1, "email": 1, "export": 1, "print": 1,
+   "read": 1, "report": 1, "role": "Customer Service", "share": 1, "write": 1
+  },
+  {"read": 1, "report": 1, "role": "Transfer Follow-up"},
+  {"read": 1, "report": 1, "role": "Driver Supervisor"}
+ ],
+ "quick_entry": 1,
+ "search_fields": "client_name,mobile_no",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "client_name",
+ "track_changes": 1
+}

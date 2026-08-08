@@ -1,0 +1,163 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "autoname": "field:container_no",
+ "creation": "2026-08-01 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "basic_section",
+  "container_no",
+  "size",
+  "classification",
+  "column_break_basic",
+  "branch",
+  "responsible_driver",
+  "status",
+  "barcode_section",
+  "barcode",
+  "tracking_section",
+  "last_delivery_datetime",
+  "column_break_tracking",
+  "last_unload_datetime",
+  "notes_section",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "basic_section",
+   "fieldtype": "Section Break",
+   "label": "بيانات الحاوية"
+  },
+  {
+   "fieldname": "container_no",
+   "fieldtype": "Data",
+   "label": "رقم الحاوية",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "size",
+   "fieldtype": "Select",
+   "label": "حجم الحاوية",
+   "options": "10 ياردة\n20 ياردة",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "classification",
+   "fieldtype": "Link",
+   "label": "التصنيف",
+   "options": "Container Classification",
+   "allow_in_quick_entry": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "column_break_basic",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "branch",
+   "fieldtype": "Link",
+   "label": "اسم الفرع",
+   "options": "Rental Branch",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "responsible_driver",
+   "fieldtype": "Link",
+   "label": "السائق المسؤول",
+   "options": "CR Employee",
+   "in_standard_filter": 1
+  },
+  {
+   "default": "متاحة",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "الحالة",
+   "options": "متاحة\nمؤجرة\nتالفة\nصيانة\nمتأخرة\nمسحوبة",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "barcode_section",
+   "fieldtype": "Section Break",
+   "label": "الباركود"
+  },
+  {
+   "fieldname": "barcode",
+   "fieldtype": "Barcode",
+   "label": "الباركود",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tracking_section",
+   "fieldtype": "Section Break",
+   "label": "المتابعة"
+  },
+  {
+   "fieldname": "last_delivery_datetime",
+   "fieldtype": "Datetime",
+   "label": "تاريخ آخر توصيل",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_tracking",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "last_unload_datetime",
+   "fieldtype": "Datetime",
+   "label": "تاريخ آخر تفريغ",
+   "read_only": 1
+  },
+  {
+   "fieldname": "notes_section",
+   "fieldtype": "Section Break",
+   "label": ""
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Text",
+   "label": "ملاحظات"
+  }
+ ],
+ "links": [],
+ "modified": "2026-08-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Container Rental",
+ "name": "Container",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1, "delete": 1, "email": 1, "export": 1, "print": 1,
+   "read": 1, "report": 1, "role": "System Manager", "share": 1, "write": 1
+  },
+  {
+   "create": 1, "delete": 1, "email": 1, "export": 1, "print": 1,
+   "read": 1, "report": 1, "role": "Container Manager", "share": 1, "write": 1
+  },
+  {
+   "create": 1, "email": 1, "export": 1, "print": 1,
+   "read": 1, "report": 1, "role": "Customer Service", "share": 1
+  },
+  {"read": 1, "report": 1, "role": "Transfer Follow-up"},
+  {
+   "email": 1, "export": 1, "print": 1,
+   "read": 1, "report": 1, "role": "Driver Supervisor", "share": 1, "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "container_no",
+ "track_changes": 1
+}

@@ -1,0 +1,5 @@
+[pre_model_sync]
+container_rental.patches.create_roles
+
+[post_model_sync]
+container_rental.patches.create_barcode_print_format

@@ -1,0 +1,72 @@
+{
+ "actions": [],
+ "creation": "2026-08-01 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "maintenance_date",
+  "maintenance_type",
+  "cost",
+  "odometer_km",
+  "next_maintenance_date",
+  "next_maintenance_km",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "maintenance_date",
+   "fieldtype": "Date",
+   "label": "تاريخ الصيانة",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "maintenance_type",
+   "fieldtype": "Select",
+   "label": "نوع الصيانة",
+   "options": "تغيير زيت\nإطارات\nفرامل\nبطارية\nصيانة دورية\nإصلاح عطل\nأخرى",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "cost",
+   "fieldtype": "Currency",
+   "label": "التكلفة",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "odometer_km",
+   "fieldtype": "Int",
+   "label": "الكيلومترات عند الصيانة",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "next_maintenance_date",
+   "fieldtype": "Date",
+   "label": "تاريخ الصيانة القادمة",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "next_maintenance_km",
+   "fieldtype": "Int",
+   "label": "كيلومتر الصيانة القادمة"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "ملاحظات"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-08-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Container Rental",
+ "name": "Truck Maintenance Log",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -1,0 +1,95 @@
+{
+ "actions": [],
+ "creation": "2026-08-01 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "rental_section",
+  "default_rental_days",
+  "column_break_rental",
+  "default_supervisor",
+  "alerts_section",
+  "expiry_alert_days",
+  "unload_reminder_after_days",
+  "column_break_alerts",
+  "contract_expiry_alert_days",
+  "send_hr_alerts_via_whatsapp"
+ ],
+ "fields": [
+  {
+   "fieldname": "rental_section",
+   "fieldtype": "Section Break",
+   "label": "إعدادات التأجير"
+  },
+  {
+   "default": "10",
+   "fieldname": "default_rental_days",
+   "fieldtype": "Int",
+   "label": "مدة التأجير الافتراضية (أيام)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_rental",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "default_supervisor",
+   "fieldtype": "Link",
+   "label": "مشرف السواقين الافتراضي",
+   "options": "CR Employee",
+   "description": "يستقبل طلبات التفريغ وإشعارات انتهاء المدة"
+  },
+  {
+   "fieldname": "alerts_section",
+   "fieldtype": "Section Break",
+   "label": "إعدادات التنبيهات"
+  },
+  {
+   "default": "30",
+   "fieldname": "expiry_alert_days",
+   "fieldtype": "Int",
+   "label": "أيام التنبيه قبل انتهاء الوثائق",
+   "reqd": 1,
+   "description": "الإقامة / التأمين / الاستمارة / كارت السائق / كارت التشغيل"
+  },
+  {
+   "default": "2",
+   "fieldname": "unload_reminder_after_days",
+   "fieldtype": "Int",
+   "label": "تذكير العميل بالتفريغ بعد (أيام)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_alerts",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "30",
+   "fieldname": "contract_expiry_alert_days",
+   "fieldtype": "Int",
+   "label": "التنبيه قبل انتهاء العقد بـ (أيام)",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "send_hr_alerts_via_whatsapp",
+   "fieldtype": "Check",
+   "label": "إرسال تنبيهات الوثائق عبر واتساب أيضًا"
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-08-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Container Rental",
+ "name": "Container Rental Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {"read": 1, "role": "System Manager", "write": 1},
+  {"read": 1, "role": "Container Manager", "write": 1}
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 0
+}
