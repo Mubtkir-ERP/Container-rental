@@ -1,0 +1,46 @@
+{
+ "actions": [],
+ "creation": "2026-08-01 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "container_size",
+  "container",
+  "rental_value"
+ ],
+ "fields": [
+  {
+   "fieldname": "container_size",
+   "fieldtype": "Select",
+   "label": "حجم الحاوية",
+   "options": "10 ياردة\n20 ياردة",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "container",
+   "fieldtype": "Link",
+   "label": "رقم الحاوية",
+   "options": "Container",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "rental_value",
+   "fieldtype": "Currency",
+   "label": "قيمة التأجير",
+   "in_list_view": 1
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-08-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Container Rental",
+ "name": "Order Container Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

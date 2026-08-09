@@ -1,0 +1,364 @@
+{
+ "actions": [],
+ "autoname": "ORD-.YYYY.-.####",
+ "creation": "2026-08-01 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "client_section",
+  "client",
+  "mobile_no",
+  "column_break_client",
+  "delivery_address",
+  "branch",
+  "order_section",
+  "order_type",
+  "classification",
+  "container_size",
+  "column_break_order",
+  "container",
+  "status",
+  "additional_section",
+  "additional_containers",
+  "rental_section",
+  "rental_days",
+  "rental_value",
+  "payment_method",
+  "column_break_rental",
+  "rental_start_date",
+  "rental_end_date",
+  "delivery_schedule_section",
+  "required_delivery_date",
+  "column_break_schedule",
+  "delivery_time",
+  "assignment_section",
+  "assigned_driver",
+  "column_break_assignment",
+  "assigned_vehicle",
+  "transfer_section",
+  "transfer_confirmed_by",
+  "column_break_transfer",
+  "transfer_confirmed_on",
+  "payment_track_section",
+  "payment_received",
+  "payment_date",
+  "column_break_payment_track",
+  "cash_box",
+  "meta_section",
+  "entered_by"
+ ],
+ "fields": [
+  {
+   "fieldname": "client_section",
+   "fieldtype": "Section Break",
+   "label": "بيانات العميل"
+  },
+  {
+   "fieldname": "client",
+   "fieldtype": "Link",
+   "label": "اسم العميل",
+   "options": "Customer",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fetch_from": "client.cr_mobile_no",
+   "fetch_if_empty": 1,
+   "fieldname": "mobile_no",
+   "fieldtype": "Data",
+   "label": "رقم الجوال"
+  },
+  {
+   "fieldname": "column_break_client",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "delivery_address",
+   "fieldtype": "Small Text",
+   "label": "العنوان / موقع التسليم"
+  },
+  {
+   "fieldname": "branch",
+   "fieldtype": "Link",
+   "label": "الفرع",
+   "options": "Rental Branch",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "order_section",
+   "fieldtype": "Section Break",
+   "label": "بيانات الطلب"
+  },
+  {
+   "fieldname": "order_type",
+   "fieldtype": "Select",
+   "label": "نوع الطلب",
+   "options": "أجل طويل المدى\nدفع عند الاستلام\nأجل قصير المدى",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "classification",
+   "fieldtype": "Link",
+   "label": "التصنيف",
+   "options": "Container Classification"
+  },
+  {
+   "fieldname": "container_size",
+   "fieldtype": "Select",
+   "label": "حجم الحاوية",
+   "options": "10 ياردة\n20 ياردة",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_order",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "container",
+   "fieldtype": "Link",
+   "label": "رقم الحاوية",
+   "options": "Container",
+   "description": "يدويًا أو بزر الاقتراح التلقائي من الحاويات المتاحة لهذا الحجم"
+  },
+  {
+   "default": "جديد",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "حالة الطلب",
+   "options": "جديد\nبانتظار تأكيد الحوالة\nبانتظار تحديد سائق\nمُسنَد لسائق\nتم التوصيل\nملغي",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "additional_section",
+   "fieldtype": "Section Break",
+   "label": "حاويات إضافية بنفس الطلب"
+  },
+  {
+   "fieldname": "additional_containers",
+   "fieldtype": "Table",
+   "label": "حاويات إضافية",
+   "options": "Order Container Item"
+  },
+  {
+   "fieldname": "rental_section",
+   "fieldtype": "Section Break",
+   "label": "التأجير والدفع"
+  },
+  {
+   "fieldname": "rental_days",
+   "fieldtype": "Int",
+   "label": "مدة التأجير (أيام)",
+   "description": "محددة (10 أيام غالبًا) لعملاء النقدي/التحويل، أو مفتوحة لعملاء الأجل الطويل"
+  },
+  {
+   "fieldname": "rental_value",
+   "fieldtype": "Currency",
+   "label": "قيمة التأجير"
+  },
+  {
+   "fieldname": "payment_method",
+   "fieldtype": "Select",
+   "label": "طريقة الدفع",
+   "options": "نقدي\nتحويل بنكي\nآجل"
+  },
+  {
+   "fieldname": "column_break_rental",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "rental_start_date",
+   "fieldtype": "Date",
+   "label": "تاريخ التأجير"
+  },
+  {
+   "fieldname": "rental_end_date",
+   "fieldtype": "Date",
+   "label": "تاريخ انتهاء التأجير",
+   "read_only": 1,
+   "description": "تاريخ التأجير + مدة التأجير"
+  },
+  {
+   "fieldname": "delivery_schedule_section",
+   "fieldtype": "Section Break",
+   "label": "موعد التوصيل"
+  },
+  {
+   "fieldname": "required_delivery_date",
+   "fieldtype": "Date",
+   "label": "تاريخ التوصيل المطلوب",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "column_break_schedule",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "delivery_time",
+   "fieldtype": "Time",
+   "label": "وقت التوصيل"
+  },
+  {
+   "fieldname": "assignment_section",
+   "fieldtype": "Section Break",
+   "label": "الإسناد"
+  },
+  {
+   "fieldname": "assigned_driver",
+   "fieldtype": "Link",
+   "label": "السائق المسند",
+   "options": "CR Employee",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_assignment",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "assigned_vehicle",
+   "fieldtype": "Link",
+   "label": "الشاحنة",
+   "options": "Truck",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:doc.order_type=='أجل قصير المدى'",
+   "fieldname": "transfer_section",
+   "fieldtype": "Section Break",
+   "label": "تأكيد الحوالة"
+  },
+  {
+   "fieldname": "transfer_confirmed_by",
+   "fieldtype": "Link",
+   "label": "أُكدت بواسطة",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_transfer",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "transfer_confirmed_on",
+   "fieldtype": "Datetime",
+   "label": "تاريخ تأكيد الحوالة",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "payment_track_section",
+   "fieldtype": "Section Break",
+   "label": "متابعة السداد"
+  },
+  {
+   "default": "0",
+   "fieldname": "payment_received",
+   "fieldtype": "Check",
+   "label": "تم استلام المبلغ",
+   "read_only": 1
+  },
+  {
+   "fieldname": "payment_date",
+   "fieldtype": "Date",
+   "label": "تاريخ السداد",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_payment_track",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cash_box",
+   "fieldtype": "Link",
+   "label": "الخزينة",
+   "options": "Cash Box",
+   "read_only": 1
+  },
+  {
+   "fieldname": "meta_section",
+   "fieldtype": "Section Break",
+   "label": ""
+  },
+  {
+   "fieldname": "entered_by",
+   "fieldtype": "Link",
+   "label": "أُدخل بواسطة",
+   "options": "User",
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-08-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Container Rental",
+ "name": "Container Order",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Container Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Customer Service",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Transfer Follow-up",
+   "share": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Driver Supervisor",
+   "share": 1
+  }
+ ],
+ "search_fields": "client,order_type,status",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "client",
+ "track_changes": 1
+}
