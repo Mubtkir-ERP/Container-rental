@@ -4,7 +4,7 @@ app_publisher = "Almubtkir"
 app_description = "Container Rental Management System"
 app_email = "almubtkir@gmail.com"
 app_license = "mit"
-app_version = "0.1.0"
+app_version = "1.0.0"
 
 required_apps = ["erpnext", "frappe_whatsapp"]
 
