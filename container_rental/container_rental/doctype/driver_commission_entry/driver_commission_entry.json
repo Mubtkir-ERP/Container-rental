@@ -1,0 +1,131 @@
+{
+ "actions": [],
+ "autoname": "COM-.YYYY.-.#####",
+ "creation": "2026-08-01 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "driver",
+  "commission_amount",
+  "entry_date",
+  "column_break_main",
+  "container",
+  "client",
+  "reference_section",
+  "delivery_reference_doctype",
+  "delivery_reference",
+  "payout_section",
+  "payout_status",
+  "column_break_payout",
+  "paid_on"
+ ],
+ "fields": [
+  {
+   "fieldname": "driver",
+   "fieldtype": "Link",
+   "label": "السائق",
+   "options": "CR Employee",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "commission_amount",
+   "fieldtype": "Currency",
+   "label": "قيمة العمولة",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "entry_date",
+   "fieldtype": "Date",
+   "label": "التاريخ",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "column_break_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "container",
+   "fieldtype": "Link",
+   "label": "الحاوية",
+   "options": "Container",
+   "read_only": 1
+  },
+  {
+   "fieldname": "client",
+   "fieldtype": "Link",
+   "label": "العميل",
+   "options": "Customer",
+   "read_only": 1
+  },
+  {
+   "fieldname": "reference_section",
+   "fieldtype": "Section Break",
+   "label": "مرجع التوصيلة"
+  },
+  {
+   "fieldname": "delivery_reference_doctype",
+   "fieldtype": "Select",
+   "label": "نوع المرجع",
+   "options": "Container Delivery\nContainer Rental",
+   "read_only": 1
+  },
+  {
+   "fieldname": "delivery_reference",
+   "fieldtype": "Dynamic Link",
+   "label": "المرجع",
+   "options": "delivery_reference_doctype",
+   "read_only": 1
+  },
+  {
+   "fieldname": "payout_section",
+   "fieldtype": "Section Break",
+   "label": "الصرف"
+  },
+  {
+   "default": "مستحقة",
+   "fieldname": "payout_status",
+   "fieldtype": "Select",
+   "label": "حالة الصرف",
+   "options": "مستحقة\nمصروفة",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "column_break_payout",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "paid_on",
+   "fieldtype": "Date",
+   "label": "تاريخ الصرف",
+   "read_only": 1
+  }
+ ],
+ "in_create": 1,
+ "links": [],
+ "modified": "2026-08-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Container Rental",
+ "name": "Driver Commission Entry",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "delete": 1, "email": 1, "export": 1, "print": 1,
+   "read": 1, "report": 1, "role": "System Manager", "share": 1, "write": 1
+  },
+  {
+   "delete": 1, "email": 1, "export": 1, "print": 1,
+   "read": 1, "report": 1, "role": "Container Manager", "share": 1, "write": 1
+  },
+  {"read": 1, "report": 1, "role": "Driver Supervisor"}
+ ],
+ "sort_field": "entry_date",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

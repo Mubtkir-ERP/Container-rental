@@ -17,6 +17,7 @@
   "container_size",
   "column_break_order",
   "container",
+  "contract",
   "status",
   "additional_section",
   "additional_containers",
@@ -121,6 +122,13 @@
    "label": "رقم الحاوية",
    "options": "Container",
    "description": "يدويًا أو بزر الاقتراح التلقائي من الحاويات المتاحة لهذا الحجم"
+  },
+  {
+   "depends_on": "eval:doc.order_type=='أجل طويل المدى'",
+   "fieldname": "contract",
+   "fieldtype": "Link",
+   "label": "العقد",
+   "options": "Container Contract"
   },
   {
    "default": "جديد",
@@ -302,57 +310,24 @@
  "owner": "Administrator",
  "permissions": [
   {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "System Manager",
-   "share": 1,
-   "write": 1
+   "create": 1, "delete": 1, "email": 1, "export": 1, "print": 1,
+   "read": 1, "report": 1, "role": "System Manager", "share": 1, "write": 1
   },
   {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "Container Manager",
-   "share": 1,
-   "write": 1
+   "create": 1, "delete": 1, "email": 1, "export": 1, "print": 1,
+   "read": 1, "report": 1, "role": "Container Manager", "share": 1, "write": 1
   },
   {
-   "create": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "Customer Service",
-   "share": 1,
-   "write": 1
+   "create": 1, "email": 1, "export": 1, "print": 1,
+   "read": 1, "report": 1, "role": "Customer Service", "share": 1, "write": 1
   },
   {
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "Transfer Follow-up",
-   "share": 1
+   "email": 1, "export": 1, "print": 1,
+   "read": 1, "report": 1, "role": "Transfer Follow-up", "share": 1
   },
   {
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "Driver Supervisor",
-   "share": 1
+   "email": 1, "export": 1, "print": 1,
+   "read": 1, "report": 1, "role": "Driver Supervisor", "share": 1
   }
  ],
  "search_fields": "client,order_type,status",

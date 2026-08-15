@@ -3,6 +3,9 @@ frappe.ui.form.on("Container Order", {
 		frm.set_query("container", () => ({
 			filters: { size: frm.doc.container_size, status: "متاحة" },
 		}));
+		frm.set_query("contract", () => ({
+			filters: { client: frm.doc.client, docstatus: 1, contract_status: "ساري" },
+		}));
 		frm.set_query("container", "additional_containers", (doc, cdt, cdn) => {
 			const row = locals[cdt][cdn];
 			return { filters: { size: row.container_size, status: "متاحة" } };
@@ -102,6 +105,16 @@ frappe.ui.form.on("Container Order", {
 						},
 					});
 					d.show();
+				}).addClass("btn-primary");
+			}
+			if (frm.doc.status === "مُسنَد لسائق") {
+				frm.add_custom_button(__("تسجيل توصيل"), () => {
+					frappe.new_doc("Container Delivery", {
+						order: frm.doc.name,
+						container: frm.doc.container,
+						driver: frm.doc.assigned_driver,
+						vehicle: frm.doc.assigned_vehicle,
+					});
 				}).addClass("btn-primary");
 			}
 			if (["جديد", "بانتظار تأكيد الحوالة", "بانتظار تحديد سائق", "مُسنَد لسائق"].includes(frm.doc.status)) {

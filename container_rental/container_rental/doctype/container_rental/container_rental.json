@@ -1,0 +1,193 @@
+{
+ "actions": [],
+ "autoname": "CRN-.YYYY.-.####",
+ "creation": "2026-08-01 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "header_section",
+  "rental_type",
+  "client",
+  "column_break_header",
+  "period_from",
+  "period_to",
+  "container_section",
+  "classification",
+  "container_size",
+  "barcode_scan",
+  "column_break_container",
+  "container",
+  "driver",
+  "payment_section",
+  "amount",
+  "payment_method",
+  "column_break_payment",
+  "cash_box",
+  "address",
+  "attachment_section",
+  "delivery_receipt"
+ ],
+ "fields": [
+  {
+   "fieldname": "header_section",
+   "fieldtype": "Section Break",
+   "label": "بيانات الإيجار"
+  },
+  {
+   "default": "نقدي",
+   "fieldname": "rental_type",
+   "fieldtype": "Select",
+   "label": "نوع الإيجار",
+   "options": "نقدي\nأجل قصير",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "client",
+   "fieldtype": "Link",
+   "label": "العميل",
+   "options": "Customer",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "column_break_header",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Now",
+   "fieldname": "period_from",
+   "fieldtype": "Datetime",
+   "label": "فترة الإيجار من",
+   "reqd": 1
+  },
+  {
+   "fieldname": "period_to",
+   "fieldtype": "Datetime",
+   "label": "فترة الإيجار إلى",
+   "reqd": 1,
+   "description": "تُحسب تلقائيًا حسب المدة الافتراضية ويمكن تعديلها"
+  },
+  {
+   "fieldname": "container_section",
+   "fieldtype": "Section Break",
+   "label": "الحاوية"
+  },
+  {
+   "fieldname": "classification",
+   "fieldtype": "Link",
+   "label": "التصنيف",
+   "options": "Container Classification"
+  },
+  {
+   "fieldname": "container_size",
+   "fieldtype": "Select",
+   "label": "حجم الحاوية",
+   "options": "10 ياردة\n20 ياردة",
+   "reqd": 1
+  },
+  {
+   "fieldname": "barcode_scan",
+   "fieldtype": "Data",
+   "label": "مسح الباركود",
+   "description": "امسح باركود الحاوية لتحديدها تلقائيًا"
+  },
+  {
+   "fieldname": "column_break_container",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "container",
+   "fieldtype": "Link",
+   "label": "رقم الحاوية",
+   "options": "Container",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "driver",
+   "fieldtype": "Link",
+   "label": "السائق",
+   "options": "CR Employee"
+  },
+  {
+   "fieldname": "payment_section",
+   "fieldtype": "Section Break",
+   "label": "الدفع والعنوان"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "label": "المبلغ",
+   "in_list_view": 1
+  },
+  {
+   "default": "نقدي",
+   "fieldname": "payment_method",
+   "fieldtype": "Select",
+   "label": "طريقة التسديد",
+   "options": "نقدي\nآجل",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_payment",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.payment_method=='نقدي'",
+   "fieldname": "cash_box",
+   "fieldtype": "Link",
+   "label": "الخزينة",
+   "options": "Cash Box",
+   "description": "الصندوق النقدي الذي استُلم فيه المبلغ"
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Small Text",
+   "label": "العنوان"
+  },
+  {
+   "fieldname": "attachment_section",
+   "fieldtype": "Section Break",
+   "label": "المرفقات"
+  },
+  {
+   "fieldname": "delivery_receipt",
+   "fieldtype": "Attach",
+   "label": "إيصال التسليم"
+  }
+ ],
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-08-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Container Rental",
+ "name": "Container Rental",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1, "cancel": 1, "create": 1, "delete": 1, "email": 1, "export": 1,
+   "print": 1, "read": 1, "report": 1, "role": "System Manager", "share": 1,
+   "submit": 1, "write": 1
+  },
+  {
+   "amend": 1, "cancel": 1, "create": 1, "delete": 1, "email": 1, "export": 1,
+   "print": 1, "read": 1, "report": 1, "role": "Container Manager", "share": 1,
+   "submit": 1, "write": 1
+  },
+  {
+   "cancel": 1, "create": 1, "email": 1, "export": 1, "print": 1,
+   "read": 1, "report": 1, "role": "Customer Service", "share": 1,
+   "submit": 1, "write": 1
+  },
+  {"read": 1, "report": 1, "role": "Transfer Follow-up"},
+  {"read": 1, "report": 1, "role": "Driver Supervisor"}
+ ],
+ "search_fields": "client,container",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "client",
+ "track_changes": 1
+}

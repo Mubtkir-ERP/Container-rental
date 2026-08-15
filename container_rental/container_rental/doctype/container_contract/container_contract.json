@@ -1,0 +1,240 @@
+{
+ "actions": [],
+ "autoname": "CON-.YYYY.-.####",
+ "creation": "2026-08-01 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "header_section",
+  "client",
+  "contract_type",
+  "location",
+  "column_break_header",
+  "contract_status",
+  "start_date",
+  "end_date",
+  "trip_duration_days",
+  "items_section",
+  "items",
+  "totals_section",
+  "contract_value",
+  "total_trips",
+  "consumed_trips",
+  "column_break_totals",
+  "remaining_trips",
+  "last_container",
+  "payments_section",
+  "payments",
+  "payment_totals_section",
+  "paid_amount",
+  "tax_on_paid",
+  "column_break_payment_totals",
+  "outstanding",
+  "notes_section",
+  "notes",
+  "expiry_alert_sent_on"
+ ],
+ "fields": [
+  {
+   "fieldname": "header_section",
+   "fieldtype": "Section Break",
+   "label": "بيانات التعاقد"
+  },
+  {
+   "fieldname": "client",
+   "fieldtype": "Link",
+   "label": "العميل",
+   "options": "Customer",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "contract_type",
+   "fieldtype": "Link",
+   "label": "نوع العقد / التصنيف",
+   "options": "Container Classification"
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Small Text",
+   "label": "الموقع",
+   "description": "عنوان أول موقع تسليم — المواقع الإضافية في بطاقة العميل"
+  },
+  {
+   "fieldname": "column_break_header",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "ساري",
+   "fieldname": "contract_status",
+   "fieldtype": "Select",
+   "label": "حالة العقد",
+   "options": "ساري\nمنتهٍ",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "label": "مدة التعاقد من",
+   "reqd": 1
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "مدة التعاقد إلى",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "trip_duration_days",
+   "fieldtype": "Int",
+   "label": "مدة الرحلة (أيام)",
+   "reqd": 1,
+   "description": "مدة بقاء الحاوية الواحدة عند العميل قبل التفريغ"
+  },
+  {
+   "fieldname": "items_section",
+   "fieldtype": "Section Break",
+   "label": "الحاويات المطلوبة في التعاقد"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "بنود التعاقد",
+   "options": "Contract Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "totals_section",
+   "fieldtype": "Section Break",
+   "label": "الإجماليات والرحلات"
+  },
+  {
+   "fieldname": "contract_value",
+   "fieldtype": "Currency",
+   "label": "قيمة التعاقد",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "total_trips",
+   "fieldtype": "Int",
+   "label": "عدد الرحلات",
+   "read_only": 1
+  },
+  {
+   "fieldname": "consumed_trips",
+   "fieldtype": "Int",
+   "label": "الرحلات المنفذة",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_totals",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remaining_trips",
+   "fieldtype": "Int",
+   "label": "الرحلات المتبقية",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_container",
+   "fieldtype": "Link",
+   "label": "رقم آخر حاوية",
+   "options": "Container",
+   "read_only": 1
+  },
+  {
+   "fieldname": "payments_section",
+   "fieldtype": "Section Break",
+   "label": "الدفعات"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "payments",
+   "fieldtype": "Table",
+   "label": "دفعات العقد",
+   "options": "Contract Payment"
+  },
+  {
+   "fieldname": "payment_totals_section",
+   "fieldtype": "Section Break",
+   "label": "السداد"
+  },
+  {
+   "fieldname": "paid_amount",
+   "fieldtype": "Currency",
+   "label": "المدفوع",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tax_on_paid",
+   "fieldtype": "Currency",
+   "label": "الضرائب على المدفوع",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_payment_totals",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "outstanding",
+   "fieldtype": "Currency",
+   "label": "المتبقي (عليه)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "notes_section",
+   "fieldtype": "Section Break",
+   "label": ""
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Text",
+   "label": "ملاحظات"
+  },
+  {
+   "fieldname": "expiry_alert_sent_on",
+   "fieldtype": "Date",
+   "label": "تاريخ إرسال تنبيه الانتهاء",
+   "hidden": 1,
+   "read_only": 1,
+   "no_copy": 1
+  }
+ ],
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-08-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Container Rental",
+ "name": "Container Contract",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1, "cancel": 1, "create": 1, "delete": 1, "email": 1, "export": 1,
+   "print": 1, "read": 1, "report": 1, "role": "System Manager", "share": 1,
+   "submit": 1, "write": 1
+  },
+  {
+   "amend": 1, "cancel": 1, "create": 1, "delete": 1, "email": 1, "export": 1,
+   "print": 1, "read": 1, "report": 1, "role": "Container Manager", "share": 1,
+   "submit": 1, "write": 1
+  },
+  {
+   "create": 1, "email": 1, "export": 1, "print": 1,
+   "read": 1, "report": 1, "role": "Customer Service", "share": 1, "write": 1
+  },
+  {"read": 1, "report": 1, "role": "Transfer Follow-up"},
+  {"read": 1, "report": 1, "role": "Driver Supervisor"}
+ ],
+ "search_fields": "client,contract_status",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "client",
+ "track_changes": 1
+}

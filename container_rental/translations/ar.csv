@@ -7,11 +7,30 @@ Rental Branch,فرع
 Container Classification,تصنيف الحاويات
 Cash Box,خزينة
 Container Order,طلب حاوية
-Order Container Item,حاوية إضافية بالطلب
+Container Contract,عقد تأجير حاويات
+Container Delivery,توصيل حاوية
+Container Unload,تفريغ حاوية
+Container Withdrawal,سحب حاوية
+Rental Record,سجل تأجير
+Driver Commission Entry,قيد عمولة سائق
+Contract Monthly Invoice,فاتورة شهرية للعقد
+Monthly Invoice Line,بند فاتورة شهرية
+Contract Item,بند تعاقد
+Contract Payment,دفعة عقد
 Client Address,عنوان عميل
+Order Container Item,حاوية إضافية بالطلب
 Truck License,ترخيص شاحنة
 Truck Maintenance Log,سجل صيانة شاحنة
 Container Rental Settings,إعدادات نظام تأجير الحاويات
+Contract Report,تقرير العقود
+Overdue Containers Report,تقرير الحاويات المتأخرة
+General Containers Report,التقرير العام للحاويات
+Driver Commissions Report,تقرير عمولات السائقين
+Maintenance Report,تقرير متابعة الصيانة
+Employee Alerts Report,تقرير تنبيهات الموظفين
+Truck Alerts Report,تقرير تنبيهات الشاحنات
+Expenses Report,تقرير المصروفات
+Monthly Invoices Report,تقرير الفواتير الشهرية للعقود
 Customer Service,خدمة العملاء
 Transfer Follow-up,متابعة الحوالات
 Driver Supervisor,مشرف السواقين

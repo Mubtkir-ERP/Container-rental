@@ -39,6 +39,51 @@ DEFAULT_TEMPLATES = {
 			"{% if delivery_date %}الموعد المطلوب: {{ delivery_date }} {{ delivery_time }}{% endif %}"
 		),
 	},
+	"unload_reminder": {
+		"title": "تنبيه تفريغ الحاوية — للعميل",
+		"body": (
+			"عزيزنا {{ client_name }}،\n"
+			"{% if confirmation %}"
+			"تم تفريغ الحاوية {{ container_no }} بتاريخ {{ unload_date }} بنجاح. شكرًا لتعاملكم معنا."
+			"{% else %}"
+			"نذكّركم بضرورة تجهيز الحاوية {{ container_no }} للتفريغ.\n"
+			"{% if due_date %}تاريخ الاستحقاق: {{ due_date }}.\n{% endif %}"
+			"{% if overdue_days and overdue_days > 0 %}الحاوية متأخرة {{ overdue_days }} يوم.\n{% endif %}"
+			"نرجو التواصل معنا لجدولة التفريغ."
+			"{% endif %}"
+		),
+	},
+	"monthly_invoice": {
+		"title": "الفاتورة الشهرية — لعملاء العقود",
+		"body": (
+			"عزيزنا {{ client_name }}،\n"
+			"صدرت فاتورتكم الشهرية {{ invoice_no }} عن شهر {{ month }} للعقد {{ contract_no }}.\n"
+			"عدد الرحلات المنفذة: {{ trips_count }}\n"
+			"إجمالي الفاتورة: {{ total_amount }} ريال.\n"
+			"نشكر لكم حسن تعاونكم."
+		),
+	},
+	"contract_expiry": {
+		"title": "تنبيه قرب انتهاء العقد — للعميل",
+		"body": (
+			"عزيزنا {{ client_name }}،\n"
+			"نفيدكم بأن عقدكم {{ contract_no }} ينتهي بتاريخ {{ end_date }}.\n"
+			"{% if trips_count %}الرحلات المتبقية: {{ trips_count }}.\n{% endif %}"
+			"يسعدنا تواصلكم معنا لتجديد التعاقد."
+		),
+	},
+	"supervisor_unload_request": {
+		"title": "طلب إرسال سائق للتفريغ — لمشرف السواقين",
+		"body": (
+			"طلب تفريغ حاوية:\n"
+			"الحاوية: {{ container_no }}\n"
+			"العميل: {{ client_name }}\n"
+			"العنوان: {{ address }}\n"
+			"{% if due_date %}تاريخ الاستحقاق: {{ due_date }}\n{% endif %}"
+			"{% if overdue_days and overdue_days > 0 %}متأخرة {{ overdue_days }} يوم.\n{% endif %}"
+			"يرجى إرسال سائق للتفريغ."
+		),
+	},
 }
 
 DEFAULT_COUNTRY_CODE = "966"

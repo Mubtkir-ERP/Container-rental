@@ -1,0 +1,269 @@
+{
+ "actions": [],
+ "autoname": "RENT-.YYYY.-.#####",
+ "creation": "2026-08-01 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "container_section",
+  "container",
+  "container_size",
+  "classification",
+  "column_break_container",
+  "branch",
+  "status",
+  "client_section",
+  "client",
+  "mobile_no",
+  "column_break_client",
+  "address",
+  "driver",
+  "source_section",
+  "source_doctype",
+  "source_name",
+  "column_break_source",
+  "contract",
+  "dates_section",
+  "delivered_on",
+  "due_on",
+  "column_break_dates",
+  "unloaded_on",
+  "withdrawn_on",
+  "payment_section",
+  "rental_value",
+  "column_break_payment",
+  "payment_method",
+  "whatsapp_section",
+  "last_whatsapp_message",
+  "last_whatsapp_on",
+  "column_break_whatsapp",
+  "unload_request_sent_on"
+ ],
+ "fields": [
+  {
+   "fieldname": "container_section",
+   "fieldtype": "Section Break",
+   "label": "الحاوية"
+  },
+  {
+   "fieldname": "container",
+   "fieldtype": "Link",
+   "label": "رقم الحاوية",
+   "options": "Container",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "container_size",
+   "fieldtype": "Select",
+   "label": "الحجم",
+   "options": "10 ياردة\n20 ياردة",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "classification",
+   "fieldtype": "Link",
+   "label": "التصنيف",
+   "options": "Container Classification",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_container",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "branch",
+   "fieldtype": "Link",
+   "label": "الفرع",
+   "options": "Rental Branch",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "الحالة",
+   "options": "مؤجرة\nمتأخرة\nتم التفريغ\nمسحوبة",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "client_section",
+   "fieldtype": "Section Break",
+   "label": "العميل"
+  },
+  {
+   "fieldname": "client",
+   "fieldtype": "Link",
+   "label": "العميل",
+   "options": "Customer",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "mobile_no",
+   "fieldtype": "Data",
+   "label": "رقم الجوال",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_client",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Small Text",
+   "label": "العنوان / الموقع",
+   "read_only": 1
+  },
+  {
+   "fieldname": "driver",
+   "fieldtype": "Link",
+   "label": "السائق",
+   "options": "CR Employee",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "source_section",
+   "fieldtype": "Section Break",
+   "label": "المصدر"
+  },
+  {
+   "fieldname": "source_doctype",
+   "fieldtype": "Select",
+   "label": "نوع المصدر",
+   "options": "Container Order\nContainer Rental\nContainer Contract",
+   "read_only": 1
+  },
+  {
+   "fieldname": "source_name",
+   "fieldtype": "Dynamic Link",
+   "label": "المستند المصدر",
+   "options": "source_doctype",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_source",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "contract",
+   "fieldtype": "Link",
+   "label": "العقد",
+   "options": "Container Contract",
+   "read_only": 1
+  },
+  {
+   "fieldname": "dates_section",
+   "fieldtype": "Section Break",
+   "label": "التواريخ"
+  },
+  {
+   "fieldname": "delivered_on",
+   "fieldtype": "Datetime",
+   "label": "تاريخ التوصيل",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "due_on",
+   "fieldtype": "Datetime",
+   "label": "تاريخ الاستحقاق",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "column_break_dates",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "unloaded_on",
+   "fieldtype": "Datetime",
+   "label": "تاريخ التفريغ",
+   "read_only": 1
+  },
+  {
+   "fieldname": "withdrawn_on",
+   "fieldtype": "Datetime",
+   "label": "تاريخ السحب",
+   "read_only": 1
+  },
+  {
+   "fieldname": "payment_section",
+   "fieldtype": "Section Break",
+   "label": "القيمة"
+  },
+  {
+   "fieldname": "rental_value",
+   "fieldtype": "Currency",
+   "label": "قيمة التأجير",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_payment",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payment_method",
+   "fieldtype": "Select",
+   "label": "طريقة الدفع",
+   "options": "\nنقدي\nتحويل بنكي\nآجل",
+   "read_only": 1
+  },
+  {
+   "fieldname": "whatsapp_section",
+   "fieldtype": "Section Break",
+   "label": "واتساب والمتابعة"
+  },
+  {
+   "fieldname": "last_whatsapp_message",
+   "fieldtype": "Data",
+   "label": "آخر رسالة واتساب",
+   "read_only": 1,
+   "length": 200
+  },
+  {
+   "fieldname": "last_whatsapp_on",
+   "fieldtype": "Datetime",
+   "label": "تاريخ آخر رسالة",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_whatsapp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "unload_request_sent_on",
+   "fieldtype": "Datetime",
+   "label": "آخر طلب تفريغ للمشرف",
+   "read_only": 1
+  }
+ ],
+ "in_create": 1,
+ "links": [],
+ "modified": "2026-08-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Container Rental",
+ "name": "Rental Record",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "delete": 1, "email": 1, "export": 1, "print": 1,
+   "read": 1, "report": 1, "role": "System Manager", "share": 1, "write": 1
+  },
+  {"read": 1, "report": 1, "export": 1, "role": "Container Manager"},
+  {"read": 1, "report": 1, "role": "Customer Service"},
+  {"read": 1, "report": 1, "role": "Transfer Follow-up"},
+  {"read": 1, "report": 1, "role": "Driver Supervisor"}
+ ],
+ "sort_field": "delivered_on",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

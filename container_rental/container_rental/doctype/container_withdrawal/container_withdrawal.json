@@ -1,0 +1,135 @@
+{
+ "actions": [],
+ "autoname": "WDR-.YYYY.-.#####",
+ "creation": "2026-08-01 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "container_section",
+  "barcode_scan",
+  "container",
+  "rental_record",
+  "column_break_container",
+  "branch",
+  "withdrawal_date",
+  "crew_section",
+  "driver",
+  "column_break_crew",
+  "supervisor",
+  "notes_section",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "container_section",
+   "fieldtype": "Section Break",
+   "label": "الحاوية"
+  },
+  {
+   "fieldname": "barcode_scan",
+   "fieldtype": "Data",
+   "label": "مسح الباركود",
+   "description": "امسح باركود الحاوية لتحديدها تلقائيًا"
+  },
+  {
+   "fieldname": "container",
+   "fieldtype": "Link",
+   "label": "رقم الحاوية",
+   "options": "Container",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "rental_record",
+   "fieldtype": "Link",
+   "label": "سجل التأجير",
+   "options": "Rental Record",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_container",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "container.branch",
+   "fieldname": "branch",
+   "fieldtype": "Link",
+   "label": "الفرع",
+   "options": "Rental Branch",
+   "read_only": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "withdrawal_date",
+   "fieldtype": "Date",
+   "label": "تاريخ السحب",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "crew_section",
+   "fieldtype": "Section Break",
+   "label": "السائق والمشرف"
+  },
+  {
+   "fieldname": "driver",
+   "fieldtype": "Link",
+   "label": "السائق",
+   "options": "CR Employee"
+  },
+  {
+   "fieldname": "column_break_crew",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "supervisor",
+   "fieldtype": "Link",
+   "label": "المشرف",
+   "options": "CR Employee"
+  },
+  {
+   "fieldname": "notes_section",
+   "fieldtype": "Section Break",
+   "label": ""
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Text",
+   "label": "ملاحظات",
+   "description": "السحب = إرجاع الحاوية دون تفريغ محتواها (بلا رسوم بلدية ولا خصم رحلة)"
+  }
+ ],
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-08-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Container Rental",
+ "name": "Container Withdrawal",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1, "cancel": 1, "create": 1, "delete": 1, "email": 1, "export": 1,
+   "print": 1, "read": 1, "report": 1, "role": "System Manager", "share": 1,
+   "submit": 1, "write": 1
+  },
+  {
+   "amend": 1, "cancel": 1, "create": 1, "delete": 1, "email": 1, "export": 1,
+   "print": 1, "read": 1, "report": 1, "role": "Container Manager", "share": 1,
+   "submit": 1, "write": 1
+  },
+  {
+   "cancel": 1, "create": 1, "email": 1, "export": 1, "print": 1,
+   "read": 1, "report": 1, "role": "Driver Supervisor", "share": 1,
+   "submit": 1, "write": 1
+  },
+  {"read": 1, "report": 1, "role": "Customer Service"},
+  {"read": 1, "report": 1, "role": "Transfer Follow-up"}
+ ],
+ "search_fields": "container",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "container",
+ "track_changes": 1
+}
