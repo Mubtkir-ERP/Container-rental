@@ -34,9 +34,10 @@
   {
    "fieldname": "cash_box",
    "fieldtype": "Link",
-   "label": "الخزينة",
-   "options": "Cash Box",
-   "in_list_view": 1
+   "label": "الصندوق النقدي",
+   "options": "Account",
+   "in_list_view": 1,
+   "description": "حساب الصندوق من الدليل المحاسبي (يضيفه المحاسبون يدويًا)"
   },
   {
    "fieldname": "notes",

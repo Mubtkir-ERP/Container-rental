@@ -3,7 +3,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import add_days, getdate, now_datetime
 
-from container_rental.container_rental import whatsapp
+from container_rental.container_rental import hr_utils, whatsapp
 
 SHORT_TERM = "أجل قصير المدى"
 LONG_TERM = "أجل طويل المدى"
@@ -105,15 +105,14 @@ class ContainerOrder(Document):
 	def assign_driver(self, driver, vehicle=None):
 		"""Driver supervisor assigns the delivery driver."""
 		_require_roles("Driver Supervisor", "Container Manager")
-		if frappe.db.get_value("CR Employee", driver, "position") != "سائق":
-			frappe.throw(_("الموظف المختار ليس سائقًا"))
+		hr_utils.ensure_driver(driver)
 		self._transition([STATUS_AWAITING_DRIVER], STATUS_ASSIGNED)
 		self.db_set("assigned_driver", driver)
 		if vehicle:
 			self.db_set("assigned_vehicle", vehicle)
-		driver_mobile = frappe.db.get_value("CR Employee", driver, "mobile_no")
+		driver_mobile = hr_utils.get_employee_mobile(driver)
 		context = self.get_whatsapp_context()
-		context["driver_name"] = frappe.db.get_value("CR Employee", driver, "employee_name")
+		context["driver_name"] = hr_utils.get_employee_name(driver)
 		whatsapp.send_event("driver_assignment", driver_mobile, context, reference_doc=self)
 		return STATUS_ASSIGNED
 

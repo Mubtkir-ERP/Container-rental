@@ -1,0 +1,64 @@
+{
+ "actions": [],
+ "creation": "2026-08-10 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "change_date",
+  "odometer_km",
+  "cost",
+  "next_change_date",
+  "next_change_km",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "change_date",
+   "fieldtype": "Date",
+   "label": "تاريخ الغيار",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "odometer_km",
+   "fieldtype": "Int",
+   "label": "العداد عند الغيار (كم)",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "cost",
+   "fieldtype": "Currency",
+   "label": "التكلفة",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "next_change_date",
+   "fieldtype": "Date",
+   "label": "تاريخ الغيار القادم",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "next_change_km",
+   "fieldtype": "Int",
+   "label": "كيلومتر الغيار القادم",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "ملاحظات"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-08-10 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Container Rental",
+ "name": "Truck Oil Change",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -15,8 +15,9 @@ class ContainerRental(Document):
 		self.validate_container()
 		if self.payment_method == "نقدي" and not self.cash_box:
 			frappe.throw(_("الخزينة مطلوبة عند التسديد النقدي"))
-		if self.driver and frappe.db.get_value("CR Employee", self.driver, "position") != "سائق":
-			frappe.throw(_("الموظف المختار ليس سائقًا"))
+		if self.driver:
+			from container_rental.container_rental import hr_utils
+			hr_utils.ensure_driver(self.driver)
 
 	def validate_container(self):
 		info = frappe.db.get_value("Container", self.container, ["size", "status"], as_dict=True)

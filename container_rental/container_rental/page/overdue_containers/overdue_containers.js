@@ -43,16 +43,16 @@ frappe.pages["overdue-containers"].on_page_load = function (wrapper) {
 		options: "Container Classification", change: () => load(),
 	});
 	filters.container_size = page.add_field({
-		fieldname: "container_size", label: __("حجم الحاوية"), fieldtype: "Select",
-		options: ["", "10 ياردة", "20 ياردة"], change: () => load(),
+		fieldname: "container_size", label: __("حجم الحاوية"), fieldtype: "Link",
+		options: "Container Size", change: () => load(),
 	});
 	filters.branch = page.add_field({
 		fieldname: "branch", label: __("الفرع"), fieldtype: "Link",
 		options: "Rental Branch", change: () => load(),
 	});
 	filters.driver = page.add_field({
-		fieldname: "driver", label: __("السائق"), fieldtype: "Link", options: "CR Employee",
-		get_query: () => ({ filters: { position: "سائق" } }), change: () => load(),
+		fieldname: "driver", label: __("السائق"), fieldtype: "Link", options: "Employee",
+		get_query: () => ({ filters: { designation: "سائق" } }), change: () => load(),
 	});
 	filters.delay_range = page.add_field({
 		fieldname: "delay_range", label: __("نطاق التأخير"), fieldtype: "Select",

@@ -1,7 +1,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import flt, today
+from frappe.utils import today
 
 
 class DriverCommissionEntry(Document):
@@ -9,14 +9,17 @@ class DriverCommissionEntry(Document):
 
 
 def create_commission_entry(driver, reference_doctype, reference_name, container=None, client=None):
-	"""Create a commission entry frozen at the driver's current per-delivery rate.
+	"""Commission per successful delivery (section 6), leveraging ERPNext
+	Sales Person: the driver's Sales Person record (linked via its employee
+	field) carries the flat rate in the custom field cr_commission_per_delivery.
+	The amount is frozen on the entry at delivery time."""
+	from container_rental.container_rental import hr_utils
 
-	Called by delivery controllers on every successful container delivery (section 6).
-	"""
-	rate = flt(frappe.db.get_value("CR Employee", driver, "commission_per_delivery"))
+	sales_person, rate = hr_utils.get_commission_per_delivery(driver)
 	entry = frappe.get_doc({
 		"doctype": "Driver Commission Entry",
 		"driver": driver,
+		"sales_person": sales_person,
 		"commission_amount": rate,
 		"entry_date": today(),
 		"container": container,

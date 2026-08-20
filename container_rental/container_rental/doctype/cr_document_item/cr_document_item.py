@@ -1,5 +1,5 @@
 from frappe.model.document import Document
 
 
-class TruckLicense(Document):
+class CRDocumentItem(Document):
 	pass

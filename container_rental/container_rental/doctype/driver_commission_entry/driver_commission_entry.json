@@ -6,6 +6,7 @@
  "engine": "InnoDB",
  "field_order": [
   "driver",
+  "sales_person",
   "commission_amount",
   "entry_date",
   "column_break_main",
@@ -24,10 +25,18 @@
    "fieldname": "driver",
    "fieldtype": "Link",
    "label": "السائق",
-   "options": "CR Employee",
+   "options": "Employee",
    "reqd": 1,
    "in_list_view": 1,
    "in_standard_filter": 1
+  },
+  {
+   "fieldname": "sales_person",
+   "fieldtype": "Link",
+   "label": "المندوب (Sales Person)",
+   "options": "Sales Person",
+   "read_only": 1,
+   "description": "سجل المندوب المرتبط بالسائق — مصدر قيمة العمولة"
   },
   {
    "fieldname": "commission_amount",
@@ -115,14 +124,32 @@
  "owner": "Administrator",
  "permissions": [
   {
-   "delete": 1, "email": 1, "export": 1, "print": 1,
-   "read": 1, "report": 1, "role": "System Manager", "share": 1, "write": 1
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
   },
   {
-   "delete": 1, "email": 1, "export": 1, "print": 1,
-   "read": 1, "report": 1, "role": "Container Manager", "share": 1, "write": 1
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Container Manager",
+   "share": 1,
+   "write": 1
   },
-  {"read": 1, "report": 1, "role": "Driver Supervisor"}
+  {
+   "read": 1,
+   "report": 1,
+   "role": "Driver Supervisor"
+  }
  ],
  "sort_field": "entry_date",
  "sort_order": "DESC",

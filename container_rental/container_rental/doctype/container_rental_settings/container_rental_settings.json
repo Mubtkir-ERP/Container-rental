@@ -12,8 +12,7 @@
   "expiry_alert_days",
   "unload_reminder_after_days",
   "column_break_alerts",
-  "contract_expiry_alert_days",
-  "send_hr_alerts_via_whatsapp"
+  "contract_expiry_alert_days"
  ],
  "fields": [
   {
@@ -35,9 +34,9 @@
   {
    "fieldname": "default_supervisor",
    "fieldtype": "Link",
-   "label": "مشرف السواقين الافتراضي",
-   "options": "CR Employee",
-   "description": "يستقبل طلبات التفريغ وإشعارات انتهاء المدة"
+   "label": "مشرف السواقين (مستخدم النظام)",
+   "options": "User",
+   "description": "يستقبل طلبات التفريغ والإشعارات الداخلية، ورقم جواله من ملف المستخدم"
   },
   {
    "fieldname": "alerts_section",
@@ -69,12 +68,6 @@
    "fieldtype": "Int",
    "label": "التنبيه قبل انتهاء العقد بـ (أيام)",
    "reqd": 1
-  },
-  {
-   "default": "0",
-   "fieldname": "send_hr_alerts_via_whatsapp",
-   "fieldtype": "Check",
-   "label": "إرسال تنبيهات الوثائق عبر واتساب أيضًا"
   }
  ],
  "issingle": 1,
@@ -85,8 +78,16 @@
  "name": "Container Rental Settings",
  "owner": "Administrator",
  "permissions": [
-  {"read": 1, "role": "System Manager", "write": 1},
-  {"read": 1, "role": "Container Manager", "write": 1}
+  {
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Container Manager",
+   "write": 1
+  }
  ],
  "sort_field": "modified",
  "sort_order": "DESC",

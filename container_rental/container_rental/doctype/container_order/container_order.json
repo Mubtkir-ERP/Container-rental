@@ -107,9 +107,9 @@
   },
   {
    "fieldname": "container_size",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "حجم الحاوية",
-   "options": "10 ياردة\n20 ياردة",
+   "options": "Container Size",
    "reqd": 1
   },
   {
@@ -220,7 +220,7 @@
    "fieldname": "assigned_driver",
    "fieldtype": "Link",
    "label": "السائق المسند",
-   "options": "CR Employee",
+   "options": "Employee",
    "read_only": 1
   },
   {
@@ -284,9 +284,10 @@
   {
    "fieldname": "cash_box",
    "fieldtype": "Link",
-   "label": "الخزينة",
-   "options": "Cash Box",
-   "read_only": 1
+   "label": "الصندوق النقدي",
+   "options": "Account",
+   "read_only": 1,
+   "description": "حساب الصندوق من الدليل المحاسبي (يضيفه المحاسبون يدويًا)"
   },
   {
    "fieldname": "meta_section",
@@ -310,24 +311,57 @@
  "owner": "Administrator",
  "permissions": [
   {
-   "create": 1, "delete": 1, "email": 1, "export": 1, "print": 1,
-   "read": 1, "report": 1, "role": "System Manager", "share": 1, "write": 1
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
   },
   {
-   "create": 1, "delete": 1, "email": 1, "export": 1, "print": 1,
-   "read": 1, "report": 1, "role": "Container Manager", "share": 1, "write": 1
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Container Manager",
+   "share": 1,
+   "write": 1
   },
   {
-   "create": 1, "email": 1, "export": 1, "print": 1,
-   "read": 1, "report": 1, "role": "Customer Service", "share": 1, "write": 1
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Customer Service",
+   "share": 1,
+   "write": 1
   },
   {
-   "email": 1, "export": 1, "print": 1,
-   "read": 1, "report": 1, "role": "Transfer Follow-up", "share": 1
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Transfer Follow-up",
+   "share": 1
   },
   {
-   "email": 1, "export": 1, "print": 1,
-   "read": 1, "report": 1, "role": "Driver Supervisor", "share": 1
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Driver Supervisor",
+   "share": 1
   }
  ],
  "search_fields": "client,order_type,status",

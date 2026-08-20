@@ -111,7 +111,7 @@
    "fieldname": "driver",
    "fieldtype": "Link",
    "label": "السائق",
-   "options": "CR Employee",
+   "options": "Employee",
    "reqd": 1,
    "in_list_view": 1
   },
@@ -129,7 +129,7 @@
    "fieldname": "supervisor",
    "fieldtype": "Link",
    "label": "المشرف",
-   "options": "CR Employee"
+   "options": "Employee"
   }
  ],
  "is_submittable": 1,
@@ -142,22 +142,58 @@
  "owner": "Administrator",
  "permissions": [
   {
-   "amend": 1, "cancel": 1, "create": 1, "delete": 1, "email": 1, "export": 1,
-   "print": 1, "read": 1, "report": 1, "role": "System Manager", "share": 1,
-   "submit": 1, "write": 1
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
   },
   {
-   "amend": 1, "cancel": 1, "create": 1, "delete": 1, "email": 1, "export": 1,
-   "print": 1, "read": 1, "report": 1, "role": "Container Manager", "share": 1,
-   "submit": 1, "write": 1
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Container Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
   },
   {
-   "cancel": 1, "create": 1, "email": 1, "export": 1, "print": 1,
-   "read": 1, "report": 1, "role": "Driver Supervisor", "share": 1,
-   "submit": 1, "write": 1
+   "cancel": 1,
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Driver Supervisor",
+   "share": 1,
+   "submit": 1,
+   "write": 1
   },
-  {"read": 1, "report": 1, "role": "Customer Service"},
-  {"read": 1, "report": 1, "role": "Transfer Follow-up"}
+  {
+   "read": 1,
+   "report": 1,
+   "role": "Customer Service"
+  },
+  {
+   "read": 1,
+   "report": 1,
+   "role": "Transfer Follow-up"
+  }
  ],
  "search_fields": "client,container,driver",
  "sort_field": "modified",

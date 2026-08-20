@@ -4,7 +4,10 @@ frappe.ui.form.on("Container Rental", {
 			filters: { size: frm.doc.container_size, status: "متاحة" },
 		}));
 		frm.set_query("driver", () => ({
-			filters: { position: "سائق", status: "نشط" },
+			filters: { designation: "سائق", status: "Active" },
+		}));
+		frm.set_query("cash_box", () => ({
+			filters: { account_type: "Cash", is_group: 0 },
 		}));
 	},
 

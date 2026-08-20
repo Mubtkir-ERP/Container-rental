@@ -1,4 +1,4 @@
-# S8 — truck document alerts with red highlighting via the .js formatter.
+# S8 — truck alerts: documents child table rows + latest oil-change status.
 import frappe
 from frappe import _
 
@@ -13,13 +13,12 @@ def get_columns():
 		{"fieldname": "vehicle_no", "label": _("رقم السيارة"), "fieldtype": "Link", "options": "Truck", "width": 120},
 		{"fieldname": "branch", "label": _("الفرع"), "fieldtype": "Data", "width": 110},
 		{"fieldname": "driver_name", "label": _("السائق"), "fieldtype": "Data", "width": 140},
-		{"fieldname": "next_oil_change_km", "label": _("غيار الزيت / كم"), "fieldtype": "Int", "width": 110},
-		{"fieldname": "next_oil_change_date", "label": _("تاريخ غيار الزيت"), "fieldtype": "Date", "width": 120},
-		{"fieldname": "battery_change_date", "label": _("تاريخ تغيير البطارية"), "fieldtype": "Date", "width": 130},
-		{"fieldname": "registration_expiry", "label": _("تاريخ انتهاء الاستمارة"), "fieldtype": "Date", "width": 140},
-		{"fieldname": "insurance_expiry", "label": _("تاريخ انتهاء التأمين"), "fieldtype": "Date", "width": 130},
-		{"fieldname": "operating_card_expiry", "label": _("تاريخ انتهاء كارت التشغيل"), "fieldtype": "Date", "width": 150},
-		{"fieldname": "actions", "label": _("إجراءات"), "fieldtype": "Data", "width": 160},
+		{"fieldname": "document_name", "label": _("المستند"), "fieldtype": "Data", "width": 150},
+		{"fieldname": "expiry_date", "label": _("تاريخ الانتهاء"), "fieldtype": "Date", "width": 120},
+		{"fieldname": "current_odometer_km", "label": _("العداد الحالي (كم)"), "fieldtype": "Int", "width": 120},
+		{"fieldname": "next_oil_date", "label": _("غيار الزيت القادم"), "fieldtype": "Date", "width": 120},
+		{"fieldname": "next_oil_km", "label": _("غيار الزيت / كم"), "fieldtype": "Int", "width": 110},
+		{"fieldname": "actions", "label": _("إجراءات"), "fieldtype": "Data", "width": 140},
 	]
 
 
@@ -34,12 +33,19 @@ def get_data(filters):
 		f"""
 		SELECT
 			t.name AS vehicle_no, t.branch, e.employee_name AS driver_name,
-			t.next_oil_change_km, t.next_oil_change_date, t.battery_change_date,
-			t.registration_expiry, t.insurance_expiry, t.operating_card_expiry
+			t.current_odometer_km,
+			d.document_name, d.expiry_date,
+			oil.next_change_date AS next_oil_date, oil.next_change_km AS next_oil_km
 		FROM `tabTruck` t
-		LEFT JOIN `tabCR Employee` e ON e.name = t.driver
+		LEFT JOIN `tabEmployee` e ON e.name = t.driver
+		LEFT JOIN `tabCR Document Item` d
+			ON d.parent = t.name AND d.parenttype = 'Truck'
+		LEFT JOIN `tabTruck Oil Change` oil
+			ON oil.parent = t.name AND oil.change_date = (
+				SELECT MAX(o2.change_date) FROM `tabTruck Oil Change` o2 WHERE o2.parent = t.name
+			)
 		WHERE {" AND ".join(conditions)}
-		ORDER BY t.name
+		ORDER BY t.name, d.expiry_date
 		""",
 		values,
 		as_dict=True,

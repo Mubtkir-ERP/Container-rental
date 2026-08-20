@@ -3,8 +3,8 @@ frappe.ui.form.on("Container Withdrawal", {
 		frm.set_query("container", () => ({
 			filters: { status: ["in", ["مؤجرة", "متأخرة"]] },
 		}));
-		frm.set_query("driver", () => ({ filters: { position: "سائق", status: "نشط" } }));
-		frm.set_query("supervisor", () => ({ filters: { position: "مشرف سواقين", status: "نشط" } }));
+		frm.set_query("driver", () => ({ filters: { designation: "سائق", status: "Active" } }));
+		frm.set_query("supervisor", () => ({ filters: { designation: "مشرف سواقين", status: "Active" } }));
 	},
 
 	barcode_scan(frm) {

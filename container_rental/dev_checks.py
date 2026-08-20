@@ -8,7 +8,7 @@ import frappe
 
 def counts():
 	doctypes = [
-		"Container", "Customer", "CR Employee", "Truck", "Container Order",
+		"Container", "Customer", "Employee", "Truck", "Container Order",
 		"Container Contract", "Container Rental", "Rental Record",
 		"Container Delivery", "Container Unload", "Container Withdrawal",
 		"Driver Commission Entry", "Contract Monthly Invoice",
@@ -76,7 +76,7 @@ def e2e():
 	results["after_confirm"] = order.status  # بانتظار تأكيد الحوالة
 	order.confirm_transfer()
 	results["after_transfer"] = order.status
-	driver = frappe.db.get_value("CR Employee", {"employee_name": "سالم القحطاني"})
+	driver = frappe.db.get_value("Employee", {"employee_name": "سالم القحطاني"})
 	order.assign_driver(driver)
 	results["after_assign"] = order.status
 

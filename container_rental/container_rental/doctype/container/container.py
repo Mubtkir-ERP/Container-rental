@@ -15,9 +15,8 @@ class Container(Document):
 
 	def validate(self):
 		if self.responsible_driver:
-			position = frappe.db.get_value("CR Employee", self.responsible_driver, "position")
-			if position != "سائق":
-				frappe.throw(_("السائق المسؤول يجب أن يكون موظفًا بوظيفة سائق"))
+			from container_rental.container_rental import hr_utils
+			hr_utils.ensure_driver(self.responsible_driver)
 
 
 @frappe.whitelist()

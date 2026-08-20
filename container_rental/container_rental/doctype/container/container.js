@@ -1,7 +1,7 @@
 frappe.ui.form.on("Container", {
 	setup(frm) {
 		frm.set_query("responsible_driver", () => ({
-			filters: { position: "سائق", status: "نشط" },
+			filters: { designation: "سائق", status: "Active" },
 		}));
 	},
 

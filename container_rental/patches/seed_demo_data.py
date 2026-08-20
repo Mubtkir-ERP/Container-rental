@@ -25,7 +25,6 @@ def execute():
 	frappe.flags.in_import = True  # keep notifications/emails quiet
 
 	branches = seed_branches()
-	seed_cash_boxes(branches)
 	classifications = seed_classifications()
 	users = seed_users()
 	employees = seed_employees(branches, users)
@@ -61,13 +60,10 @@ def seed_branches():
 	return names
 
 
-def seed_cash_boxes(branches):
-	for branch in branches:
-		box = f"خزينة {branch}"
-		if not frappe.db.exists("Cash Box", box):
-			frappe.get_doc({"doctype": "Cash Box", "box_name": box, "branch": branch}).insert(
-				ignore_permissions=True
-			)
+def get_cash_account():
+	"""A Cash account from the chart of accounts (accountants add per-driver
+	boxes manually — the app only links to existing accounts)."""
+	return frappe.db.get_value("Account", {"account_type": "Cash", "is_group": 0})
 
 
 def seed_classifications():
@@ -96,44 +92,66 @@ def seed_users():
 			})
 			user.insert(ignore_permissions=True)
 		users[roles[0]] = email
+	frappe.db.set_value("User", users["Driver Supervisor"], "mobile_no", "0551000004", update_modified=False)
 	return users
 
 
 def seed_employees(branches, users):
+	"""Employees are ERPNext Employees; expiring papers live in the documents
+	child table; drivers get Sales Person records with the per-delivery rate."""
+	from container_rental.container_rental import hr_utils
+
+	company = frappe.defaults.get_global_default("company") or frappe.db.get_value("Company", {})
 	rows = [
-		# (name, position, nationality, commission, iqama_expiry, card_expiry, insurance, mobile, user)
-		("سالم القحطاني", "سائق", "سعودي", 15, None, add_days(today(), 200), add_days(today(), 90), "0551000001", None),
-		("محمد عبدالرحمن", "سائق", "مصري", 20, add_days(today(), 12), add_days(today(), -5), add_days(today(), 60), "0551000002", None),
-		("أحمد خان", "سائق", "باكستاني", 25, add_days(today(), 100), add_days(today(), 45), add_days(today(), 45), "0551000003", None),
-		("خالد المطيري", "مشرف سواقين", "سعودي", 0, None, None, add_days(today(), 120), "0551000004", users.get("Driver Supervisor")),
-		("نورة الشمري", "موظف خدمة عملاء", "سعودي", 0, None, None, None, "0551000005", users.get("Customer Service")),
-		("فهد العتيبي", "موظف متابعة حوالات", "سعودي", 0, None, None, None, "0551000006", users.get("Transfer Follow-up")),
-		("عبدالله الحربي", "إداري", "سعودي", 0, None, None, None, "0551000007", users.get("Container Manager")),
+		# (name, designation, commission, documents[(label, expiry)], mobile, user)
+		("سالم القحطاني", "سائق", 15,
+		 [("كارت السائق", add_days(today(), 200)), ("التأمين", add_days(today(), 90))],
+		 "0551000001", None),
+		("محمد عبدالرحمن", "سائق", 20,
+		 [("الإقامة", add_days(today(), 12)), ("كارت السائق", add_days(today(), -5))],
+		 "0551000002", None),
+		("أحمد خان", "سائق", 25,
+		 [("الإقامة", add_days(today(), 100)), ("التأمين", add_days(today(), 45))],
+		 "0551000003", None),
+		("خالد المطيري", "مشرف سواقين", 0,
+		 [("التأمين", add_days(today(), 120))], "0551000004", users.get("Driver Supervisor")),
+		("نورة الشمري", "موظف خدمة عملاء", 0, [], "0551000005", users.get("Customer Service")),
+		("فهد العتيبي", "موظف متابعة حوالات", 0, [], "0551000006", users.get("Transfer Follow-up")),
+		("عبدالله الحربي", "إداري", 0, [], "0551000007", users.get("Container Manager")),
 	]
 	employees = {}
-	for i, (name, position, nationality, commission, iqama, card, insurance, mobile, user) in enumerate(rows):
-		existing = frappe.db.get_value("CR Employee", {"employee_name": name})
+	for name, designation, commission, documents, mobile, user in rows:
+		existing = frappe.db.get_value("Employee", {"employee_name": name})
 		if existing:
 			employees[name] = existing
 			continue
 		doc = frappe.get_doc({
-			"doctype": "CR Employee",
+			"doctype": "Employee",
+			"first_name": name,
 			"employee_name": name,
-			"branch": branches[i % 2],
-			"position": position,
-			"nationality": nationality,
-			"commission_per_delivery": commission,
-			"iqama_no": f"24587963{i}" if nationality != "سعودي" else None,
-			"iqama_expiry": iqama,
-			"driver_card_no": f"DC-90{i}" if position == "سائق" else None,
-			"driver_card_expiry": card,
-			"insurance_expiry": insurance,
-			"mobile_no": mobile,
-			"user": user,
-			"status": "نشط",
+			"company": company,
+			"status": "Active",
+			"gender": "Male" if name != "نورة الشمري" else "Female",
+			"date_of_birth": "1990-01-01",
+			"date_of_joining": add_days(today(), -365),
+			"designation": designation,
+			"cell_number": mobile,
+			"user_id": user,
+			"cr_documents": [
+				{"document_name": label, "expiry_date": expiry} for label, expiry in documents
+			],
 		})
-		doc.insert(ignore_permissions=True)
+		doc.flags.ignore_permissions = True
+		doc.flags.ignore_mandatory = True
+		doc.insert()
 		employees[name] = doc.name
+
+		if designation == "سائق":
+			sales_person = hr_utils.ensure_sales_person(doc.name)
+			frappe.db.set_value(
+				"Sales Person", sales_person, "cr_commission_per_delivery", commission,
+				update_modified=False,
+			)
 	return employees
 
 
@@ -143,7 +161,7 @@ def seed_settings(employees):
 	settings.expiry_alert_days = 30
 	settings.unload_reminder_after_days = 2
 	settings.contract_expiry_alert_days = 30
-	settings.default_supervisor = employees.get("خالد المطيري")
+	settings.default_supervisor = "supervisor@containers.demo"
 	settings.flags.ignore_permissions = True
 	settings.save()
 
@@ -155,79 +173,67 @@ def seed_trucks(branches, employees):
 			"vehicle_no": "أ ب ج 1234",
 			"vehicle_type": "شاحنة رفع حاويات",
 			"model_year": 2021,
-			"insurance_expiry": add_days(today(), 180),
-			"registration_expiry": add_days(today(), 90),
-			"operating_card_expiry": add_days(today(), 45),
 			"current_odometer_km": 125000,
+			"documents": [
+				("تأمين الشاحنة", add_days(today(), 180)),
+				("الاستمارة", add_days(today(), 90)),
+				("كارت التشغيل", add_days(today(), 45)),
+			],
+			"oil_changes": [
+				{"change_date": add_days(today(), -60), "odometer_km": 115000, "cost": 350,
+				 "next_change_km": 120000, "next_change_date": add_days(today(), -10)},
+			],
 			"maintenance_log": [
-				{
-					"maintenance_date": add_days(today(), -60),
-					"maintenance_type": "تغيير زيت",
-					"cost": 350,
-					"odometer_km": 115000,
-					"next_maintenance_km": 120000,
-					"next_maintenance_date": add_days(today(), -10),
-				},
-				{
-					"maintenance_date": add_days(today(), -90),
-					"maintenance_type": "فرامل",
-					"cost": 900,
-					"odometer_km": 110000,
-				},
+				{"maintenance_date": add_days(today(), -90), "maintenance_type": "فرامل",
+				 "cost": 900, "odometer_km": 110000},
 			],
 		},
 		{
 			"vehicle_no": "د هـ و 5678",
 			"vehicle_type": "قلاب",
 			"model_year": 2019,
-			"insurance_expiry": add_days(today(), 9),
-			"registration_expiry": add_days(today(), 200),
-			"operating_card_expiry": add_days(today(), 120),
 			"current_odometer_km": 98000,
-			"battery_change_date": add_days(today(), -300),
-			"maintenance_log": [
-				{
-					"maintenance_date": add_days(today(), -20),
-					"maintenance_type": "تغيير زيت",
-					"cost": 320,
-					"odometer_km": 95000,
-					"next_maintenance_km": 105000,
-					"next_maintenance_date": add_days(today(), 70),
-				},
+			"documents": [
+				("تأمين الشاحنة", add_days(today(), 9)),
+				("الاستمارة", add_days(today(), 200)),
 			],
+			"oil_changes": [
+				{"change_date": add_days(today(), -20), "odometer_km": 95000, "cost": 320,
+				 "next_change_km": 105000, "next_change_date": add_days(today(), 70)},
+			],
+			"maintenance_log": [],
 		},
 		{
 			"vehicle_no": "ز ح ط 9012",
 			"vehicle_type": "شاحنة رفع حاويات",
 			"model_year": 2023,
-			"insurance_expiry": add_days(today(), 300),
-			"registration_expiry": add_days(today(), 15),
-			"operating_card_expiry": add_days(today(), 250),
 			"current_odometer_km": 40000,
-			"other_licenses": [
-				{"license_type": "تصريح دخول المرادم", "expiry_date": add_days(today(), -2)},
+			"documents": [
+				("تصريح دخول المرادم", add_days(today(), -2)),
+				("الاستمارة", add_days(today(), 15)),
 			],
+			"oil_changes": [],
 			"maintenance_log": [
-				{
-					"maintenance_date": add_days(today(), -35),
-					"maintenance_type": "صيانة دورية",
-					"cost": 1500,
-					"odometer_km": 38000,
-					"next_maintenance_date": add_days(today(), 55),
-				},
+				{"maintenance_date": add_days(today(), -35), "maintenance_type": "صيانة دورية",
+				 "cost": 1500, "odometer_km": 38000, "next_maintenance_date": add_days(today(), 55)},
 			],
 		},
 	]
 	for i, row in enumerate(rows):
 		if frappe.db.exists("Truck", row["vehicle_no"]):
 			continue
+		documents = row.pop("documents")
 		doc = frappe.get_doc({
 			"doctype": "Truck",
 			"branch": branches[i % 2],
-			"driver": frappe.db.get_value("CR Employee", {"employee_name": drivers[i]}),
+			"driver": frappe.db.get_value("Employee", {"employee_name": drivers[i]}),
+			"documents": [
+				{"document_name": label, "expiry_date": expiry} for label, expiry in documents
+			],
 			**row,
 		})
-		doc.insert(ignore_permissions=True)
+		doc.flags.ignore_permissions = True
+		doc.insert()
 
 
 def seed_containers(branches, classifications, employees):
@@ -291,7 +297,7 @@ def seed_clients():
 # ─── Transactions through the real flows ────────────────────────────────────
 
 def _driver(name):
-	return frappe.db.get_value("CR Employee", {"employee_name": name})
+	return frappe.db.get_value("Employee", {"employee_name": name})
 
 
 def seed_orders(clients, containers, employees):
@@ -384,7 +390,7 @@ def seed_active_contract(clients, containers, employees, classifications):
 		],
 		"payments": [
 			{"payment_date": add_days(last_month_start, 5), "amount": 2000, "tax_amount": 300,
-			 "cash_box": f"خزينة {SENTINEL_BRANCH}"},
+			 "cash_box": get_cash_account()},
 		],
 	})
 	contract.insert(ignore_permissions=True)
@@ -452,7 +458,7 @@ def seed_expired_contract(clients, classifications):
 		"items": [{"container_size": "10 ياردة", "trips_count": 15, "price": 110}],
 		"payments": [
 			{"payment_date": add_days(start, 10), "amount": 800, "tax_amount": 120,
-			 "cash_box": "خزينة فرع الشمال"},
+			 "cash_box": get_cash_account()},
 		],
 	})
 	contract.insert(ignore_permissions=True)
@@ -475,7 +481,7 @@ def seed_walkin_rentals(clients, containers, classifications, employees):
 			"container": container,
 			"amount": amount,
 			"payment_method": payment,
-			"cash_box": f"خزينة {SENTINEL_BRANCH}" if payment == "نقدي" else None,
+			"cash_box": get_cash_account() if payment == "نقدي" else None,
 			"address": "الرياض",
 			"driver": driver,
 		})

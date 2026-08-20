@@ -13,19 +13,12 @@
   "column_break_basic",
   "branch",
   "driver",
-  "documents_section",
-  "insurance_expiry",
-  "registration_expiry",
-  "column_break_documents",
-  "operating_card_expiry",
-  "battery_change_date",
-  "oil_section",
+  "odometer_section",
   "current_odometer_km",
-  "next_oil_change_date",
-  "column_break_oil",
-  "next_oil_change_km",
-  "licenses_section",
-  "other_licenses",
+  "documents_tab",
+  "documents",
+  "oil_tab",
+  "oil_changes",
   "maintenance_section",
   "maintenance_log"
  ],
@@ -71,44 +64,14 @@
    "fieldname": "driver",
    "fieldtype": "Link",
    "label": "السائق المرتبط",
-   "options": "CR Employee",
+   "options": "Employee",
    "in_list_view": 1,
    "in_standard_filter": 1
   },
   {
-   "fieldname": "documents_section",
+   "fieldname": "odometer_section",
    "fieldtype": "Section Break",
-   "label": "الوثائق والتواريخ"
-  },
-  {
-   "fieldname": "insurance_expiry",
-   "fieldtype": "Date",
-   "label": "تاريخ انتهاء التأمين"
-  },
-  {
-   "fieldname": "registration_expiry",
-   "fieldtype": "Date",
-   "label": "تاريخ انتهاء الاستمارة"
-  },
-  {
-   "fieldname": "column_break_documents",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "operating_card_expiry",
-   "fieldtype": "Date",
-   "label": "تاريخ انتهاء كارت التشغيل",
-   "description": "ترخيص تشغيل إضافي"
-  },
-  {
-   "fieldname": "battery_change_date",
-   "fieldtype": "Date",
-   "label": "تاريخ تغيير البطارية"
-  },
-  {
-   "fieldname": "oil_section",
-   "fieldtype": "Section Break",
-   "label": "غيار الزيت"
+   "label": "العداد"
   },
   {
    "fieldname": "current_odometer_km",
@@ -116,30 +79,27 @@
    "label": "قراءة العداد الحالية (كم)"
   },
   {
-   "fieldname": "next_oil_change_date",
-   "fieldtype": "Date",
-   "label": "تاريخ غيار الزيت القادم"
+   "fieldname": "documents_tab",
+   "fieldtype": "Tab Break",
+   "label": "المستندات"
   },
   {
-   "fieldname": "column_break_oil",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "next_oil_change_km",
-   "fieldtype": "Int",
-   "label": "كيلومتر غيار الزيت القادم",
-   "description": "يُستخدم لحساب تأخيرات غيار الزيت في لوحة التحكم"
-  },
-  {
-   "fieldname": "licenses_section",
-   "fieldtype": "Section Break",
-   "label": "تراخيص أخرى"
-  },
-  {
-   "fieldname": "other_licenses",
+   "fieldname": "documents",
    "fieldtype": "Table",
-   "label": "تراخيص أخرى",
-   "options": "Truck License"
+   "label": "مستندات الشاحنة",
+   "options": "CR Document Item",
+   "description": "التأمين، الاستمارة، كارت التشغيل، التصاريح... مع تنبيه تلقائي قبل الانتهاء"
+  },
+  {
+   "fieldname": "oil_tab",
+   "fieldtype": "Tab Break",
+   "label": "غيار الزيت"
+  },
+  {
+   "fieldname": "oil_changes",
+   "fieldtype": "Table",
+   "label": "سجل غيار الزيت",
+   "options": "Truck Oil Change"
   },
   {
    "fieldname": "maintenance_section",
@@ -162,17 +122,44 @@
  "owner": "Administrator",
  "permissions": [
   {
-   "create": 1, "delete": 1, "email": 1, "export": 1, "print": 1,
-   "read": 1, "report": 1, "role": "System Manager", "share": 1, "write": 1
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
   },
   {
-   "create": 1, "delete": 1, "email": 1, "export": 1, "print": 1,
-   "read": 1, "report": 1, "role": "Container Manager", "share": 1, "write": 1
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Container Manager",
+   "share": 1,
+   "write": 1
   },
-  {"read": 1, "report": 1, "role": "Customer Service"},
   {
-   "create": 1, "email": 1, "export": 1, "print": 1,
-   "read": 1, "report": 1, "role": "Driver Supervisor", "share": 1, "write": 1
+   "read": 1,
+   "report": 1,
+   "role": "Customer Service"
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Driver Supervisor",
+   "share": 1,
+   "write": 1
   }
  ],
  "search_fields": "vehicle_no,driver",

@@ -81,9 +81,9 @@
   },
   {
    "fieldname": "container_size",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "حجم الحاوية",
-   "options": "10 ياردة\n20 ياردة",
+   "options": "Container Size",
    "reqd": 1
   },
   {
@@ -108,7 +108,7 @@
    "fieldname": "driver",
    "fieldtype": "Link",
    "label": "السائق",
-   "options": "CR Employee"
+   "options": "Employee"
   },
   {
    "fieldname": "payment_section",
@@ -137,9 +137,9 @@
    "depends_on": "eval:doc.payment_method=='نقدي'",
    "fieldname": "cash_box",
    "fieldtype": "Link",
-   "label": "الخزينة",
-   "options": "Cash Box",
-   "description": "الصندوق النقدي الذي استُلم فيه المبلغ"
+   "label": "الصندوق النقدي",
+   "options": "Account",
+   "description": "حساب الصندوق من الدليل المحاسبي (يضيفه المحاسبون يدويًا)"
   },
   {
    "fieldname": "address",
@@ -167,22 +167,58 @@
  "owner": "Administrator",
  "permissions": [
   {
-   "amend": 1, "cancel": 1, "create": 1, "delete": 1, "email": 1, "export": 1,
-   "print": 1, "read": 1, "report": 1, "role": "System Manager", "share": 1,
-   "submit": 1, "write": 1
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
   },
   {
-   "amend": 1, "cancel": 1, "create": 1, "delete": 1, "email": 1, "export": 1,
-   "print": 1, "read": 1, "report": 1, "role": "Container Manager", "share": 1,
-   "submit": 1, "write": 1
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Container Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
   },
   {
-   "cancel": 1, "create": 1, "email": 1, "export": 1, "print": 1,
-   "read": 1, "report": 1, "role": "Customer Service", "share": 1,
-   "submit": 1, "write": 1
+   "cancel": 1,
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Customer Service",
+   "share": 1,
+   "submit": 1,
+   "write": 1
   },
-  {"read": 1, "report": 1, "role": "Transfer Follow-up"},
-  {"read": 1, "report": 1, "role": "Driver Supervisor"}
+  {
+   "read": 1,
+   "report": 1,
+   "role": "Transfer Follow-up"
+  },
+  {
+   "read": 1,
+   "report": 1,
+   "role": "Driver Supervisor"
+  }
  ],
  "search_fields": "client,container",
  "sort_field": "modified",

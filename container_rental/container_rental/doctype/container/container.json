@@ -39,9 +39,9 @@
   },
   {
    "fieldname": "size",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "حجم الحاوية",
-   "options": "10 ياردة\n20 ياردة",
+   "options": "Container Size",
    "reqd": 1,
    "in_list_view": 1,
    "in_standard_filter": 1
@@ -51,7 +51,6 @@
    "fieldtype": "Link",
    "label": "التصنيف",
    "options": "Container Classification",
-   "allow_in_quick_entry": 1,
    "in_list_view": 1,
    "in_standard_filter": 1
   },
@@ -64,7 +63,6 @@
    "fieldtype": "Link",
    "label": "اسم الفرع",
    "options": "Rental Branch",
-   "reqd": 1,
    "in_list_view": 1,
    "in_standard_filter": 1
   },
@@ -72,8 +70,9 @@
    "fieldname": "responsible_driver",
    "fieldtype": "Link",
    "label": "السائق المسؤول",
-   "options": "CR Employee",
-   "in_standard_filter": 1
+   "options": "Employee",
+   "in_standard_filter": 1,
+   "allow_in_quick_entry": 1
   },
   {
    "default": "متاحة",
@@ -137,21 +136,53 @@
  "owner": "Administrator",
  "permissions": [
   {
-   "create": 1, "delete": 1, "email": 1, "export": 1, "print": 1,
-   "read": 1, "report": 1, "role": "System Manager", "share": 1, "write": 1
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
   },
   {
-   "create": 1, "delete": 1, "email": 1, "export": 1, "print": 1,
-   "read": 1, "report": 1, "role": "Container Manager", "share": 1, "write": 1
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Container Manager",
+   "share": 1,
+   "write": 1
   },
   {
-   "create": 1, "email": 1, "export": 1, "print": 1,
-   "read": 1, "report": 1, "role": "Customer Service", "share": 1
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Customer Service",
+   "share": 1
   },
-  {"read": 1, "report": 1, "role": "Transfer Follow-up"},
   {
-   "email": 1, "export": 1, "print": 1,
-   "read": 1, "report": 1, "role": "Driver Supervisor", "share": 1, "write": 1
+   "read": 1,
+   "report": 1,
+   "role": "Transfer Follow-up"
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Driver Supervisor",
+   "share": 1,
+   "write": 1
   }
  ],
  "quick_entry": 1,

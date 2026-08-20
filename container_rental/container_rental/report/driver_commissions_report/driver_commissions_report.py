@@ -46,7 +46,7 @@ def get_data(filters):
 			dce.entry_date, dce.container, cl.customer_name AS client_name,
 			dce.commission_amount, dce.payout_status
 		FROM `tabDriver Commission Entry` dce
-		LEFT JOIN `tabCR Employee` e ON e.name = dce.driver
+		LEFT JOIN `tabEmployee` e ON e.name = dce.driver
 		LEFT JOIN `tabCustomer` cl ON cl.name = dce.client
 		WHERE {" AND ".join(conditions)}
 		ORDER BY e.employee_name, dce.entry_date

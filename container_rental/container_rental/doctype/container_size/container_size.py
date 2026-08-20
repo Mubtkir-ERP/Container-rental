@@ -1,5 +1,5 @@
 from frappe.model.document import Document
 
 
-class CashBox(Document):
+class ContainerSize(Document):
 	pass

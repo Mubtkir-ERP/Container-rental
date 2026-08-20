@@ -14,8 +14,8 @@ class ContainerDelivery(Document):
 		self.resolve_source()
 		self.validate_container()
 		self.compute_due()
-		if frappe.db.get_value("CR Employee", self.driver, "position") != "سائق":
-			frappe.throw(_("الموظف المختار ليس سائقًا"))
+		from container_rental.container_rental import hr_utils
+		hr_utils.ensure_driver(self.driver)
 
 	def resolve_source(self):
 		if self.order:

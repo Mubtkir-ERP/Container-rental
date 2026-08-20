@@ -4,8 +4,8 @@ frappe.query_reports["Driver Commissions Report"] = {
 			fieldname: "driver",
 			label: __("السائق"),
 			fieldtype: "Link",
-			options: "CR Employee",
-			get_query: () => ({ filters: { position: "سائق" } }),
+			options: "Employee",
+			get_query: () => ({ filters: { designation: "سائق" } }),
 		},
 		{
 			fieldname: "from_date",

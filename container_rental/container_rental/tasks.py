@@ -111,12 +111,11 @@ def send_contract_expiry_alerts(settings):
 def send_supervisor_unload_requests(settings):
 	"""WhatsApp event 6: overdue cash/short-term rentals → ask the supervisor
 	to dispatch a driver for unloading."""
-	supervisor = settings.default_supervisor
-	if not supervisor:
+	from container_rental.container_rental import hr_utils
+
+	_user, supervisor_name, supervisor_mobile = hr_utils.get_supervisor_contact()
+	if not supervisor_name:
 		return
-	supervisor_mobile, supervisor_name = frappe.db.get_value(
-		"CR Employee", supervisor, ["mobile_no", "employee_name"]
-	)
 	records = frappe.get_all(
 		"Rental Record",
 		filters={
@@ -147,55 +146,63 @@ def send_supervisor_unload_requests(settings):
 		record.db_set("unload_request_sent_on", now_datetime(), update_modified=False)
 
 
-EMPLOYEE_DATE_FIELDS = [
-	("iqama_expiry", "انتهاء الإقامة"),
-	("insurance_expiry", "انتهاء التأمين"),
-	("driver_card_expiry", "انتهاء كارت السائق"),
-]
-
-TRUCK_DATE_FIELDS = [
-	("insurance_expiry", "انتهاء تأمين الشاحنة"),
-	("registration_expiry", "انتهاء الاستمارة"),
-	("operating_card_expiry", "انتهاء كارت التشغيل"),
-	("next_oil_change_date", "موعد غيار الزيت"),
-]
-
-
 def send_document_expiry_alerts(settings):
-	"""In-system Notification Log alerts (S7/S8 source) + optional WhatsApp
-	(open question 7: in-system by default)."""
+	"""In-system Notification Log alerts (S7/S8 source): employee documents
+	(Employee.cr_documents) and truck documents (Truck.documents) child rows,
+	plus overdue oil changes from the Truck oil-change child table."""
 	horizon = add_days(today(), settings.expiry_alert_days or 30)
 	lines = []
 
-	for emp in frappe.get_all(
-		"CR Employee",
-		filters={"status": "نشط"},
-		fields=["name", "employee_name"] + [f for f, _l in EMPLOYEE_DATE_FIELDS],
-	):
-		for field, label in EMPLOYEE_DATE_FIELDS:
-			value = emp.get(field)
-			if value and getdate(value) <= getdate(horizon):
-				lines.append(f"الموظف {emp.employee_name}: {label} بتاريخ {value}")
-
-	for truck in frappe.get_all(
-		"Truck", fields=["name", "vehicle_no"] + [f for f, _l in TRUCK_DATE_FIELDS]
-	):
-		for field, label in TRUCK_DATE_FIELDS:
-			value = truck.get(field)
-			if value and getdate(value) <= getdate(horizon):
-				lines.append(f"الشاحنة {truck.vehicle_no}: {label} بتاريخ {value}")
-
-	licenses = frappe.db.sql(
+	employee_docs = frappe.db.sql(
 		"""
-		SELECT t.vehicle_no, l.license_type, l.expiry_date
-		FROM `tabTruck License` l JOIN `tabTruck` t ON l.parent = t.name
-		WHERE l.expiry_date IS NOT NULL AND l.expiry_date <= %s
+		SELECT e.employee_name, d.document_name, d.expiry_date
+		FROM `tabCR Document Item` d
+		JOIN `tabEmployee` e ON d.parent = e.name AND d.parenttype = 'Employee'
+		WHERE e.status = 'Active' AND d.expiry_date IS NOT NULL AND d.expiry_date <= %s
+		ORDER BY d.expiry_date
 		""",
 		horizon,
 		as_dict=True,
 	)
-	for row in licenses:
-		lines.append(f"الشاحنة {row.vehicle_no}: انتهاء {row.license_type} بتاريخ {row.expiry_date}")
+	for row in employee_docs:
+		lines.append(f"الموظف {row.employee_name}: انتهاء {row.document_name} بتاريخ {row.expiry_date}")
+
+	truck_docs = frappe.db.sql(
+		"""
+		SELECT t.name AS vehicle_no, d.document_name, d.expiry_date
+		FROM `tabCR Document Item` d
+		JOIN `tabTruck` t ON d.parent = t.name AND d.parenttype = 'Truck'
+		WHERE d.expiry_date IS NOT NULL AND d.expiry_date <= %s
+		ORDER BY d.expiry_date
+		""",
+		horizon,
+		as_dict=True,
+	)
+	for row in truck_docs:
+		lines.append(f"الشاحنة {row.vehicle_no}: انتهاء {row.document_name} بتاريخ {row.expiry_date}")
+
+	oil_overdue = frappe.db.sql(
+		"""
+		SELECT t.name AS vehicle_no, o.next_change_date, o.next_change_km, t.current_odometer_km
+		FROM `tabTruck` t
+		JOIN `tabTruck Oil Change` o ON o.parent = t.name
+		WHERE o.change_date = (
+			SELECT MAX(o2.change_date) FROM `tabTruck Oil Change` o2 WHERE o2.parent = t.name
+		)
+		AND (
+			(o.next_change_date IS NOT NULL AND o.next_change_date <= %s)
+			OR (o.next_change_km IS NOT NULL AND o.next_change_km > 0
+			    AND t.current_odometer_km >= o.next_change_km)
+		)
+		""",
+		today(),
+		as_dict=True,
+	)
+	for row in oil_overdue:
+		lines.append(
+			f"الشاحنة {row.vehicle_no}: موعد غيار الزيت مستحق "
+			f"(التاريخ: {row.next_change_date or '-'} / الكيلومتر: {row.next_change_km or '-'})"
+		)
 
 	if not lines:
 		return
@@ -204,16 +211,6 @@ def send_document_expiry_alerts(settings):
 	message = "<br>".join(lines)
 	for user in _users_with_roles(["Container Manager", "Driver Supervisor"]):
 		_notify_user(user, subject, message)
-
-	if settings.send_hr_alerts_via_whatsapp and settings.default_supervisor:
-		mobile = frappe.db.get_value("CR Employee", settings.default_supervisor, "mobile_no")
-		whatsapp.send_event(
-			"supervisor_unload_request",
-			mobile,
-			{"client_name": "", "driver_name": "", "container_no": "", "address": subject,
-			 "due_date": "", "overdue_days": 0},
-			reference_doc=None,
-		)
 
 
 def _users_with_roles(roles):

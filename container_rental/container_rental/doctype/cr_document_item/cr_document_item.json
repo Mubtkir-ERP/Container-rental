@@ -1,18 +1,25 @@
 {
  "actions": [],
- "creation": "2026-08-01 00:00:00.000000",
+ "creation": "2026-08-10 00:00:00.000000",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "license_type",
+  "document_name",
+  "attachment",
   "expiry_date"
  ],
  "fields": [
   {
-   "fieldname": "license_type",
+   "fieldname": "document_name",
    "fieldtype": "Data",
-   "label": "نوع الترخيص",
+   "label": "اسم المستند",
    "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "attachment",
+   "fieldtype": "Attach",
+   "label": "الملف",
    "in_list_view": 1
   },
   {
@@ -24,10 +31,10 @@
  ],
  "istable": 1,
  "links": [],
- "modified": "2026-08-01 00:00:00.000000",
+ "modified": "2026-08-10 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Container Rental",
- "name": "Truck License",
+ "name": "CR Document Item",
  "owner": "Administrator",
  "permissions": [],
  "sort_field": "modified",

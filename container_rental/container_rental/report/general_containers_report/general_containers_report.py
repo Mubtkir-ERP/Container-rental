@@ -43,7 +43,7 @@ def get_data(filters):
 			e.employee_name AS responsible_driver_name, c.status,
 			c.last_delivery_datetime, c.last_unload_datetime
 		FROM `tabContainer` c
-		LEFT JOIN `tabCR Employee` e ON e.name = c.responsible_driver
+		LEFT JOIN `tabEmployee` e ON e.name = c.responsible_driver
 		WHERE {_conditions(filters, values)}
 		ORDER BY c.status, c.size, c.name
 		""",

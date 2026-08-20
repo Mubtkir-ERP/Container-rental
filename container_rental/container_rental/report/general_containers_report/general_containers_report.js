@@ -9,8 +9,8 @@ frappe.query_reports["General Containers Report"] = {
 		{
 			fieldname: "size",
 			label: __("الحجم"),
-			fieldtype: "Select",
-			options: ["", "10 ياردة", "20 ياردة"],
+			fieldtype: "Link",
+			options: "Container Size",
 		},
 		{
 			fieldname: "classification",

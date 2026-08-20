@@ -43,10 +43,14 @@ def get_dashboard_counts():
 	counts["oil_change_delays"] = len(
 		frappe.db.sql(
 			"""
-			SELECT name FROM `tabTruck`
-			WHERE (next_oil_change_date IS NOT NULL AND next_oil_change_date < %s)
-			   OR (next_oil_change_km IS NOT NULL AND next_oil_change_km > 0
-			       AND current_odometer_km >= next_oil_change_km)
+			SELECT t.name FROM `tabTruck` t
+			JOIN `tabTruck Oil Change` o ON o.parent = t.name
+			WHERE o.change_date = (
+				SELECT MAX(o2.change_date) FROM `tabTruck Oil Change` o2 WHERE o2.parent = t.name
+			)
+			AND ((o.next_change_date IS NOT NULL AND o.next_change_date < %s)
+			  OR (o.next_change_km IS NOT NULL AND o.next_change_km > 0
+			      AND t.current_odometer_km >= o.next_change_km))
 			""",
 			today(),
 		)
@@ -81,12 +85,10 @@ def _employee_expiry_count(upper):
 	return len(
 		frappe.db.sql(
 			"""
-			SELECT name FROM `tabCR Employee`
-			WHERE status = 'نشط' AND (
-				(iqama_expiry IS NOT NULL AND iqama_expiry <= %(upper)s)
-				OR (insurance_expiry IS NOT NULL AND insurance_expiry <= %(upper)s)
-				OR (driver_card_expiry IS NOT NULL AND driver_card_expiry <= %(upper)s)
-			)
+			SELECT DISTINCT e.name FROM `tabEmployee` e
+			JOIN `tabCR Document Item` d ON d.parent = e.name AND d.parenttype = 'Employee'
+			WHERE e.status = 'Active'
+			  AND d.expiry_date IS NOT NULL AND d.expiry_date <= %(upper)s
 			""",
 			{"upper": upper},
 		)
@@ -98,11 +100,8 @@ def _truck_expiry_count(upper):
 		frappe.db.sql(
 			"""
 			SELECT DISTINCT t.name FROM `tabTruck` t
-			LEFT JOIN `tabTruck License` l ON l.parent = t.name
-			WHERE (t.insurance_expiry IS NOT NULL AND t.insurance_expiry <= %(upper)s)
-			   OR (t.registration_expiry IS NOT NULL AND t.registration_expiry <= %(upper)s)
-			   OR (t.operating_card_expiry IS NOT NULL AND t.operating_card_expiry <= %(upper)s)
-			   OR (l.expiry_date IS NOT NULL AND l.expiry_date <= %(upper)s)
+			JOIN `tabCR Document Item` d ON d.parent = t.name AND d.parenttype = 'Truck'
+			WHERE d.expiry_date IS NOT NULL AND d.expiry_date <= %(upper)s
 			""",
 			{"upper": upper},
 		)
@@ -147,7 +146,7 @@ def get_overdue_data(filters=None):
 			r.last_whatsapp_message, r.last_whatsapp_on, r.unload_request_sent_on
 		FROM `tabRental Record` r
 		LEFT JOIN `tabCustomer` c ON c.name = r.client
-		LEFT JOIN `tabCR Employee` e ON e.name = r.driver
+		LEFT JOIN `tabEmployee` e ON e.name = r.driver
 		WHERE {" AND ".join(conditions)}
 		ORDER BY overdue_hours DESC
 		""",
@@ -194,14 +193,12 @@ def get_overdue_rentals(filters=None):
 @frappe.whitelist()
 def send_unload_request(rental_record):
 	"""S11 quick action: WhatsApp + in-system notification to the supervisor."""
-	record = frappe.get_doc("Rental Record", rental_record)
-	settings = frappe.get_cached_doc("Container Rental Settings")
-	if not settings.default_supervisor:
-		frappe.throw(_("حدد مشرف السواقين الافتراضي في إعدادات النظام أولًا"))
+	from container_rental.container_rental import hr_utils
 
-	supervisor_mobile, supervisor_name, supervisor_user = frappe.db.get_value(
-		"CR Employee", settings.default_supervisor, ["mobile_no", "employee_name", "user"]
-	)
+	record = frappe.get_doc("Rental Record", rental_record)
+	supervisor_user, supervisor_name, supervisor_mobile = hr_utils.get_supervisor_contact()
+	if not supervisor_user:
+		frappe.throw(_("حدد مشرف السواقين (مستخدم النظام) في إعدادات النظام أولًا"))
 	client_name = frappe.db.get_value("Customer", record.client, "customer_name")
 	overdue_hours = max(
 		0, int((now_datetime() - get_datetime(record.due_on)).total_seconds() // 3600)

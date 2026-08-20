@@ -1,8 +1,8 @@
 frappe.ui.form.on("Container Delivery", {
 	setup(frm) {
 		frm.set_query("container", () => ({ filters: { status: "متاحة" } }));
-		frm.set_query("driver", () => ({ filters: { position: "سائق", status: "نشط" } }));
-		frm.set_query("supervisor", () => ({ filters: { position: "مشرف سواقين", status: "نشط" } }));
+		frm.set_query("driver", () => ({ filters: { designation: "سائق", status: "Active" } }));
+		frm.set_query("supervisor", () => ({ filters: { designation: "مشرف سواقين", status: "Active" } }));
 		frm.set_query("order", () => ({ filters: { status: "مُسنَد لسائق" } }));
 		frm.set_query("contract", () => ({ filters: { docstatus: 1, contract_status: "ساري" } }));
 	},

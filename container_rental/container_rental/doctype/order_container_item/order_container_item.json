@@ -11,9 +11,9 @@
  "fields": [
   {
    "fieldname": "container_size",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "حجم الحاوية",
-   "options": "10 ياردة\n20 ياردة",
+   "options": "Container Size",
    "reqd": 1,
    "in_list_view": 1
   },

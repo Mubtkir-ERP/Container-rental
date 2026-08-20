@@ -9,16 +9,16 @@ frappe.query_reports["Overdue Containers Report"] = {
 		{
 			fieldname: "container_size",
 			label: __("حجم الحاوية"),
-			fieldtype: "Select",
-			options: ["", "10 ياردة", "20 ياردة"],
+			fieldtype: "Link",
+			options: "Container Size",
 		},
 		{ fieldname: "branch", label: __("الفرع"), fieldtype: "Link", options: "Rental Branch" },
 		{
 			fieldname: "driver",
 			label: __("السائق"),
 			fieldtype: "Link",
-			options: "CR Employee",
-			get_query: () => ({ filters: { position: "سائق" } }),
+			options: "Employee",
+			get_query: () => ({ filters: { designation: "سائق" } }),
 		},
 		{
 			fieldname: "delay_range",

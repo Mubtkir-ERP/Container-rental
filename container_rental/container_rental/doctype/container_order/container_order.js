@@ -87,9 +87,9 @@ frappe.ui.form.on("Container Order", {
 								fieldname: "driver",
 								fieldtype: "Link",
 								label: __("السائق"),
-								options: "CR Employee",
+								options: "Employee",
 								reqd: 1,
-								get_query: () => ({ filters: { position: "سائق", status: "نشط" } }),
+								get_query: () => ({ filters: { designation: "سائق", status: "Active" } }),
 							},
 							{
 								fieldname: "vehicle",
@@ -135,7 +135,7 @@ frappe.ui.form.on("Container Order", {
 				const d = new frappe.ui.Dialog({
 					title: __("استلام المبلغ"),
 					fields: [
-						{ fieldname: "cash_box", fieldtype: "Link", label: __("الخزينة"), options: "Cash Box" },
+						{ fieldname: "cash_box", fieldtype: "Link", label: __("الصندوق النقدي"), options: "Account", get_query: () => ({ filters: { account_type: "Cash", is_group: 0 } }) },
 					],
 					primary_action_label: __("تسجيل"),
 					primary_action(values) {
