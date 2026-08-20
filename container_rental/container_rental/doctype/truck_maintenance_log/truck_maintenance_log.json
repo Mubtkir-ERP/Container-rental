@@ -16,14 +16,14 @@
   {
    "fieldname": "maintenance_date",
    "fieldtype": "Date",
-   "label": "تاريخ الصيانة",
+   "label": "Maintenance Date",
    "reqd": 1,
    "in_list_view": 1
   },
   {
    "fieldname": "maintenance_type",
    "fieldtype": "Select",
-   "label": "نوع الصيانة",
+   "label": "Maintenance Type",
    "options": "تغيير زيت\nإطارات\nفرامل\nبطارية\nصيانة دورية\nإصلاح عطل\nأخرى",
    "reqd": 1,
    "in_list_view": 1
@@ -31,30 +31,30 @@
   {
    "fieldname": "cost",
    "fieldtype": "Currency",
-   "label": "التكلفة",
+   "label": "Cost",
    "in_list_view": 1
   },
   {
    "fieldname": "odometer_km",
    "fieldtype": "Int",
-   "label": "الكيلومترات عند الصيانة",
+   "label": "Odometer at Maintenance (KM)",
    "in_list_view": 1
   },
   {
    "fieldname": "next_maintenance_date",
    "fieldtype": "Date",
-   "label": "تاريخ الصيانة القادمة",
+   "label": "Next Maintenance Date",
    "in_list_view": 1
   },
   {
    "fieldname": "next_maintenance_km",
    "fieldtype": "Int",
-   "label": "كيلومتر الصيانة القادمة"
+   "label": "Next Maintenance KM"
   },
   {
    "fieldname": "notes",
    "fieldtype": "Small Text",
-   "label": "ملاحظات"
+   "label": "Notes"
   }
  ],
  "istable": 1,

@@ -38,12 +38,12 @@
   {
    "fieldname": "header_section",
    "fieldtype": "Section Break",
-   "label": "بيانات التعاقد"
+   "label": "Contract Details"
   },
   {
    "fieldname": "client",
    "fieldtype": "Link",
-   "label": "العميل",
+   "label": "Client",
    "options": "Customer",
    "reqd": 1,
    "in_list_view": 1
@@ -51,13 +51,13 @@
   {
    "fieldname": "contract_type",
    "fieldtype": "Link",
-   "label": "نوع العقد / التصنيف",
+   "label": "Contract Type / Classification",
    "options": "Container Classification"
   },
   {
    "fieldname": "location",
    "fieldtype": "Small Text",
-   "label": "الموقع",
+   "label": "Location",
    "description": "عنوان أول موقع تسليم — المواقع الإضافية في بطاقة العميل"
   },
   {
@@ -68,7 +68,7 @@
    "default": "ساري",
    "fieldname": "contract_status",
    "fieldtype": "Select",
-   "label": "حالة العقد",
+   "label": "Contract Status",
    "options": "ساري\nمنتهٍ",
    "read_only": 1,
    "in_list_view": 1,
@@ -77,57 +77,57 @@
   {
    "fieldname": "start_date",
    "fieldtype": "Date",
-   "label": "مدة التعاقد من",
+   "label": "Contract Period From",
    "reqd": 1
   },
   {
    "fieldname": "end_date",
    "fieldtype": "Date",
-   "label": "مدة التعاقد إلى",
+   "label": "Contract Period To",
    "reqd": 1,
    "in_list_view": 1
   },
   {
    "fieldname": "trip_duration_days",
    "fieldtype": "Int",
-   "label": "مدة الرحلة (أيام)",
+   "label": "Trip Duration (Days)",
    "reqd": 1,
    "description": "مدة بقاء الحاوية الواحدة عند العميل قبل التفريغ"
   },
   {
    "fieldname": "items_section",
    "fieldtype": "Section Break",
-   "label": "الحاويات المطلوبة في التعاقد"
+   "label": "Contracted Containers"
   },
   {
    "fieldname": "items",
    "fieldtype": "Table",
-   "label": "بنود التعاقد",
+   "label": "Contract Items",
    "options": "Contract Item",
    "reqd": 1
   },
   {
    "fieldname": "totals_section",
    "fieldtype": "Section Break",
-   "label": "الإجماليات والرحلات"
+   "label": "Totals & Trips"
   },
   {
    "fieldname": "contract_value",
    "fieldtype": "Currency",
-   "label": "قيمة التعاقد",
+   "label": "Contract Value",
    "read_only": 1,
    "in_list_view": 1
   },
   {
    "fieldname": "total_trips",
    "fieldtype": "Int",
-   "label": "عدد الرحلات",
+   "label": "Trips Count",
    "read_only": 1
   },
   {
    "fieldname": "consumed_trips",
    "fieldtype": "Int",
-   "label": "الرحلات المنفذة",
+   "label": "Consumed Trips",
    "read_only": 1
   },
   {
@@ -137,43 +137,43 @@
   {
    "fieldname": "remaining_trips",
    "fieldtype": "Int",
-   "label": "الرحلات المتبقية",
+   "label": "Remaining Trips",
    "read_only": 1
   },
   {
    "fieldname": "last_container",
    "fieldtype": "Link",
-   "label": "رقم آخر حاوية",
+   "label": "Last Container No",
    "options": "Container",
    "read_only": 1
   },
   {
    "fieldname": "payments_section",
    "fieldtype": "Section Break",
-   "label": "الدفعات"
+   "label": "Payments"
   },
   {
    "allow_on_submit": 1,
    "fieldname": "payments",
    "fieldtype": "Table",
-   "label": "دفعات العقد",
+   "label": "Contract Payments",
    "options": "Contract Payment"
   },
   {
    "fieldname": "payment_totals_section",
    "fieldtype": "Section Break",
-   "label": "السداد"
+   "label": "Payment"
   },
   {
    "fieldname": "paid_amount",
    "fieldtype": "Currency",
-   "label": "المدفوع",
+   "label": "Paid Amount",
    "read_only": 1
   },
   {
    "fieldname": "tax_on_paid",
    "fieldtype": "Currency",
-   "label": "الضرائب على المدفوع",
+   "label": "Tax on Paid",
    "read_only": 1
   },
   {
@@ -183,7 +183,7 @@
   {
    "fieldname": "outstanding",
    "fieldtype": "Currency",
-   "label": "المتبقي (عليه)",
+   "label": "Outstanding",
    "read_only": 1
   },
   {
@@ -194,12 +194,12 @@
   {
    "fieldname": "notes",
    "fieldtype": "Text",
-   "label": "ملاحظات"
+   "label": "Notes"
   },
   {
    "fieldname": "expiry_alert_sent_on",
    "fieldtype": "Date",
-   "label": "تاريخ إرسال تنبيه الانتهاء",
+   "label": "Expiry Alert Sent On",
    "hidden": 1,
    "read_only": 1,
    "no_copy": 1
@@ -215,21 +215,56 @@
  "owner": "Administrator",
  "permissions": [
   {
-   "amend": 1, "cancel": 1, "create": 1, "delete": 1, "email": 1, "export": 1,
-   "print": 1, "read": 1, "report": 1, "role": "System Manager", "share": 1,
-   "submit": 1, "write": 1
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
   },
   {
-   "amend": 1, "cancel": 1, "create": 1, "delete": 1, "email": 1, "export": 1,
-   "print": 1, "read": 1, "report": 1, "role": "Container Manager", "share": 1,
-   "submit": 1, "write": 1
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Container Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
   },
   {
-   "create": 1, "email": 1, "export": 1, "print": 1,
-   "read": 1, "report": 1, "role": "Customer Service", "share": 1, "write": 1
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Customer Service",
+   "share": 1,
+   "write": 1
   },
-  {"read": 1, "report": 1, "role": "Transfer Follow-up"},
-  {"read": 1, "report": 1, "role": "Driver Supervisor"}
+  {
+   "read": 1,
+   "report": 1,
+   "role": "Transfer Follow-up"
+  },
+  {
+   "read": 1,
+   "report": 1,
+   "role": "Driver Supervisor"
+  }
  ],
  "search_fields": "client,contract_status",
  "sort_field": "modified",

@@ -28,19 +28,19 @@
   {
    "fieldname": "source_section",
    "fieldtype": "Section Break",
-   "label": "مصدر التوصيل"
+   "label": "Delivery Source"
   },
   {
    "fieldname": "order",
    "fieldtype": "Link",
-   "label": "الطلب",
+   "label": "Order",
    "options": "Container Order",
    "in_list_view": 1
   },
   {
    "fieldname": "contract",
    "fieldtype": "Link",
-   "label": "العقد",
+   "label": "Contract",
    "options": "Container Contract"
   },
   {
@@ -50,7 +50,7 @@
   {
    "fieldname": "client",
    "fieldtype": "Link",
-   "label": "العميل",
+   "label": "Client",
    "options": "Customer",
    "reqd": 1,
    "in_list_view": 1
@@ -58,23 +58,23 @@
   {
    "fieldname": "address",
    "fieldtype": "Small Text",
-   "label": "العنوان / الموقع"
+   "label": "Address / Location"
   },
   {
    "fieldname": "container_section",
    "fieldtype": "Section Break",
-   "label": "الحاوية والمواعيد"
+   "label": "Container & Schedule"
   },
   {
    "fieldname": "barcode_scan",
    "fieldtype": "Data",
-   "label": "مسح الباركود",
+   "label": "Scan Barcode",
    "description": "امسح باركود الحاوية لتحديدها تلقائيًا"
   },
   {
    "fieldname": "container",
    "fieldtype": "Link",
-   "label": "رقم الحاوية",
+   "label": "Container No",
    "options": "Container",
    "reqd": 1,
    "in_list_view": 1
@@ -87,30 +87,30 @@
    "default": "Now",
    "fieldname": "delivery_datetime",
    "fieldtype": "Datetime",
-   "label": "تاريخ ووقت التوصيل",
+   "label": "Delivery Date & Time",
    "reqd": 1
   },
   {
    "fieldname": "agreed_days",
    "fieldtype": "Int",
-   "label": "المدة المتفق عليها (أيام)",
+   "label": "Agreed Duration (Days)",
    "description": "تلقائيًا من الطلب أو مدة الرحلة في العقد"
   },
   {
    "fieldname": "due_datetime",
    "fieldtype": "Datetime",
-   "label": "تاريخ الاستحقاق",
+   "label": "Due Date",
    "read_only": 1
   },
   {
    "fieldname": "crew_section",
    "fieldtype": "Section Break",
-   "label": "السائق والمشرف"
+   "label": "Driver & Supervisor"
   },
   {
    "fieldname": "driver",
    "fieldtype": "Link",
-   "label": "السائق",
+   "label": "Driver",
    "options": "Employee",
    "reqd": 1,
    "in_list_view": 1
@@ -118,7 +118,7 @@
   {
    "fieldname": "vehicle",
    "fieldtype": "Link",
-   "label": "الشاحنة",
+   "label": "Truck",
    "options": "Truck"
   },
   {
@@ -128,7 +128,7 @@
   {
    "fieldname": "supervisor",
    "fieldtype": "Link",
-   "label": "المشرف",
+   "label": "Supervisor",
    "options": "Employee"
   }
  ],

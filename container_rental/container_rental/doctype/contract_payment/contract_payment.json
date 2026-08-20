@@ -14,27 +14,27 @@
   {
    "fieldname": "payment_date",
    "fieldtype": "Date",
-   "label": "تاريخ الدفعة",
+   "label": "Payment Date",
    "reqd": 1,
    "in_list_view": 1
   },
   {
    "fieldname": "amount",
    "fieldtype": "Currency",
-   "label": "المبلغ",
+   "label": "Amount",
    "reqd": 1,
    "in_list_view": 1
   },
   {
    "fieldname": "tax_amount",
    "fieldtype": "Currency",
-   "label": "الضريبة",
+   "label": "Tax Amount",
    "in_list_view": 1
   },
   {
    "fieldname": "cash_box",
    "fieldtype": "Link",
-   "label": "الصندوق النقدي",
+   "label": "Cash Account",
    "options": "Account",
    "in_list_view": 1,
    "description": "حساب الصندوق من الدليل المحاسبي (يضيفه المحاسبون يدويًا)"
@@ -42,7 +42,7 @@
   {
    "fieldname": "notes",
    "fieldtype": "Small Text",
-   "label": "ملاحظات"
+   "label": "Notes"
   }
  ],
  "istable": 1,

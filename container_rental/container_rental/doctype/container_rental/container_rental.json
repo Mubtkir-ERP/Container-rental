@@ -31,13 +31,13 @@
   {
    "fieldname": "header_section",
    "fieldtype": "Section Break",
-   "label": "بيانات الإيجار"
+   "label": "Rental Details"
   },
   {
    "default": "نقدي",
    "fieldname": "rental_type",
    "fieldtype": "Select",
-   "label": "نوع الإيجار",
+   "label": "Rental Type",
    "options": "نقدي\nأجل قصير",
    "reqd": 1,
    "in_list_view": 1
@@ -45,7 +45,7 @@
   {
    "fieldname": "client",
    "fieldtype": "Link",
-   "label": "العميل",
+   "label": "Client",
    "options": "Customer",
    "reqd": 1,
    "in_list_view": 1
@@ -58,38 +58,38 @@
    "default": "Now",
    "fieldname": "period_from",
    "fieldtype": "Datetime",
-   "label": "فترة الإيجار من",
+   "label": "Rental Period From",
    "reqd": 1
   },
   {
    "fieldname": "period_to",
    "fieldtype": "Datetime",
-   "label": "فترة الإيجار إلى",
+   "label": "Rental Period To",
    "reqd": 1,
    "description": "تُحسب تلقائيًا حسب المدة الافتراضية ويمكن تعديلها"
   },
   {
    "fieldname": "container_section",
    "fieldtype": "Section Break",
-   "label": "الحاوية"
+   "label": "Container"
   },
   {
    "fieldname": "classification",
    "fieldtype": "Link",
-   "label": "التصنيف",
+   "label": "Classification",
    "options": "Container Classification"
   },
   {
    "fieldname": "container_size",
    "fieldtype": "Link",
-   "label": "حجم الحاوية",
+   "label": "Container Size",
    "options": "Container Size",
    "reqd": 1
   },
   {
    "fieldname": "barcode_scan",
    "fieldtype": "Data",
-   "label": "مسح الباركود",
+   "label": "Scan Barcode",
    "description": "امسح باركود الحاوية لتحديدها تلقائيًا"
   },
   {
@@ -99,7 +99,7 @@
   {
    "fieldname": "container",
    "fieldtype": "Link",
-   "label": "رقم الحاوية",
+   "label": "Container No",
    "options": "Container",
    "reqd": 1,
    "in_list_view": 1
@@ -107,25 +107,25 @@
   {
    "fieldname": "driver",
    "fieldtype": "Link",
-   "label": "السائق",
+   "label": "Driver",
    "options": "Employee"
   },
   {
    "fieldname": "payment_section",
    "fieldtype": "Section Break",
-   "label": "الدفع والعنوان"
+   "label": "Payment & Address"
   },
   {
    "fieldname": "amount",
    "fieldtype": "Currency",
-   "label": "المبلغ",
+   "label": "Amount",
    "in_list_view": 1
   },
   {
    "default": "نقدي",
    "fieldname": "payment_method",
    "fieldtype": "Select",
-   "label": "طريقة التسديد",
+   "label": "Payment Method",
    "options": "نقدي\nآجل",
    "reqd": 1
   },
@@ -137,24 +137,24 @@
    "depends_on": "eval:doc.payment_method=='نقدي'",
    "fieldname": "cash_box",
    "fieldtype": "Link",
-   "label": "الصندوق النقدي",
+   "label": "Cash Account",
    "options": "Account",
    "description": "حساب الصندوق من الدليل المحاسبي (يضيفه المحاسبون يدويًا)"
   },
   {
    "fieldname": "address",
    "fieldtype": "Small Text",
-   "label": "العنوان"
+   "label": "Address"
   },
   {
    "fieldname": "attachment_section",
    "fieldtype": "Section Break",
-   "label": "المرفقات"
+   "label": "Attachments"
   },
   {
    "fieldname": "delivery_receipt",
    "fieldtype": "Attach",
-   "label": "إيصال التسليم"
+   "label": "Delivery Receipt"
   }
  ],
  "is_submittable": 1,

@@ -1,22 +1,21 @@
 {
  "charts": [],
- "content": "[{\"id\": \"hdr_home\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>نظام تأجير الحاويات</b></span>\", \"col\": 12}}, {\"id\": \"hdr_qa\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h6\\\"><b>الوصول السريع</b></span>\", \"col\": 12}}, {\"id\": \"sc_0\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"لوحة التحكم الرئيسية\", \"col\": 4}}, {\"id\": \"sc_1\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"الحاويات المتأخرة\", \"col\": 4}}, {\"id\": \"sc_2\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"تسجيل طلب جديد\", \"col\": 4}}, {\"id\": \"sc_3\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"تسجيل إيجار حاوية\", \"col\": 4}}, {\"id\": \"sc_4\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"تسجيل تعاقد\", \"col\": 4}}, {\"id\": \"sc_5\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"تفريغ حاوية\", \"col\": 4}}, {\"id\": \"sp1\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"hdr_cards\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h6\\\"><b>الأقسام</b></span>\", \"col\": 12}}, {\"id\": \"cd_0\", \"type\": \"card\", \"data\": {\"card_name\": \"العمليات\", \"col\": 4}}, {\"id\": \"cd_1\", \"type\": \"card\", \"data\": {\"card_name\": \"العقود والفوترة\", \"col\": 4}}, {\"id\": \"cd_2\", \"type\": \"card\", \"data\": {\"card_name\": \"الأساسيات\", \"col\": 4}}, {\"id\": \"cd_3\", \"type\": \"card\", \"data\": {\"card_name\": \"التنبيهات والتقارير\", \"col\": 4}}, {\"id\": \"cd_4\", \"type\": \"card\", \"data\": {\"card_name\": \"واتساب\", \"col\": 4}}, {\"id\": \"cd_5\", \"type\": \"card\", \"data\": {\"card_name\": \"الإعدادات\", \"col\": 4}}]",
- "creation": "2026-08-01 00:00:00",
+ "content": "[{\"id\": \"hdr_home\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Container Rental System</b></span>\", \"col\": 12}}, {\"id\": \"hdr_qa\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h6\\\"><b>Quick Access</b></span>\", \"col\": 12}}, {\"id\": \"sc_0\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Main Dashboard\", \"col\": 4}}, {\"id\": \"sc_1\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Overdue Containers\", \"col\": 4}}, {\"id\": \"sc_2\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Container Order\", \"col\": 4}}, {\"id\": \"sc_3\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Container Rental\", \"col\": 4}}, {\"id\": \"sc_4\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Container Contract\", \"col\": 4}}, {\"id\": \"sc_5\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Container Unload\", \"col\": 4}}, {\"id\": \"sp1\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"hdr_cards\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h6\\\"><b>Sections</b></span>\", \"col\": 12}}, {\"id\": \"cd_0\", \"type\": \"card\", \"data\": {\"card_name\": \"Operations\", \"col\": 4}}, {\"id\": \"cd_1\", \"type\": \"card\", \"data\": {\"card_name\": \"Contracts & Billing\", \"col\": 4}}, {\"id\": \"cd_2\", \"type\": \"card\", \"data\": {\"card_name\": \"Masters\", \"col\": 4}}, {\"id\": \"cd_3\", \"type\": \"card\", \"data\": {\"card_name\": \"Alerts & Reports\", \"col\": 4}}, {\"id\": \"cd_4\", \"type\": \"card\", \"data\": {\"card_name\": \"WhatsApp\", \"col\": 4}}, {\"id\": \"cd_5\", \"type\": \"card\", \"data\": {\"card_name\": \"Settings\", \"col\": 4}}]",
+ "creation": "2026-08-20 13:57:46.165969",
  "custom_blocks": [],
  "docstatus": 0,
  "doctype": "Workspace",
- "for_user": "",
  "hide_custom": 0,
  "icon": "truck",
  "idx": 0,
  "indicator_color": "orange",
  "is_hidden": 0,
- "label": "تأجير الحاويات",
+ "label": "Container Rental System",
  "links": [
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "العمليات",
+   "label": "Operations",
    "link_count": 6,
    "link_type": "DocType",
    "onboard": 0,
@@ -25,7 +24,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "طلبات الحاويات",
+   "label": "Container Order",
    "link_count": 0,
    "link_to": "Container Order",
    "link_type": "DocType",
@@ -35,7 +34,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "تسجيل إيجار حاوية",
+   "label": "Container Rental",
    "link_count": 0,
    "link_to": "Container Rental",
    "link_type": "DocType",
@@ -45,7 +44,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "توصيل حاوية",
+   "label": "Container Delivery",
    "link_count": 0,
    "link_to": "Container Delivery",
    "link_type": "DocType",
@@ -55,7 +54,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "تفريغ حاوية",
+   "label": "Container Unload",
    "link_count": 0,
    "link_to": "Container Unload",
    "link_type": "DocType",
@@ -65,7 +64,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "سحب حاوية",
+   "label": "Container Withdrawal",
    "link_count": 0,
    "link_to": "Container Withdrawal",
    "link_type": "DocType",
@@ -75,7 +74,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "سجل التأجير",
+   "label": "Rental Record",
    "link_count": 0,
    "link_to": "Rental Record",
    "link_type": "DocType",
@@ -85,7 +84,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "العقود والفوترة",
+   "label": "Contracts & Billing",
    "link_count": 5,
    "link_type": "DocType",
    "onboard": 0,
@@ -94,7 +93,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "تسجيل تعاقد",
+   "label": "Container Contract",
    "link_count": 0,
    "link_to": "Container Contract",
    "link_type": "DocType",
@@ -104,7 +103,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "الفواتير الشهرية",
+   "label": "Contract Monthly Invoice",
    "link_count": 0,
    "link_to": "Contract Monthly Invoice",
    "link_type": "DocType",
@@ -114,7 +113,7 @@
   {
    "hidden": 0,
    "is_query_report": 1,
-   "label": "تقرير العقود",
+   "label": "Contract Report",
    "link_count": 0,
    "link_to": "Contract Report",
    "link_type": "Report",
@@ -124,7 +123,7 @@
   {
    "hidden": 0,
    "is_query_report": 1,
-   "label": "تقرير الفواتير الشهرية للعقود",
+   "label": "Monthly Invoices Report",
    "link_count": 0,
    "link_to": "Monthly Invoices Report",
    "link_type": "Report",
@@ -134,7 +133,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "عمولات السائقين",
+   "label": "Driver Commission Entry",
    "link_count": 0,
    "link_to": "Driver Commission Entry",
    "link_type": "DocType",
@@ -144,8 +143,8 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "الأساسيات",
-   "link_count": 7,
+   "label": "Masters",
+   "link_count": 8,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -153,7 +152,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "الحاويات",
+   "label": "Container",
    "link_count": 0,
    "link_to": "Container",
    "link_type": "DocType",
@@ -163,57 +162,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "العملاء",
-   "link_count": 0,
-   "link_to": "Customer",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "الموظفون",
-   "link_count": 0,
-   "link_to": "Employee",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "الشاحنات",
-   "link_count": 0,
-   "link_to": "Truck",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "الفروع",
-   "link_count": 0,
-   "link_to": "Rental Branch",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "التصنيفات",
-   "link_count": 0,
-   "link_to": "Container Classification",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "أحجام الحاويات",
+   "label": "Container Size",
    "link_count": 0,
    "link_to": "Container Size",
    "link_type": "DocType",
@@ -223,7 +172,67 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "التنبيهات والتقارير",
+   "label": "Customer",
+   "link_count": 0,
+   "link_to": "Customer",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Employee",
+   "link_count": 0,
+   "link_to": "Employee",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sales Person",
+   "link_count": 0,
+   "link_to": "Sales Person",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Truck",
+   "link_count": 0,
+   "link_to": "Truck",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Rental Branch",
+   "link_count": 0,
+   "link_to": "Rental Branch",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Container Classification",
+   "link_count": 0,
+   "link_to": "Container Classification",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Alerts & Reports",
    "link_count": 7,
    "link_type": "DocType",
    "onboard": 0,
@@ -232,7 +241,7 @@
   {
    "hidden": 0,
    "is_query_report": 1,
-   "label": "تقرير الحاويات المتأخرة",
+   "label": "Overdue Containers Report",
    "link_count": 0,
    "link_to": "Overdue Containers Report",
    "link_type": "Report",
@@ -242,7 +251,7 @@
   {
    "hidden": 0,
    "is_query_report": 1,
-   "label": "التقرير العام للحاويات",
+   "label": "General Containers Report",
    "link_count": 0,
    "link_to": "General Containers Report",
    "link_type": "Report",
@@ -252,7 +261,7 @@
   {
    "hidden": 0,
    "is_query_report": 1,
-   "label": "تقرير عمولات السائقين",
+   "label": "Driver Commissions Report",
    "link_count": 0,
    "link_to": "Driver Commissions Report",
    "link_type": "Report",
@@ -262,7 +271,7 @@
   {
    "hidden": 0,
    "is_query_report": 1,
-   "label": "تقرير متابعة الصيانة",
+   "label": "Maintenance Report",
    "link_count": 0,
    "link_to": "Maintenance Report",
    "link_type": "Report",
@@ -272,7 +281,7 @@
   {
    "hidden": 0,
    "is_query_report": 1,
-   "label": "تنبيهات الموظفين",
+   "label": "Employee Alerts Report",
    "link_count": 0,
    "link_to": "Employee Alerts Report",
    "link_type": "Report",
@@ -282,7 +291,7 @@
   {
    "hidden": 0,
    "is_query_report": 1,
-   "label": "تنبيهات الشاحنات",
+   "label": "Truck Alerts Report",
    "link_count": 0,
    "link_to": "Truck Alerts Report",
    "link_type": "Report",
@@ -292,7 +301,7 @@
   {
    "hidden": 0,
    "is_query_report": 1,
-   "label": "تقرير المصروفات",
+   "label": "Expenses Report",
    "link_count": 0,
    "link_to": "Expenses Report",
    "link_type": "Report",
@@ -302,7 +311,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "واتساب",
+   "label": "WhatsApp",
    "link_count": 5,
    "link_type": "DocType",
    "onboard": 0,
@@ -311,7 +320,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "إعدادات واتساب",
+   "label": "WhatsApp Settings",
    "link_count": 0,
    "link_to": "WhatsApp Settings",
    "link_type": "DocType",
@@ -321,7 +330,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "قوالب الرسائل",
+   "label": "WhatsApp Templates",
    "link_count": 0,
    "link_to": "WhatsApp Templates",
    "link_type": "DocType",
@@ -331,7 +340,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "سجل الرسائل",
+   "label": "WhatsApp Message",
    "link_count": 0,
    "link_to": "WhatsApp Message",
    "link_type": "DocType",
@@ -341,7 +350,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "إشعارات واتساب",
+   "label": "WhatsApp Notification",
    "link_count": 0,
    "link_to": "WhatsApp Notification",
    "link_type": "DocType",
@@ -351,7 +360,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "سجل الإشعارات",
+   "label": "WhatsApp Notification Log",
    "link_count": 0,
    "link_to": "WhatsApp Notification Log",
    "link_type": "DocType",
@@ -361,7 +370,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "الإعدادات",
+   "label": "Settings",
    "link_count": 1,
    "link_type": "DocType",
    "onboard": 0,
@@ -370,7 +379,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "إعدادات النظام",
+   "label": "Container Rental Settings",
    "link_count": 0,
    "link_to": "Container Rental Settings",
    "link_type": "DocType",
@@ -378,60 +387,59 @@
    "type": "Link"
   }
  ],
- "modified": "2026-08-09 00:14:02.338410",
+ "modified": "2026-08-20 13:57:46.165969",
  "modified_by": "Administrator",
  "module": "Container Rental",
- "name": "تأجير الحاويات",
+ "name": "Container Rental System",
  "number_cards": [],
  "owner": "Administrator",
- "parent_page": "",
  "public": 1,
  "quick_lists": [],
  "roles": [],
- "sequence_id": 99.0,
+ "sequence_id": 0.0,
  "shortcuts": [
   {
    "color": "Grey",
    "doc_view": "",
-   "label": "لوحة التحكم الرئيسية",
+   "label": "Main Dashboard",
    "link_to": "containers-dashboard",
    "type": "Page"
   },
   {
    "color": "Red",
    "doc_view": "",
-   "label": "الحاويات المتأخرة",
+   "label": "Overdue Containers",
    "link_to": "overdue-containers",
    "type": "Page"
   },
   {
    "color": "Blue",
    "doc_view": "",
-   "label": "تسجيل طلب جديد",
+   "label": "Container Order",
    "link_to": "Container Order",
    "type": "DocType"
   },
   {
    "color": "Green",
    "doc_view": "",
-   "label": "تسجيل إيجار حاوية",
+   "label": "Container Rental",
    "link_to": "Container Rental",
    "type": "DocType"
   },
   {
    "color": "Orange",
    "doc_view": "",
-   "label": "تسجيل تعاقد",
+   "label": "Container Contract",
    "link_to": "Container Contract",
    "type": "DocType"
   },
   {
    "color": "Grey",
    "doc_view": "",
-   "label": "تفريغ حاوية",
+   "label": "Container Unload",
    "link_to": "Container Unload",
    "type": "DocType"
   }
  ],
- "title": "تأجير الحاويات"
+ "title": "Container Rental System"
 }

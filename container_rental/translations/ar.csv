@@ -35,3 +35,181 @@ Customer Service,خدمة العملاء
 Transfer Follow-up,متابعة الحوالات
 Driver Supervisor,مشرف السواقين
 Container Manager,مدير الحاويات
+Actual Deliveries,عدد التوصيلات الفعلية
+Additional Containers,حاويات إضافية
+Additional Containers in Order,حاويات إضافية بنفس الطلب
+Address,العنوان
+Address / Delivery Location,العنوان / موقع التسليم
+Address / Location,العنوان / الموقع
+Agreed Duration (Days),المدة المتفق عليها (أيام)
+Alert Settings,إعدادات التنبيهات
+Amount,المبلغ
+Assigned Driver,السائق المسند
+Assignment,الإسناد
+Attachments,المرفقات
+Barcode,الباركود
+Branch,الفرع
+Branch Name,اسم الفرع
+Cash Account,الصندوق النقدي
+Change Date,تاريخ الغيار
+Classification,التصنيف
+Client,العميل
+Client Details,بيانات العميل
+Client Name,اسم العميل
+Commission Amount,قيمة العمولة
+Confirmed By,أُكدت بواسطة
+Consumed Trips,الرحلات المنفذة
+Container & Schedule,الحاوية والمواعيد
+Container Details,بيانات الحاوية
+Container No,رقم الحاوية
+Container Size,حجم الحاوية
+Contract,العقد
+Contract Details,بيانات التعاقد
+Contract Expiry Alert (Days),التنبيه قبل انتهاء العقد بـ (أيام)
+Contract Items,بنود التعاقد
+Contract Payments,دفعات العقد
+Contract Period From,مدة التعاقد من
+Contract Period To,مدة التعاقد إلى
+Contract Status,حالة العقد
+Contract Type / Classification,نوع العقد / التصنيف
+Contract Value,قيمة التعاقد
+Contracted Containers,الحاويات المطلوبة في التعاقد
+Cost,التكلفة
+Current Odometer (KM),قراءة العداد الحالية (كم)
+Date,التاريخ
+Dates,التواريخ
+Default Rental Duration (Days),مدة التأجير الافتراضية (أيام)
+Delivery Date,تاريخ التوصيل
+Delivery Date & Time,تاريخ ووقت التوصيل
+Delivery Receipt,إيصال التسليم
+Delivery Reference,مرجع التوصيلة
+Delivery Schedule,موعد التوصيل
+Delivery Source,مصدر التوصيل
+Delivery Time,وقت التوصيل
+Document Name,اسم المستند
+Documents,المستندات
+Driver,السائق
+Driver & Supervisor,السائق والمشرف
+Drivers Supervisor (User),مشرف السواقين (مستخدم النظام)
+Due Date,تاريخ الاستحقاق
+Entered By,أُدخل بواسطة
+Expiry Alert Days,أيام التنبيه قبل انتهاء الوثائق
+Expiry Alert Sent On,تاريخ إرسال تنبيه الانتهاء
+Expiry Date,تاريخ الانتهاء
+Fees,الرسوم
+File,الملف
+Generated On,تاريخ التوليد
+Invoice Details,بيانات الفاتورة
+Invoice Lines,بنود الفاتورة
+Invoice Month,شهر الفاتورة
+Invoice Total,إجمالي الفاتورة
+Is Default,افتراضي
+Last Container No,رقم آخر حاوية
+Last Delivery Date,تاريخ آخر توصيل
+Last Message Date,تاريخ آخر رسالة
+Last Unload Date,تاريخ آخر تفريغ
+Last Unload Request Sent On,آخر طلب تفريغ للمشرف
+Last WhatsApp Message,آخر رسالة واتساب
+Lines,البنود
+Location,الموقع
+Location Title,اسم الموقع
+Maintenance Date,تاريخ الصيانة
+Maintenance Log,سجل الصيانة
+Maintenance Type,نوع الصيانة
+Mobile No,رقم الجوال
+Model (Year),الموديل (السنة)
+Municipality / Unload Fee,رسوم البلدية / رسوم التفريغ
+Next Change Date,تاريخ الغيار القادم
+Next Change KM,كيلومتر الغيار القادم
+Next Maintenance Date,تاريخ الصيانة القادمة
+Next Maintenance KM,كيلومتر الصيانة القادمة
+Notes,ملاحظات
+Odometer (KM),العداد
+Odometer at Change (KM),العداد عند الغيار (كم)
+Odometer at Maintenance (KM),الكيلومترات عند الصيانة
+Oil Change,غيار الزيت
+Oil Change Log,سجل غيار الزيت
+Order,الطلب
+Order Details,بيانات الطلب
+Order Status,حالة الطلب
+Order Type,نوع الطلب
+Outstanding,المتبقي (عليه)
+Paid Amount,المدفوع
+Payment,السداد
+Payment & Address,الدفع والعنوان
+Payment Date,تاريخ السداد
+Payment Method,طريقة الدفع
+Payment Received,تم استلام المبلغ
+Payment Status,حالة السداد
+Payment Tracking,متابعة السداد
+Payments,الدفعات
+Payout,الصرف
+Payout Date,تاريخ الصرف
+Payout Status,حالة الصرف
+Period End,نهاية الفترة
+Period Start,بداية الفترة
+Price (Per Trip),السعر (للرحلة الواحدة)
+Reference,المرجع
+Reference Type,نوع المرجع
+Remaining Trips,الرحلات المتبقية
+Rental & Payment,التأجير والدفع
+Rental Date,تاريخ التأجير
+Rental Details,بيانات الإيجار
+Rental Duration (Days),مدة التأجير (أيام)
+Rental End Date,تاريخ انتهاء التأجير
+Rental Period From,فترة الإيجار من
+Rental Period To,فترة الإيجار إلى
+Rental Settings,إعدادات التأجير
+Rental Type,نوع الإيجار
+Rental Value,قيمة التأجير
+Required Delivery Date,تاريخ التوصيل المطلوب
+Responsible Driver,السائق المسؤول
+Sales Person,المندوب (Sales Person)
+Scan Barcode,مسح الباركود
+Send WhatsApp Confirmation to Client,إرسال تأكيد واتساب للعميل
+Size,الحجم
+Source,المصدر
+Source Document,المستند المصدر
+Source Type,نوع المصدر
+Status,الحالة
+Supervisor,المشرف
+Tax Amount,الضريبة
+Tax on Paid,الضرائب على المدفوع
+Total,الإجمالي
+Totals & Payment,الإجماليات والسداد
+Totals & Trips,الإجماليات والرحلات
+Tracking,المتابعة
+Transfer Confirmation,تأكيد الحوالة
+Transfer Confirmed On,تاريخ تأكيد الحوالة
+Trip Duration (Days),مدة الرحلة (أيام)
+Trip Price,سعر الرحلة
+Trips Count,عدد الرحلات
+Truck Details,بيانات الشاحنة
+Truck Documents,مستندات الشاحنة
+Unload Date,تاريخ التفريغ
+Unload Reason,سبب التفريغ
+Unload Reminder After (Days),تذكير العميل بالتفريغ بعد (أيام)
+Value,القيمة
+Vehicle No / Plate,رقم السيارة / اللوحة
+Vehicle Type,نوع السيارة
+WhatsApp & Follow-up,واتساب والمتابعة
+WhatsApp Sent,أُرسلت واتساب
+Withdrawal Date,تاريخ السحب
+Main Dashboard,لوحة التحكم الرئيسية
+Overdue Containers,الحاويات المتأخرة
+Quick Access,الوصول السريع
+Sections,الأقسام
+Operations,العمليات
+Contracts & Billing,العقود والفوترة
+Masters,الأساسيات
+Alerts & Reports,التنبيهات والتقارير
+Employee Documents,مستندات الموظف
+Commission Per Delivery,قيمة العمولة لكل توصيلة
+Container Rental Details,بيانات تأجير الحاويات
+Mobile No (WhatsApp),رقم الجوال (واتساب)
+Account Type,نوع الحساب
+Rental Balance,رصيد التأجير
+Delivery Locations,مواقع التسليم
+Locations,العناوين / المواقع
+Size Name,اسم الحجم
+Container Rental System,نظام تأجير الحاويات

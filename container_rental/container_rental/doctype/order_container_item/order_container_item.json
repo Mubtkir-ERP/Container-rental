@@ -12,7 +12,7 @@
   {
    "fieldname": "container_size",
    "fieldtype": "Link",
-   "label": "حجم الحاوية",
+   "label": "Container Size",
    "options": "Container Size",
    "reqd": 1,
    "in_list_view": 1
@@ -20,14 +20,14 @@
   {
    "fieldname": "container",
    "fieldtype": "Link",
-   "label": "رقم الحاوية",
+   "label": "Container No",
    "options": "Container",
    "in_list_view": 1
   },
   {
    "fieldname": "rental_value",
    "fieldtype": "Currency",
-   "label": "قيمة التأجير",
+   "label": "Rental Value",
    "in_list_view": 1
   }
  ],

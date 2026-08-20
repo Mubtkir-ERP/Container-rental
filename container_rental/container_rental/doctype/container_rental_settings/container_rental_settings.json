@@ -18,13 +18,13 @@
   {
    "fieldname": "rental_section",
    "fieldtype": "Section Break",
-   "label": "إعدادات التأجير"
+   "label": "Rental Settings"
   },
   {
    "default": "10",
    "fieldname": "default_rental_days",
    "fieldtype": "Int",
-   "label": "مدة التأجير الافتراضية (أيام)",
+   "label": "Default Rental Duration (Days)",
    "reqd": 1
   },
   {
@@ -34,20 +34,20 @@
   {
    "fieldname": "default_supervisor",
    "fieldtype": "Link",
-   "label": "مشرف السواقين (مستخدم النظام)",
+   "label": "Drivers Supervisor (User)",
    "options": "User",
    "description": "يستقبل طلبات التفريغ والإشعارات الداخلية، ورقم جواله من ملف المستخدم"
   },
   {
    "fieldname": "alerts_section",
    "fieldtype": "Section Break",
-   "label": "إعدادات التنبيهات"
+   "label": "Alert Settings"
   },
   {
    "default": "30",
    "fieldname": "expiry_alert_days",
    "fieldtype": "Int",
-   "label": "أيام التنبيه قبل انتهاء الوثائق",
+   "label": "Expiry Alert Days",
    "reqd": 1,
    "description": "الإقامة / التأمين / الاستمارة / كارت السائق / كارت التشغيل"
   },
@@ -55,7 +55,7 @@
    "default": "2",
    "fieldname": "unload_reminder_after_days",
    "fieldtype": "Int",
-   "label": "تذكير العميل بالتفريغ بعد (أيام)",
+   "label": "Unload Reminder After (Days)",
    "reqd": 1
   },
   {
@@ -66,7 +66,7 @@
    "default": "30",
    "fieldname": "contract_expiry_alert_days",
    "fieldtype": "Int",
-   "label": "التنبيه قبل انتهاء العقد بـ (أيام)",
+   "label": "Contract Expiry Alert (Days)",
    "reqd": 1
   }
  ],

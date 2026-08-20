@@ -24,7 +24,7 @@
   {
    "fieldname": "driver",
    "fieldtype": "Link",
-   "label": "السائق",
+   "label": "Driver",
    "options": "Employee",
    "reqd": 1,
    "in_list_view": 1,
@@ -33,7 +33,7 @@
   {
    "fieldname": "sales_person",
    "fieldtype": "Link",
-   "label": "المندوب (Sales Person)",
+   "label": "Sales Person",
    "options": "Sales Person",
    "read_only": 1,
    "description": "سجل المندوب المرتبط بالسائق — مصدر قيمة العمولة"
@@ -41,14 +41,14 @@
   {
    "fieldname": "commission_amount",
    "fieldtype": "Currency",
-   "label": "قيمة العمولة",
+   "label": "Commission Amount",
    "read_only": 1,
    "in_list_view": 1
   },
   {
    "fieldname": "entry_date",
    "fieldtype": "Date",
-   "label": "التاريخ",
+   "label": "Date",
    "read_only": 1,
    "in_list_view": 1
   },
@@ -59,46 +59,46 @@
   {
    "fieldname": "container",
    "fieldtype": "Link",
-   "label": "الحاوية",
+   "label": "Container",
    "options": "Container",
    "read_only": 1
   },
   {
    "fieldname": "client",
    "fieldtype": "Link",
-   "label": "العميل",
+   "label": "Client",
    "options": "Customer",
    "read_only": 1
   },
   {
    "fieldname": "reference_section",
    "fieldtype": "Section Break",
-   "label": "مرجع التوصيلة"
+   "label": "Delivery Reference"
   },
   {
    "fieldname": "delivery_reference_doctype",
    "fieldtype": "Select",
-   "label": "نوع المرجع",
+   "label": "Reference Type",
    "options": "Container Delivery\nContainer Rental",
    "read_only": 1
   },
   {
    "fieldname": "delivery_reference",
    "fieldtype": "Dynamic Link",
-   "label": "المرجع",
+   "label": "Reference",
    "options": "delivery_reference_doctype",
    "read_only": 1
   },
   {
    "fieldname": "payout_section",
    "fieldtype": "Section Break",
-   "label": "الصرف"
+   "label": "Payout"
   },
   {
    "default": "مستحقة",
    "fieldname": "payout_status",
    "fieldtype": "Select",
-   "label": "حالة الصرف",
+   "label": "Payout Status",
    "options": "مستحقة\nمصروفة",
    "in_list_view": 1,
    "in_standard_filter": 1
@@ -110,7 +110,7 @@
   {
    "fieldname": "paid_on",
    "fieldtype": "Date",
-   "label": "تاريخ الصرف",
+   "label": "Payout Date",
    "read_only": 1
   }
  ],

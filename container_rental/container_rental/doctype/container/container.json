@@ -27,12 +27,12 @@
   {
    "fieldname": "basic_section",
    "fieldtype": "Section Break",
-   "label": "بيانات الحاوية"
+   "label": "Container Details"
   },
   {
    "fieldname": "container_no",
    "fieldtype": "Data",
-   "label": "رقم الحاوية",
+   "label": "Container No",
    "reqd": 1,
    "unique": 1,
    "in_list_view": 1
@@ -40,7 +40,7 @@
   {
    "fieldname": "size",
    "fieldtype": "Link",
-   "label": "حجم الحاوية",
+   "label": "Container Size",
    "options": "Container Size",
    "reqd": 1,
    "in_list_view": 1,
@@ -49,7 +49,7 @@
   {
    "fieldname": "classification",
    "fieldtype": "Link",
-   "label": "التصنيف",
+   "label": "Classification",
    "options": "Container Classification",
    "in_list_view": 1,
    "in_standard_filter": 1
@@ -61,7 +61,7 @@
   {
    "fieldname": "branch",
    "fieldtype": "Link",
-   "label": "اسم الفرع",
+   "label": "Branch Name",
    "options": "Rental Branch",
    "in_list_view": 1,
    "in_standard_filter": 1
@@ -69,7 +69,7 @@
   {
    "fieldname": "responsible_driver",
    "fieldtype": "Link",
-   "label": "السائق المسؤول",
+   "label": "Responsible Driver",
    "options": "Employee",
    "in_standard_filter": 1,
    "allow_in_quick_entry": 1
@@ -78,7 +78,7 @@
    "default": "متاحة",
    "fieldname": "status",
    "fieldtype": "Select",
-   "label": "الحالة",
+   "label": "Status",
    "options": "متاحة\nمؤجرة\nتالفة\nصيانة\nمتأخرة\nمسحوبة",
    "read_only": 1,
    "in_list_view": 1,
@@ -87,23 +87,23 @@
   {
    "fieldname": "barcode_section",
    "fieldtype": "Section Break",
-   "label": "الباركود"
+   "label": "Barcode"
   },
   {
    "fieldname": "barcode",
    "fieldtype": "Barcode",
-   "label": "الباركود",
+   "label": "Barcode",
    "read_only": 1
   },
   {
    "fieldname": "tracking_section",
    "fieldtype": "Section Break",
-   "label": "المتابعة"
+   "label": "Tracking"
   },
   {
    "fieldname": "last_delivery_datetime",
    "fieldtype": "Datetime",
-   "label": "تاريخ آخر توصيل",
+   "label": "Last Delivery Date",
    "read_only": 1
   },
   {
@@ -113,7 +113,7 @@
   {
    "fieldname": "last_unload_datetime",
    "fieldtype": "Datetime",
-   "label": "تاريخ آخر تفريغ",
+   "label": "Last Unload Date",
    "read_only": 1
   },
   {
@@ -124,7 +124,7 @@
   {
    "fieldname": "notes",
    "fieldtype": "Text",
-   "label": "ملاحظات"
+   "label": "Notes"
   }
  ],
  "links": [],

@@ -29,12 +29,12 @@
   {
    "fieldname": "header_section",
    "fieldtype": "Section Break",
-   "label": "بيانات الفاتورة"
+   "label": "Invoice Details"
   },
   {
    "fieldname": "contract",
    "fieldtype": "Link",
-   "label": "العقد",
+   "label": "Contract",
    "options": "Container Contract",
    "reqd": 1,
    "in_list_view": 1,
@@ -44,7 +44,7 @@
    "fetch_from": "contract.client",
    "fieldname": "client",
    "fieldtype": "Link",
-   "label": "العميل",
+   "label": "Client",
    "options": "Customer",
    "read_only": 1,
    "in_list_view": 1,
@@ -54,7 +54,7 @@
    "fetch_from": "client.cr_mobile_no",
    "fieldname": "mobile_no",
    "fieldtype": "Data",
-   "label": "رقم الجوال",
+   "label": "Mobile No",
    "read_only": 1
   },
   {
@@ -64,7 +64,7 @@
   {
    "fieldname": "month_key",
    "fieldtype": "Data",
-   "label": "شهر الفاتورة",
+   "label": "Invoice Month",
    "read_only": 1,
    "in_list_view": 1,
    "description": "مثال: 2026-07"
@@ -72,35 +72,35 @@
   {
    "fieldname": "period_start",
    "fieldtype": "Date",
-   "label": "بداية الفترة",
+   "label": "Period Start",
    "read_only": 1
   },
   {
    "fieldname": "period_end",
    "fieldtype": "Date",
-   "label": "نهاية الفترة",
+   "label": "Period End",
    "read_only": 1
   },
   {
    "fieldname": "lines_section",
    "fieldtype": "Section Break",
-   "label": "بنود الفاتورة"
+   "label": "Invoice Lines"
   },
   {
    "fieldname": "lines",
    "fieldtype": "Table",
-   "label": "البنود",
+   "label": "Lines",
    "options": "Monthly Invoice Line"
   },
   {
    "fieldname": "totals_section",
    "fieldtype": "Section Break",
-   "label": "الإجماليات والسداد"
+   "label": "Totals & Payment"
   },
   {
    "fieldname": "total_amount",
    "fieldtype": "Currency",
-   "label": "إجمالي الفاتورة",
+   "label": "Invoice Total",
    "read_only": 1,
    "in_list_view": 1
   },
@@ -108,7 +108,7 @@
    "allow_on_submit": 1,
    "fieldname": "paid_amount",
    "fieldtype": "Currency",
-   "label": "المدفوع"
+   "label": "Paid Amount"
   },
   {
    "fieldname": "column_break_totals",
@@ -119,7 +119,7 @@
    "default": "غير مسددة",
    "fieldname": "payment_status",
    "fieldtype": "Select",
-   "label": "حالة السداد",
+   "label": "Payment Status",
    "options": "غير مسددة\nمسددة جزئيًا\nمسددة",
    "in_list_view": 1,
    "in_standard_filter": 1
@@ -132,7 +132,7 @@
   {
    "fieldname": "generated_on",
    "fieldtype": "Datetime",
-   "label": "تاريخ التوليد",
+   "label": "Generated On",
    "read_only": 1
   },
   {
@@ -143,7 +143,7 @@
    "default": "0",
    "fieldname": "whatsapp_sent",
    "fieldtype": "Check",
-   "label": "أُرسلت واتساب",
+   "label": "WhatsApp Sent",
    "read_only": 1
   }
  ],
@@ -157,17 +157,47 @@
  "owner": "Administrator",
  "permissions": [
   {
-   "amend": 1, "cancel": 1, "create": 1, "delete": 1, "email": 1, "export": 1,
-   "print": 1, "read": 1, "report": 1, "role": "System Manager", "share": 1,
-   "submit": 1, "write": 1
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
   },
   {
-   "amend": 1, "cancel": 1, "create": 1, "delete": 1, "email": 1, "export": 1,
-   "print": 1, "read": 1, "report": 1, "role": "Container Manager", "share": 1,
-   "submit": 1, "write": 1
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Container Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
   },
-  {"read": 1, "report": 1, "export": 1, "role": "Transfer Follow-up", "write": 1},
-  {"read": 1, "report": 1, "role": "Customer Service"}
+  {
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "role": "Transfer Follow-up",
+   "write": 1
+  },
+  {
+   "read": 1,
+   "report": 1,
+   "role": "Customer Service"
+  }
  ],
  "search_fields": "contract,client,month_key",
  "sort_field": "modified",

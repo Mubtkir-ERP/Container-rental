@@ -26,12 +26,12 @@
   {
    "fieldname": "basic_section",
    "fieldtype": "Section Break",
-   "label": "بيانات الشاحنة"
+   "label": "Truck Details"
   },
   {
    "fieldname": "vehicle_no",
    "fieldtype": "Data",
-   "label": "رقم السيارة / اللوحة",
+   "label": "Vehicle No / Plate",
    "reqd": 1,
    "unique": 1,
    "in_list_view": 1
@@ -39,14 +39,14 @@
   {
    "fieldname": "vehicle_type",
    "fieldtype": "Select",
-   "label": "نوع السيارة",
+   "label": "Vehicle Type",
    "options": "\nقلاب\nشاحنة رفع حاويات\nونش\nأخرى",
    "in_list_view": 1
   },
   {
    "fieldname": "model_year",
    "fieldtype": "Int",
-   "label": "الموديل (السنة)"
+   "label": "Model (Year)"
   },
   {
    "fieldname": "column_break_basic",
@@ -55,7 +55,7 @@
   {
    "fieldname": "branch",
    "fieldtype": "Link",
-   "label": "الفرع",
+   "label": "Branch",
    "options": "Rental Branch",
    "in_list_view": 1,
    "in_standard_filter": 1
@@ -63,7 +63,7 @@
   {
    "fieldname": "driver",
    "fieldtype": "Link",
-   "label": "السائق المرتبط",
+   "label": "Assigned Driver",
    "options": "Employee",
    "in_list_view": 1,
    "in_standard_filter": 1
@@ -71,45 +71,45 @@
   {
    "fieldname": "odometer_section",
    "fieldtype": "Section Break",
-   "label": "العداد"
+   "label": "Odometer (KM)"
   },
   {
    "fieldname": "current_odometer_km",
    "fieldtype": "Int",
-   "label": "قراءة العداد الحالية (كم)"
+   "label": "Current Odometer (KM)"
   },
   {
    "fieldname": "documents_tab",
    "fieldtype": "Tab Break",
-   "label": "المستندات"
+   "label": "Documents"
   },
   {
    "fieldname": "documents",
    "fieldtype": "Table",
-   "label": "مستندات الشاحنة",
+   "label": "Truck Documents",
    "options": "CR Document Item",
    "description": "التأمين، الاستمارة، كارت التشغيل، التصاريح... مع تنبيه تلقائي قبل الانتهاء"
   },
   {
    "fieldname": "oil_tab",
    "fieldtype": "Tab Break",
-   "label": "غيار الزيت"
+   "label": "Oil Change"
   },
   {
    "fieldname": "oil_changes",
    "fieldtype": "Table",
-   "label": "سجل غيار الزيت",
+   "label": "Oil Change Log",
    "options": "Truck Oil Change"
   },
   {
    "fieldname": "maintenance_section",
    "fieldtype": "Section Break",
-   "label": "سجل الصيانة"
+   "label": "Maintenance Log"
   },
   {
    "fieldname": "maintenance_log",
    "fieldtype": "Table",
-   "label": "سجل الصيانة",
+   "label": "Maintenance Log",
    "options": "Truck Maintenance Log"
   }
  ],

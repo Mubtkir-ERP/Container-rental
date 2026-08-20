@@ -13,7 +13,7 @@
   {
    "fieldname": "container_size",
    "fieldtype": "Link",
-   "label": "الحجم",
+   "label": "Size",
    "options": "Container Size",
    "reqd": 1,
    "in_list_view": 1
@@ -21,21 +21,21 @@
   {
    "fieldname": "trips_count",
    "fieldtype": "Int",
-   "label": "عدد الرحلات",
+   "label": "Trips Count",
    "reqd": 1,
    "in_list_view": 1
   },
   {
    "fieldname": "price",
    "fieldtype": "Currency",
-   "label": "السعر (للرحلة الواحدة)",
+   "label": "Price (Per Trip)",
    "reqd": 1,
    "in_list_view": 1
   },
   {
    "fieldname": "total",
    "fieldtype": "Currency",
-   "label": "الإجمالي",
+   "label": "Total",
    "read_only": 1,
    "in_list_view": 1
   }

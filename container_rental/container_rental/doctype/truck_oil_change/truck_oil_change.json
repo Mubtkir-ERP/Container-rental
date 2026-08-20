@@ -15,38 +15,38 @@
   {
    "fieldname": "change_date",
    "fieldtype": "Date",
-   "label": "تاريخ الغيار",
+   "label": "Change Date",
    "reqd": 1,
    "in_list_view": 1
   },
   {
    "fieldname": "odometer_km",
    "fieldtype": "Int",
-   "label": "العداد عند الغيار (كم)",
+   "label": "Odometer at Change (KM)",
    "in_list_view": 1
   },
   {
    "fieldname": "cost",
    "fieldtype": "Currency",
-   "label": "التكلفة",
+   "label": "Cost",
    "in_list_view": 1
   },
   {
    "fieldname": "next_change_date",
    "fieldtype": "Date",
-   "label": "تاريخ الغيار القادم",
+   "label": "Next Change Date",
    "in_list_view": 1
   },
   {
    "fieldname": "next_change_km",
    "fieldtype": "Int",
-   "label": "كيلومتر الغيار القادم",
+   "label": "Next Change KM",
    "in_list_view": 1
   },
   {
    "fieldname": "notes",
    "fieldtype": "Small Text",
-   "label": "ملاحظات"
+   "label": "Notes"
   }
  ],
  "istable": 1,

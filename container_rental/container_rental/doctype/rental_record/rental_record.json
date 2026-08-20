@@ -43,12 +43,12 @@
   {
    "fieldname": "container_section",
    "fieldtype": "Section Break",
-   "label": "الحاوية"
+   "label": "Container"
   },
   {
    "fieldname": "container",
    "fieldtype": "Link",
-   "label": "رقم الحاوية",
+   "label": "Container No",
    "options": "Container",
    "read_only": 1,
    "in_list_view": 1,
@@ -57,7 +57,7 @@
   {
    "fieldname": "container_size",
    "fieldtype": "Link",
-   "label": "الحجم",
+   "label": "Size",
    "options": "Container Size",
    "read_only": 1,
    "in_standard_filter": 1
@@ -65,7 +65,7 @@
   {
    "fieldname": "classification",
    "fieldtype": "Link",
-   "label": "التصنيف",
+   "label": "Classification",
    "options": "Container Classification",
    "read_only": 1
   },
@@ -76,7 +76,7 @@
   {
    "fieldname": "branch",
    "fieldtype": "Link",
-   "label": "الفرع",
+   "label": "Branch",
    "options": "Rental Branch",
    "read_only": 1,
    "in_standard_filter": 1
@@ -84,7 +84,7 @@
   {
    "fieldname": "status",
    "fieldtype": "Select",
-   "label": "الحالة",
+   "label": "Status",
    "options": "مؤجرة\nمتأخرة\nتم التفريغ\nمسحوبة",
    "read_only": 1,
    "in_list_view": 1,
@@ -93,12 +93,12 @@
   {
    "fieldname": "client_section",
    "fieldtype": "Section Break",
-   "label": "العميل"
+   "label": "Client"
   },
   {
    "fieldname": "client",
    "fieldtype": "Link",
-   "label": "العميل",
+   "label": "Client",
    "options": "Customer",
    "read_only": 1,
    "in_list_view": 1,
@@ -107,7 +107,7 @@
   {
    "fieldname": "mobile_no",
    "fieldtype": "Data",
-   "label": "رقم الجوال",
+   "label": "Mobile No",
    "read_only": 1
   },
   {
@@ -117,13 +117,13 @@
   {
    "fieldname": "address",
    "fieldtype": "Small Text",
-   "label": "العنوان / الموقع",
+   "label": "Address / Location",
    "read_only": 1
   },
   {
    "fieldname": "driver",
    "fieldtype": "Link",
-   "label": "السائق",
+   "label": "Driver",
    "options": "Employee",
    "read_only": 1,
    "in_standard_filter": 1
@@ -131,19 +131,19 @@
   {
    "fieldname": "source_section",
    "fieldtype": "Section Break",
-   "label": "المصدر"
+   "label": "Source"
   },
   {
    "fieldname": "source_doctype",
    "fieldtype": "Select",
-   "label": "نوع المصدر",
+   "label": "Source Type",
    "options": "Container Order\nContainer Rental\nContainer Contract",
    "read_only": 1
   },
   {
    "fieldname": "source_name",
    "fieldtype": "Dynamic Link",
-   "label": "المستند المصدر",
+   "label": "Source Document",
    "options": "source_doctype",
    "read_only": 1
   },
@@ -154,26 +154,26 @@
   {
    "fieldname": "contract",
    "fieldtype": "Link",
-   "label": "العقد",
+   "label": "Contract",
    "options": "Container Contract",
    "read_only": 1
   },
   {
    "fieldname": "dates_section",
    "fieldtype": "Section Break",
-   "label": "التواريخ"
+   "label": "Dates"
   },
   {
    "fieldname": "delivered_on",
    "fieldtype": "Datetime",
-   "label": "تاريخ التوصيل",
+   "label": "Delivery Date",
    "read_only": 1,
    "in_list_view": 1
   },
   {
    "fieldname": "due_on",
    "fieldtype": "Datetime",
-   "label": "تاريخ الاستحقاق",
+   "label": "Due Date",
    "read_only": 1,
    "in_list_view": 1
   },
@@ -184,24 +184,24 @@
   {
    "fieldname": "unloaded_on",
    "fieldtype": "Datetime",
-   "label": "تاريخ التفريغ",
+   "label": "Unload Date",
    "read_only": 1
   },
   {
    "fieldname": "withdrawn_on",
    "fieldtype": "Datetime",
-   "label": "تاريخ السحب",
+   "label": "Withdrawal Date",
    "read_only": 1
   },
   {
    "fieldname": "payment_section",
    "fieldtype": "Section Break",
-   "label": "القيمة"
+   "label": "Value"
   },
   {
    "fieldname": "rental_value",
    "fieldtype": "Currency",
-   "label": "قيمة التأجير",
+   "label": "Rental Value",
    "read_only": 1
   },
   {
@@ -211,26 +211,26 @@
   {
    "fieldname": "payment_method",
    "fieldtype": "Select",
-   "label": "طريقة الدفع",
+   "label": "Payment Method",
    "options": "\nنقدي\nتحويل بنكي\nآجل",
    "read_only": 1
   },
   {
    "fieldname": "whatsapp_section",
    "fieldtype": "Section Break",
-   "label": "واتساب والمتابعة"
+   "label": "WhatsApp & Follow-up"
   },
   {
    "fieldname": "last_whatsapp_message",
    "fieldtype": "Data",
-   "label": "آخر رسالة واتساب",
+   "label": "Last WhatsApp Message",
    "read_only": 1,
    "length": 200
   },
   {
    "fieldname": "last_whatsapp_on",
    "fieldtype": "Datetime",
-   "label": "تاريخ آخر رسالة",
+   "label": "Last Message Date",
    "read_only": 1
   },
   {
@@ -240,7 +240,7 @@
   {
    "fieldname": "unload_request_sent_on",
    "fieldtype": "Datetime",
-   "label": "آخر طلب تفريغ للمشرف",
+   "label": "Last Unload Request Sent On",
    "read_only": 1
   }
  ],

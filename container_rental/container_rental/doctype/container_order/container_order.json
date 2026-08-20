@@ -52,12 +52,12 @@
   {
    "fieldname": "client_section",
    "fieldtype": "Section Break",
-   "label": "بيانات العميل"
+   "label": "Client Details"
   },
   {
    "fieldname": "client",
    "fieldtype": "Link",
-   "label": "اسم العميل",
+   "label": "Client Name",
    "options": "Customer",
    "reqd": 1,
    "in_list_view": 1
@@ -67,7 +67,7 @@
    "fetch_if_empty": 1,
    "fieldname": "mobile_no",
    "fieldtype": "Data",
-   "label": "رقم الجوال"
+   "label": "Mobile No"
   },
   {
    "fieldname": "column_break_client",
@@ -76,24 +76,24 @@
   {
    "fieldname": "delivery_address",
    "fieldtype": "Small Text",
-   "label": "العنوان / موقع التسليم"
+   "label": "Address / Delivery Location"
   },
   {
    "fieldname": "branch",
    "fieldtype": "Link",
-   "label": "الفرع",
+   "label": "Branch",
    "options": "Rental Branch",
    "in_standard_filter": 1
   },
   {
    "fieldname": "order_section",
    "fieldtype": "Section Break",
-   "label": "بيانات الطلب"
+   "label": "Order Details"
   },
   {
    "fieldname": "order_type",
    "fieldtype": "Select",
-   "label": "نوع الطلب",
+   "label": "Order Type",
    "options": "أجل طويل المدى\nدفع عند الاستلام\nأجل قصير المدى",
    "reqd": 1,
    "in_list_view": 1,
@@ -102,13 +102,13 @@
   {
    "fieldname": "classification",
    "fieldtype": "Link",
-   "label": "التصنيف",
+   "label": "Classification",
    "options": "Container Classification"
   },
   {
    "fieldname": "container_size",
    "fieldtype": "Link",
-   "label": "حجم الحاوية",
+   "label": "Container Size",
    "options": "Container Size",
    "reqd": 1
   },
@@ -119,7 +119,7 @@
   {
    "fieldname": "container",
    "fieldtype": "Link",
-   "label": "رقم الحاوية",
+   "label": "Container No",
    "options": "Container",
    "description": "يدويًا أو بزر الاقتراح التلقائي من الحاويات المتاحة لهذا الحجم"
   },
@@ -127,14 +127,14 @@
    "depends_on": "eval:doc.order_type=='أجل طويل المدى'",
    "fieldname": "contract",
    "fieldtype": "Link",
-   "label": "العقد",
+   "label": "Contract",
    "options": "Container Contract"
   },
   {
    "default": "جديد",
    "fieldname": "status",
    "fieldtype": "Select",
-   "label": "حالة الطلب",
+   "label": "Order Status",
    "options": "جديد\nبانتظار تأكيد الحوالة\nبانتظار تحديد سائق\nمُسنَد لسائق\nتم التوصيل\nملغي",
    "read_only": 1,
    "in_list_view": 1,
@@ -144,34 +144,34 @@
    "collapsible": 1,
    "fieldname": "additional_section",
    "fieldtype": "Section Break",
-   "label": "حاويات إضافية بنفس الطلب"
+   "label": "Additional Containers in Order"
   },
   {
    "fieldname": "additional_containers",
    "fieldtype": "Table",
-   "label": "حاويات إضافية",
+   "label": "Additional Containers",
    "options": "Order Container Item"
   },
   {
    "fieldname": "rental_section",
    "fieldtype": "Section Break",
-   "label": "التأجير والدفع"
+   "label": "Rental & Payment"
   },
   {
    "fieldname": "rental_days",
    "fieldtype": "Int",
-   "label": "مدة التأجير (أيام)",
+   "label": "Rental Duration (Days)",
    "description": "محددة (10 أيام غالبًا) لعملاء النقدي/التحويل، أو مفتوحة لعملاء الأجل الطويل"
   },
   {
    "fieldname": "rental_value",
    "fieldtype": "Currency",
-   "label": "قيمة التأجير"
+   "label": "Rental Value"
   },
   {
    "fieldname": "payment_method",
    "fieldtype": "Select",
-   "label": "طريقة الدفع",
+   "label": "Payment Method",
    "options": "نقدي\nتحويل بنكي\nآجل"
   },
   {
@@ -182,24 +182,24 @@
    "default": "Today",
    "fieldname": "rental_start_date",
    "fieldtype": "Date",
-   "label": "تاريخ التأجير"
+   "label": "Rental Date"
   },
   {
    "fieldname": "rental_end_date",
    "fieldtype": "Date",
-   "label": "تاريخ انتهاء التأجير",
+   "label": "Rental End Date",
    "read_only": 1,
    "description": "تاريخ التأجير + مدة التأجير"
   },
   {
    "fieldname": "delivery_schedule_section",
    "fieldtype": "Section Break",
-   "label": "موعد التوصيل"
+   "label": "Delivery Schedule"
   },
   {
    "fieldname": "required_delivery_date",
    "fieldtype": "Date",
-   "label": "تاريخ التوصيل المطلوب",
+   "label": "Required Delivery Date",
    "in_list_view": 1
   },
   {
@@ -209,17 +209,17 @@
   {
    "fieldname": "delivery_time",
    "fieldtype": "Time",
-   "label": "وقت التوصيل"
+   "label": "Delivery Time"
   },
   {
    "fieldname": "assignment_section",
    "fieldtype": "Section Break",
-   "label": "الإسناد"
+   "label": "Assignment"
   },
   {
    "fieldname": "assigned_driver",
    "fieldtype": "Link",
-   "label": "السائق المسند",
+   "label": "Assigned Driver",
    "options": "Employee",
    "read_only": 1
   },
@@ -230,7 +230,7 @@
   {
    "fieldname": "assigned_vehicle",
    "fieldtype": "Link",
-   "label": "الشاحنة",
+   "label": "Truck",
    "options": "Truck",
    "read_only": 1
   },
@@ -239,12 +239,12 @@
    "depends_on": "eval:doc.order_type=='أجل قصير المدى'",
    "fieldname": "transfer_section",
    "fieldtype": "Section Break",
-   "label": "تأكيد الحوالة"
+   "label": "Transfer Confirmation"
   },
   {
    "fieldname": "transfer_confirmed_by",
    "fieldtype": "Link",
-   "label": "أُكدت بواسطة",
+   "label": "Confirmed By",
    "options": "User",
    "read_only": 1
   },
@@ -255,26 +255,26 @@
   {
    "fieldname": "transfer_confirmed_on",
    "fieldtype": "Datetime",
-   "label": "تاريخ تأكيد الحوالة",
+   "label": "Transfer Confirmed On",
    "read_only": 1
   },
   {
    "collapsible": 1,
    "fieldname": "payment_track_section",
    "fieldtype": "Section Break",
-   "label": "متابعة السداد"
+   "label": "Payment Tracking"
   },
   {
    "default": "0",
    "fieldname": "payment_received",
    "fieldtype": "Check",
-   "label": "تم استلام المبلغ",
+   "label": "Payment Received",
    "read_only": 1
   },
   {
    "fieldname": "payment_date",
    "fieldtype": "Date",
-   "label": "تاريخ السداد",
+   "label": "Payment Date",
    "read_only": 1
   },
   {
@@ -284,7 +284,7 @@
   {
    "fieldname": "cash_box",
    "fieldtype": "Link",
-   "label": "الصندوق النقدي",
+   "label": "Cash Account",
    "options": "Account",
    "read_only": 1,
    "description": "حساب الصندوق من الدليل المحاسبي (يضيفه المحاسبون يدويًا)"
@@ -297,7 +297,7 @@
   {
    "fieldname": "entered_by",
    "fieldtype": "Link",
-   "label": "أُدخل بواسطة",
+   "label": "Entered By",
    "options": "User",
    "read_only": 1
   }

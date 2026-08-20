@@ -12,20 +12,20 @@
   {
    "fieldname": "document_name",
    "fieldtype": "Data",
-   "label": "اسم المستند",
+   "label": "Document Name",
    "reqd": 1,
    "in_list_view": 1
   },
   {
    "fieldname": "attachment",
    "fieldtype": "Attach",
-   "label": "الملف",
+   "label": "File",
    "in_list_view": 1
   },
   {
    "fieldname": "expiry_date",
    "fieldtype": "Date",
-   "label": "تاريخ الانتهاء",
+   "label": "Expiry Date",
    "in_list_view": 1
   }
  ],
