@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\": \"hdr_home\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Container Rental System</b></span>\", \"col\": 12}}, {\"id\": \"hdr_qa\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h6\\\"><b>Quick Access</b></span>\", \"col\": 12}}, {\"id\": \"sc_0\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Main Dashboard\", \"col\": 4}}, {\"id\": \"sc_1\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Overdue Containers\", \"col\": 4}}, {\"id\": \"sc_2\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Container Order\", \"col\": 4}}, {\"id\": \"sc_3\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Container Rental\", \"col\": 4}}, {\"id\": \"sc_4\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Container Contract\", \"col\": 4}}, {\"id\": \"sc_5\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Container Unload\", \"col\": 4}}, {\"id\": \"sp1\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"hdr_cards\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h6\\\"><b>Sections</b></span>\", \"col\": 12}}, {\"id\": \"cd_0\", \"type\": \"card\", \"data\": {\"card_name\": \"Operations\", \"col\": 4}}, {\"id\": \"cd_1\", \"type\": \"card\", \"data\": {\"card_name\": \"Contracts & Billing\", \"col\": 4}}, {\"id\": \"cd_2\", \"type\": \"card\", \"data\": {\"card_name\": \"Masters\", \"col\": 4}}, {\"id\": \"cd_3\", \"type\": \"card\", \"data\": {\"card_name\": \"Alerts & Reports\", \"col\": 4}}, {\"id\": \"cd_4\", \"type\": \"card\", \"data\": {\"card_name\": \"WhatsApp\", \"col\": 4}}, {\"id\": \"cd_5\", \"type\": \"card\", \"data\": {\"card_name\": \"Settings\", \"col\": 4}}]",
+ "content": "[{\"id\": \"hdr_home\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Container Rental System</b></span>\", \"col\": 12}}, {\"id\": \"hdr_qa\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h6\\\"><b>Quick Access</b></span>\", \"col\": 12}}, {\"id\": \"sc_0\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Main Dashboard\", \"col\": 4}}, {\"id\": \"sc_1\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Overdue Containers\", \"col\": 4}}, {\"id\": \"sc_2\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Container Order\", \"col\": 4}}, {\"id\": \"sc_3\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Container Rental\", \"col\": 4}}, {\"id\": \"sc_4\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Container Contract\", \"col\": 4}}, {\"id\": \"sc_5\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Container Unload\", \"col\": 4}}, {\"id\": \"sp1\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"hdr_cards\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h6\\\"><b>Sections</b></span>\", \"col\": 12}}, {\"id\": \"cd_0\", \"type\": \"card\", \"data\": {\"card_name\": \"Operations\", \"col\": 4}}, {\"id\": \"cd_1\", \"type\": \"card\", \"data\": {\"card_name\": \"Contracts & Billing\", \"col\": 4}}, {\"id\": \"cd_2\", \"type\": \"card\", \"data\": {\"card_name\": \"Masters\", \"col\": 4}}, {\"id\": \"cd_3\", \"type\": \"card\", \"data\": {\"card_name\": \"Alerts & Reports\", \"col\": 4}}, {\"id\": \"cd_5\", \"type\": \"card\", \"data\": {\"card_name\": \"Settings\", \"col\": 4}}]",
  "creation": "2026-08-20 13:57:46.165969",
  "custom_blocks": [],
  "docstatus": 0,
@@ -311,55 +311,6 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "WhatsApp",
-   "link_count": 4,
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "WhatsApp Templates",
-   "link_count": 0,
-   "link_to": "WhatsApp Templates",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "WhatsApp Message",
-   "link_count": 0,
-   "link_to": "WhatsApp Message",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "WhatsApp Notification",
-   "link_count": 0,
-   "link_to": "WhatsApp Notification",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "WhatsApp Notification Log",
-   "link_count": 0,
-   "link_to": "WhatsApp Notification Log",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
    "label": "Settings",
    "link_count": 1,
    "link_type": "DocType",
@@ -377,7 +328,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-08-20 15:04:00.854726",
+ "modified": "2026-08-20 15:48:40.712772",
  "modified_by": "Administrator",
  "module": "Container Rental",
  "name": "Container Rental System",
