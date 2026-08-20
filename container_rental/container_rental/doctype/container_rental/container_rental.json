@@ -65,8 +65,7 @@
    "fieldname": "period_to",
    "fieldtype": "Datetime",
    "label": "Rental Period To",
-   "reqd": 1,
-   "description": "تُحسب تلقائيًا حسب المدة الافتراضية ويمكن تعديلها"
+   "description": "يُحسب تلقائيًا (المدة الافتراضية) إذا تُرك فارغًا"
   },
   {
    "fieldname": "container_section",
@@ -225,5 +224,6 @@
  "sort_order": "DESC",
  "states": [],
  "title_field": "client",
- "track_changes": 1
+ "track_changes": 1,
+ "quick_entry": 1
 }

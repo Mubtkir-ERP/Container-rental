@@ -1,7 +1,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import now_datetime
+from frappe.utils import add_days, get_datetime, now_datetime
 
 from container_rental.container_rental import customer_utils, whatsapp
 from container_rental.container_rental.doctype.driver_commission_entry.driver_commission_entry import (
@@ -12,6 +12,10 @@ from container_rental.container_rental.doctype.rental_record.rental_record impor
 
 class ContainerRental(Document):
 	def validate(self):
+		if not self.period_to and self.period_from:
+			# Quick entry does not run form scripts — apply the default duration here
+			days = frappe.db.get_single_value("Container Rental Settings", "default_rental_days") or 10
+			self.period_to = add_days(get_datetime(self.period_from), int(days))
 		self.validate_container()
 		if self.payment_method == "نقدي" and not self.cash_box:
 			frappe.throw(_("الخزينة مطلوبة عند التسديد النقدي"))
