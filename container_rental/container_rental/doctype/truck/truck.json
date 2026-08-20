@@ -93,7 +93,7 @@
   {
    "fieldname": "oil_tab",
    "fieldtype": "Tab Break",
-   "label": "Oil Change"
+   "label": "Maintenance & Service"
   },
   {
    "fieldname": "oil_changes",
