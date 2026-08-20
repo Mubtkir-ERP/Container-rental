@@ -52,6 +52,8 @@ class ContainerOrder(Document):
 	def after_insert(self):
 		# New flow: saving the order sends it straight to the drivers supervisor,
 		# and the client gets the confirmation message.
+		if self.status != STATUS_NEW:
+			return  # e.g. rental-extension orders are inserted already closed
 		self.db_set("status", STATUS_AWAITING_DRIVER)
 		whatsapp.send_event(
 			"order_confirmation",

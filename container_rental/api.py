@@ -232,6 +232,64 @@ def send_unload_request(rental_record):
 
 
 @frappe.whitelist()
+def extend_rental(rental_record, days, rental_value=0, payment_method=None):
+	"""S11 quick action 'تمديد': the client keeps the container for a new
+	period, billed as a NEW closed order; the rental's due date moves forward
+	so it leaves the overdue screen."""
+	if not set(frappe.get_roles()) & {
+		"Customer Service", "Driver Supervisor", "Container Manager", "System Manager",
+	}:
+		frappe.throw(_("التمديد يتطلب صلاحية خدمة العملاء أو مشرف السواقين"), frappe.PermissionError)
+
+	record = frappe.get_doc("Rental Record", rental_record)
+	if record.status not in ("مؤجرة", "متأخرة"):
+		frappe.throw(_("لا يمكن تمديد حاوية تم تفريغها أو سحبها"))
+
+	days = frappe.utils.cint(days)
+	min_days = (
+		frappe.db.get_single_value("Container Rental Settings", "min_extension_days") or 10
+	)
+	if days < min_days:
+		frappe.throw(_("أقل مدة تمديد هي {0} يوم").format(min_days))
+
+	base = record.due_on if record.due_on and get_datetime(record.due_on) > now_datetime() else now_datetime()
+	new_due = add_days(get_datetime(base), days)
+
+	# Billing: a new, already-delivered order for the extension period
+	order = frappe.get_doc({
+		"doctype": "Container Order",
+		"client": record.client,
+		"order_type": "أجل قصير المدى",
+		"container_size": record.container_size,
+		"container": record.container,
+		"rental_days": days,
+		"rental_value": frappe.utils.flt(rental_value),
+		"payment_method": payment_method or record.payment_method,
+		"rental_start_date": frappe.utils.getdate(base),
+		"delivery_address": record.address,
+		"status": "تم التوصيل",
+	})
+	order.flags.ignore_permissions = True
+	order.insert()
+	order.add_comment("Info", _("طلب تمديد للحاوية {0} — امتداد للسجل {1}").format(
+		record.container, record.name))
+
+	# Move the due date forward and clear the overdue flags
+	record.db_set("due_on", new_due, update_modified=False)
+	if record.status == "متأخرة":
+		record.db_set("status", "مؤجرة", update_modified=False)
+	if frappe.db.get_value("Container", record.container, "status") == "متأخرة":
+		frappe.db.set_value("Container", record.container, "status", "مؤجرة", update_modified=False)
+	record.add_comment("Info", _("تمديد {0} يوم حتى {1} — يُحاسب عبر الطلب {2}").format(
+		days, frappe.format(new_due, {"fieldtype": "Datetime"}), order.name))
+
+	from container_rental.container_rental import customer_utils
+	customer_utils.refresh_balance(record.client)
+
+	return {"order": order.name, "new_due": new_due}
+
+
+@frappe.whitelist()
 def send_client_whatsapp(rental_record):
 	"""S11 quick action: send the unload reminder to the client now.
 

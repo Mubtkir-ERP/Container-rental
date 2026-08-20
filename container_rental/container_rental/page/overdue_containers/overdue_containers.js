@@ -129,9 +129,57 @@ frappe.pages["overdue-containers"].on_page_load = function (wrapper) {
 
 	function action_buttons(row) {
 		return `
-			<button class="btn btn-xs btn-primary odc-unload" data-rec="${row.rental_record}">${__("طلب تفريغ للمشرف")}</button>
+			<button class="btn btn-xs btn-primary odc-unload" data-rec="${row.rental_record}">${__("طلب تفريغ")}</button>
+			<button class="btn btn-xs btn-warning odc-extend" data-rec="${row.rental_record}">${__("تمديد")}</button>
 			<button class="btn btn-xs btn-success odc-wa" data-rec="${row.rental_record}">${__("واتساب")}</button>
 			<a class="btn btn-xs btn-default" href="tel:${row.mobile_no || ""}">${__("اتصال")}</a>`;
+	}
+
+	function open_extend_dialog(rec) {
+		frappe.db.get_single_value("Container Rental Settings", "min_extension_days").then((min_days) => {
+			min_days = min_days || 10;
+			const d = new frappe.ui.Dialog({
+				title: __("تمديد مدة الحاوية"),
+				fields: [
+					{
+						fieldname: "days", fieldtype: "Int", label: __("عدد أيام التمديد"),
+						reqd: 1, default: min_days,
+						description: __("أقل مدة تمديد: {0} يوم — يُحاسب التمديد بطلب جديد", [min_days]),
+					},
+					{ fieldname: "rental_value", fieldtype: "Currency", label: __("قيمة التمديد"), reqd: 1 },
+					{
+						fieldname: "payment_method", fieldtype: "Link", label: __("طريقة الدفع"),
+						options: "Mode of Payment",
+					},
+				],
+				primary_action_label: __("تمديد"),
+				primary_action(values) {
+					if (values.days < min_days) {
+						frappe.msgprint(__("أقل مدة تمديد هي {0} يوم", [min_days]));
+						return;
+					}
+					d.hide();
+					frappe.call({
+						method: "container_rental.api.extend_rental",
+						args: {
+							rental_record: rec,
+							days: values.days,
+							rental_value: values.rental_value,
+							payment_method: values.payment_method,
+						},
+						callback(r) {
+							const m = r.message || {};
+							frappe.show_alert({
+								message: __("تم التمديد — أُنشئ الطلب {0}", [m.order]),
+								indicator: "green",
+							});
+							load();
+						},
+					});
+				},
+			});
+			d.show();
+		});
 	}
 
 	function last_wa(row) {
@@ -194,6 +242,9 @@ frappe.pages["overdue-containers"].on_page_load = function (wrapper) {
 	}
 
 	function bind_actions() {
+		$body.find(".odc-extend").on("click", function () {
+			open_extend_dialog($(this).data("rec"));
+		});
 		$body.find(".odc-unload").on("click", function () {
 			const rec = $(this).data("rec");
 			frappe.call({

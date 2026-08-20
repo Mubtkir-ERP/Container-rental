@@ -11,6 +11,7 @@
   "alerts_section",
   "expiry_alert_days",
   "unload_reminder_after_days",
+  "min_extension_days",
   "column_break_alerts",
   "contract_expiry_alert_days",
   "send_hr_alerts_via_whatsapp"
@@ -76,6 +77,13 @@
    "fieldtype": "Check",
    "label": "Send Document Expiry Alerts via WhatsApp",
    "description": "ترسل نسخة من تنبيهات انتهاء وثائق الموظفين والشاحنات إلى واتساب مشرف السواقين"
+  },
+  {
+   "default": "10",
+   "fieldname": "min_extension_days",
+   "fieldtype": "Int",
+   "label": "Minimum Extension (Days)",
+   "description": "أقل مدة يُسمح بها عند تمديد حاوية متأخرة — يُحاسَب التمديد بطلب جديد"
   }
  ],
  "issingle": 1,
