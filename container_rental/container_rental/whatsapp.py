@@ -33,9 +33,9 @@ DEFAULT_TEMPLATES = {
 			"الأخ {{ driver_name }}،\n"
 			"تم إسناد طلب توصيل جديد لك:\n"
 			"رقم الطلب: {{ order_no }}\n"
-			"العميل: {{ client_name }}\n"
-			"الحاوية: {{ container_no }} ({{ container_size }})\n"
-			"العنوان: {{ address }}\n"
+			"رابط الطلب: {{ order_link }}\n"
+			"حجم الحاوية: {{ container_size }}\n"
+			"{% if google_maps_link %}موقع التسليم: {{ google_maps_link }}\n{% endif %}"
 			"{% if delivery_date %}الموعد المطلوب: {{ delivery_date }} {{ delivery_time }}{% endif %}"
 		),
 	},
@@ -148,6 +148,31 @@ def _send_event(template_key, mobile_no, context, reference_doc):
 	message.flags.ignore_permissions = True
 	message.insert()  # frappe_whatsapp posts to Meta in before_insert
 	_stamp_rental_record(reference_doc, template_key)
+
+
+def send_text(mobile_no, body, reference_doc=None):
+	"""Send a plain WhatsApp text (no template) — used for internal digests.
+
+	Same guarantees as send_event: never raises, skips when unconfigured."""
+	try:
+		if "frappe_whatsapp" not in frappe.get_installed_apps():
+			return
+		if not mobile_no or not body or not is_configured():
+			return
+		message = frappe.get_doc({
+			"doctype": "WhatsApp Message",
+			"type": "Outgoing",
+			"message_type": "Manual",
+			"content_type": "text",
+			"to": normalize_number(mobile_no),
+			"message": body,
+			"reference_doctype": reference_doc.doctype if reference_doc else None,
+			"reference_name": reference_doc.name if reference_doc else None,
+		})
+		message.flags.ignore_permissions = True
+		message.insert()
+	except Exception:
+		frappe.log_error(title="WhatsApp send_text failed")
 
 
 def normalize_number(mobile_no):

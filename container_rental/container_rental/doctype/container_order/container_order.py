@@ -1,7 +1,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import add_days, getdate, now_datetime
+from frappe.utils import add_days, get_url, getdate, now_datetime
 
 from container_rental.container_rental import hr_utils, whatsapp
 
@@ -48,6 +48,17 @@ class ContainerOrder(Document):
 		# Fixed duration is mandatory for cash/transfer clients; open-ended only for long-term credit
 		if self.order_type != LONG_TERM and not self.rental_days:
 			frappe.throw(_("مدة التأجير مطلوبة لطلبات النقدي/التحويل والأجل قصير المدى"))
+
+	def after_insert(self):
+		# New flow: saving the order sends it straight to the drivers supervisor,
+		# and the client gets the confirmation message.
+		self.db_set("status", STATUS_AWAITING_DRIVER)
+		whatsapp.send_event(
+			"order_confirmation",
+			self.mobile_no,
+			self.get_whatsapp_context(),
+			reference_doc=self,
+		)
 
 	def validate_containers(self):
 		for fieldname, size, container in self._container_rows():
@@ -149,14 +160,86 @@ class ContainerOrder(Document):
 		if expected and set(expected) <= set(delivered):
 			self.db_set("status", STATUS_DELIVERED)
 
+	@frappe.whitelist()
+	def driver_confirm_delivery(self, container, delivery_note_no=None):
+		"""The assigned driver confirms the drop-off from his limited view:
+		he types the container number (known only on site) and, for credit
+		orders, the delivery-note book number. Creates + submits the
+		Container Delivery behind the scenes."""
+		if self.status != STATUS_ASSIGNED:
+			frappe.throw(_("الطلب ليس في حالة مُسنَد لسائق"))
+
+		roles = set(frappe.get_roles())
+		if not roles & {"System Manager", "Container Manager", "Driver Supervisor"}:
+			driver_user = frappe.db.get_value("Employee", self.assigned_driver, "user_id")
+			if not driver_user or driver_user != frappe.session.user:
+				frappe.throw(_("هذا الطلب مُسنَد لسائق آخر"), frappe.PermissionError)
+
+		container_name = frappe.db.get_value("Container", {"container_no": container}) or container
+		info = frappe.db.get_value("Container", container_name, ["size", "status"], as_dict=True)
+		if not info:
+			frappe.throw(_("لا توجد حاوية بالرقم {0}").format(container))
+		if info.size != self.container_size:
+			frappe.throw(_("حجم الحاوية {0} هو {1} ولا يطابق حجم الطلب {2}").format(
+				container, info.size, self.container_size))
+		if info.status != "متاحة":
+			frappe.throw(_("الحاوية {0} غير متاحة (حالتها: {1})").format(container, info.status))
+
+		self.db_set("container", container_name)
+		if delivery_note_no:
+			self.db_set("delivery_note_no", delivery_note_no)
+
+		delivery = frappe.get_doc({
+			"doctype": "Container Delivery",
+			"order": self.name,
+			"container": container_name,
+			"driver": self.assigned_driver,
+			"vehicle": self.assigned_vehicle,
+			"delivery_datetime": now_datetime(),
+		})
+		delivery.flags.ignore_permissions = True
+		delivery.insert()
+		delivery.submit()
+		return delivery.name
+
+	@frappe.whitelist()
+	def make_sales_invoice(self):
+		"""Draft Sales Invoice for a delivered order, carrying its data across
+		(client, rental value, containers count, driver's sales person)."""
+		_require_roles("Customer Service", "Transfer Follow-up", "Container Manager")
+		if self.status != STATUS_DELIVERED:
+			frappe.throw(_("إنشاء الفاتورة متاح بعد اكتمال التوصيل فقط"))
+
+		item_code = _ensure_rental_item()
+		containers_count = len([c for _f, _s, c in self._container_rows() if c]) or 1
+
+		invoice = frappe.new_doc("Sales Invoice")
+		invoice.customer = self.client
+		invoice.append("items", {
+			"item_code": item_code,
+			"qty": containers_count,
+			"rate": frappe.utils.flt(self.rental_value),
+			"description": _("تأجير حاوية — الطلب {0} — الحاوية {1}").format(
+				self.name, self.container or ""),
+		})
+		sales_person, _rate = hr_utils.get_commission_per_delivery(self.assigned_driver) if self.assigned_driver else (None, 0)
+		if sales_person:
+			invoice.append("sales_team", {"sales_person": sales_person, "allocated_percentage": 100})
+		invoice.flags.ignore_permissions = True
+		invoice.insert()
+		self.add_comment("Info", _("أُنشئت فاتورة المبيعات {0}").format(invoice.name))
+		return invoice.name
+
 	def get_whatsapp_context(self):
 		client_name = frappe.db.get_value("Customer", self.client, "customer_name")
 		return {
 			"order_no": self.name,
+			"order_link": get_url(f"/app/container-order/{self.name}"),
 			"client_name": client_name,
 			"container_no": self.container or "",
 			"container_size": self.container_size,
 			"address": self.delivery_address or "",
+			"google_maps_link": self.google_maps_link or "",
 			"rental_days": self.rental_days or "",
 			"rental_value": self.rental_value or 0,
 			"delivery_date": frappe.format(self.required_delivery_date, {"fieldtype": "Date"})
@@ -164,3 +247,21 @@ class ContainerOrder(Document):
 			else "",
 			"delivery_time": self.delivery_time or "",
 		}
+
+
+def _ensure_rental_item():
+	"""Get or create the service item used on rental Sales Invoices."""
+	item_code = "Container Rental Service"
+	if frappe.db.exists("Item", item_code):
+		return item_code
+	item_group = "Services" if frappe.db.exists("Item Group", "Services") else "All Item Groups"
+	frappe.get_doc({
+		"doctype": "Item",
+		"item_code": item_code,
+		"item_name": item_code,
+		"item_group": item_group,
+		"is_stock_item": 0,
+		"is_sales_item": 1,
+		"stock_uom": "Nos",
+	}).insert(ignore_permissions=True)
+	return item_code

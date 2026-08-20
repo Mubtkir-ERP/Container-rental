@@ -9,6 +9,7 @@ ROLES = [
 	"Customer Service",
 	"Transfer Follow-up",
 	"Driver Supervisor",
+	"Driver",
 	"Container Manager",
 ]
 

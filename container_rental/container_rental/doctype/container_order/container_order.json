@@ -10,10 +10,9 @@
   "mobile_no",
   "column_break_client",
   "delivery_address",
-  "branch",
+  "google_maps_link",
   "order_section",
   "order_type",
-  "classification",
   "container_size",
   "column_break_order",
   "container",
@@ -25,6 +24,7 @@
   "rental_days",
   "rental_value",
   "payment_method",
+  "delivery_note_no",
   "column_break_rental",
   "rental_start_date",
   "rental_end_date",
@@ -60,14 +60,15 @@
    "label": "Client Name",
    "options": "Customer",
    "reqd": 1,
-   "in_list_view": 1
+   "in_list_view": 1,
+   "permlevel": 1
   },
   {
    "fetch_from": "client.cr_mobile_no",
-   "fetch_if_empty": 1,
    "fieldname": "mobile_no",
    "fieldtype": "Data",
-   "label": "Mobile No"
+   "label": "Mobile No",
+   "permlevel": 1
   },
   {
    "fieldname": "column_break_client",
@@ -76,14 +77,8 @@
   {
    "fieldname": "delivery_address",
    "fieldtype": "Small Text",
-   "label": "Address / Delivery Location"
-  },
-  {
-   "fieldname": "branch",
-   "fieldtype": "Link",
-   "label": "Branch",
-   "options": "Rental Branch",
-   "in_standard_filter": 1
+   "label": "Address / Delivery Location",
+   "permlevel": 1
   },
   {
    "fieldname": "order_section",
@@ -97,13 +92,8 @@
    "options": "أجل طويل المدى\nدفع عند الاستلام\nأجل قصير المدى",
    "reqd": 1,
    "in_list_view": 1,
-   "in_standard_filter": 1
-  },
-  {
-   "fieldname": "classification",
-   "fieldtype": "Link",
-   "label": "Classification",
-   "options": "Container Classification"
+   "in_standard_filter": 1,
+   "permlevel": 1
   },
   {
    "fieldname": "container_size",
@@ -128,7 +118,8 @@
    "fieldname": "contract",
    "fieldtype": "Link",
    "label": "Contract",
-   "options": "Container Contract"
+   "options": "Container Contract",
+   "permlevel": 1
   },
   {
    "default": "جديد",
@@ -150,7 +141,8 @@
    "fieldname": "additional_containers",
    "fieldtype": "Table",
    "label": "Additional Containers",
-   "options": "Order Container Item"
+   "options": "Order Container Item",
+   "permlevel": 1
   },
   {
    "fieldname": "rental_section",
@@ -161,12 +153,14 @@
    "fieldname": "rental_days",
    "fieldtype": "Int",
    "label": "Rental Duration (Days)",
-   "description": "محددة (10 أيام غالبًا) لعملاء النقدي/التحويل، أو مفتوحة لعملاء الأجل الطويل"
+   "description": "محددة (10 أيام غالبًا) لعملاء النقدي/التحويل، أو مفتوحة لعملاء الأجل الطويل",
+   "permlevel": 1
   },
   {
    "fieldname": "rental_value",
    "fieldtype": "Currency",
-   "label": "Rental Value"
+   "label": "Rental Value",
+   "permlevel": 1
   },
   {
    "fieldname": "payment_method",
@@ -182,14 +176,16 @@
    "default": "Today",
    "fieldname": "rental_start_date",
    "fieldtype": "Date",
-   "label": "Rental Date"
+   "label": "Rental Date",
+   "permlevel": 1
   },
   {
    "fieldname": "rental_end_date",
    "fieldtype": "Date",
    "label": "Rental End Date",
    "read_only": 1,
-   "description": "تاريخ التأجير + مدة التأجير"
+   "description": "تاريخ التأجير + مدة التأجير",
+   "permlevel": 1
   },
   {
    "fieldname": "delivery_schedule_section",
@@ -200,7 +196,8 @@
    "fieldname": "required_delivery_date",
    "fieldtype": "Date",
    "label": "Required Delivery Date",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "permlevel": 1
   },
   {
    "fieldname": "column_break_schedule",
@@ -209,7 +206,8 @@
   {
    "fieldname": "delivery_time",
    "fieldtype": "Time",
-   "label": "Delivery Time"
+   "label": "Delivery Time",
+   "permlevel": 1
   },
   {
    "fieldname": "assignment_section",
@@ -221,7 +219,8 @@
    "fieldtype": "Link",
    "label": "Assigned Driver",
    "options": "Employee",
-   "read_only": 1
+   "read_only": 1,
+   "permlevel": 1
   },
   {
    "fieldname": "column_break_assignment",
@@ -232,7 +231,8 @@
    "fieldtype": "Link",
    "label": "Truck",
    "options": "Truck",
-   "read_only": 1
+   "read_only": 1,
+   "permlevel": 1
   },
   {
    "collapsible": 1,
@@ -246,7 +246,8 @@
    "fieldtype": "Link",
    "label": "Confirmed By",
    "options": "User",
-   "read_only": 1
+   "read_only": 1,
+   "permlevel": 1
   },
   {
    "fieldname": "column_break_transfer",
@@ -256,7 +257,8 @@
    "fieldname": "transfer_confirmed_on",
    "fieldtype": "Datetime",
    "label": "Transfer Confirmed On",
-   "read_only": 1
+   "read_only": 1,
+   "permlevel": 1
   },
   {
    "collapsible": 1,
@@ -269,13 +271,15 @@
    "fieldname": "payment_received",
    "fieldtype": "Check",
    "label": "Payment Received",
-   "read_only": 1
+   "read_only": 1,
+   "permlevel": 1
   },
   {
    "fieldname": "payment_date",
    "fieldtype": "Date",
    "label": "Payment Date",
-   "read_only": 1
+   "read_only": 1,
+   "permlevel": 1
   },
   {
    "fieldname": "column_break_payment_track",
@@ -287,7 +291,8 @@
    "label": "Cash Account",
    "options": "Account",
    "read_only": 1,
-   "description": "حساب الصندوق من الدليل المحاسبي (يضيفه المحاسبون يدويًا)"
+   "description": "حساب الصندوق من الدليل المحاسبي (يضيفه المحاسبون يدويًا)",
+   "permlevel": 1
   },
   {
    "fieldname": "meta_section",
@@ -299,7 +304,22 @@
    "fieldtype": "Link",
    "label": "Entered By",
    "options": "User",
-   "read_only": 1
+   "read_only": 1,
+   "permlevel": 1
+  },
+  {
+   "fieldname": "google_maps_link",
+   "fieldtype": "Data",
+   "label": "Google Maps Link",
+   "options": "URL",
+   "description": "رابط موقع التسليم على خرائط قوقل"
+  },
+  {
+   "fieldname": "delivery_note_no",
+   "fieldtype": "Data",
+   "label": "Delivery Note No",
+   "depends_on": "eval:doc.payment_method=='آجل'",
+   "description": "رقم دفتر التسليم — يُعبأ عند الدفع الآجل"
   }
  ],
  "links": [],
@@ -362,6 +382,41 @@
    "report": 1,
    "role": "Driver Supervisor",
    "share": 1
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "role": "Driver",
+   "permlevel": 0
+  },
+  {
+   "read": 1,
+   "role": "System Manager",
+   "permlevel": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Container Manager",
+   "permlevel": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Customer Service",
+   "permlevel": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Driver Supervisor",
+   "permlevel": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Transfer Follow-up",
+   "permlevel": 1
   }
  ],
  "search_fields": "client,order_type,status",

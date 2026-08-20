@@ -212,6 +212,13 @@ def send_document_expiry_alerts(settings):
 	for user in _users_with_roles(["Container Manager", "Driver Supervisor"]):
 		_notify_user(user, subject, message)
 
+	# Optional WhatsApp copy of the digest to the drivers supervisor
+	if settings.send_hr_alerts_via_whatsapp:
+		from container_rental.container_rental import hr_utils
+
+		_user, _name, supervisor_mobile = hr_utils.get_supervisor_contact()
+		whatsapp.send_text(supervisor_mobile, subject + "\n" + "\n".join(lines))
+
 
 def _users_with_roles(roles):
 	users = frappe.db.sql(

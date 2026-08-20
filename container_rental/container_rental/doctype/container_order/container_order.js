@@ -14,6 +14,48 @@ frappe.ui.form.on("Container Order", {
 
 	refresh(frm) {
 		frm.trigger("render_status_buttons");
+		frm.trigger("render_location_button");
+		frm.trigger("render_driver_view");
+	},
+
+	render_location_button(frm) {
+		if (frm.doc.google_maps_link) {
+			frm.add_custom_button(__("فتح الموقع"), () => {
+				window.open(frm.doc.google_maps_link, "_blank");
+			});
+		}
+	},
+
+	is_driver_only() {
+		const office = ["System Manager", "Container Manager", "Customer Service",
+			"Driver Supervisor", "Transfer Follow-up"];
+		return frappe.user.has_role("Driver") && !office.some((r) => frappe.user.has_role(r));
+	},
+
+	render_driver_view(frm) {
+		if (frm.is_new() || !frm.events.is_driver_only()) return;
+		// Driver's simplified screen: container box + payment + delivery note + location
+		if (frm.doc.status === "مُسنَد لسائق") {
+			frm.page.set_primary_action(__("تأكيد التوصيل"), () => {
+				if (!frm.doc.container) {
+					frappe.msgprint(__("أدخل رقم الحاوية أولًا"));
+					return;
+				}
+				if (frm.doc.payment_method === "آجل" && !frm.doc.delivery_note_no) {
+					frappe.msgprint(__("أدخل رقم دفتر التسليم للدفع الآجل"));
+					return;
+				}
+				const proceed = () =>
+					frm.call("driver_confirm_delivery", {
+						container: frm.doc.container,
+						delivery_note_no: frm.doc.delivery_note_no,
+					}).then(() => {
+						frappe.show_alert({ message: __("تم تأكيد التوصيل"), indicator: "green" });
+						frappe.set_route("List", "Container Order");
+					});
+				frm.is_dirty() ? frm.save().then(proceed) : proceed();
+			});
+		}
 	},
 
 	container_size(frm) {
@@ -55,7 +97,7 @@ frappe.ui.form.on("Container Order", {
 		}
 		frappe.call({
 			method: "container_rental.container_rental.doctype.container.container.suggest_container",
-			args: { size: frm.doc.container_size, branch: frm.doc.branch },
+			args: { size: frm.doc.container_size },
 			callback(r) {
 				if (r.message) {
 					frm.set_value("container", r.message);
@@ -67,9 +109,17 @@ frappe.ui.form.on("Container Order", {
 	},
 
 	render_status_buttons(frm) {
-		if (frm.is_new()) return;
+		if (frm.is_new() || frm.events.is_driver_only()) return;
 		const call = (method, args = {}) =>
 			frm.call(method, args).then(() => frm.reload_doc());
+
+		if (frm.doc.status === "تم التوصيل") {
+			frm.add_custom_button(__("إنشاء فاتورة مبيعات"), () => {
+				frm.call("make_sales_invoice").then((r) => {
+					if (r.message) frappe.set_route("Form", "Sales Invoice", r.message);
+				});
+			}).addClass("btn-primary");
+		}
 
 		if (frm.doc.docstatus === 0 && !frm.is_dirty()) {
 			if (frm.doc.status === "جديد") {
