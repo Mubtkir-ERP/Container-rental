@@ -121,9 +121,9 @@
   {
    "default": "نقدي",
    "fieldname": "payment_method",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "Payment Method",
-   "options": "نقدي\nآجل"
+   "options": "Mode of Payment"
   },
   {
    "fieldname": "column_break_payment",

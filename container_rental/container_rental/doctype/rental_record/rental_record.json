@@ -210,9 +210,9 @@
   },
   {
    "fieldname": "payment_method",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "Payment Method",
-   "options": "\nنقدي\nتحويل بنكي\nآجل",
+   "options": "Mode of Payment",
    "read_only": 1
   },
   {

@@ -164,9 +164,9 @@
   },
   {
    "fieldname": "payment_method",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "Payment Method",
-   "options": "نقدي\nتحويل بنكي\nآجل"
+   "options": "Mode of Payment"
   },
   {
    "fieldname": "column_break_rental",

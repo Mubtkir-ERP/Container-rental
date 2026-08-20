@@ -6,6 +6,7 @@ container_rental.patches.add_customer_fields
 container_rental.patches.migrate_clients_to_customers
 container_rental.patches.add_hr_customizations
 container_rental.patches.migrate_to_erpnext_hr
+container_rental.patches.seed_modes_of_payment
 container_rental.patches.sync_container_workspace
 container_rental.patches.remove_custom_whatsapp_doctypes
 container_rental.patches.seed_whatsapp_templates
