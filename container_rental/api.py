@@ -246,11 +246,8 @@ def extend_rental(rental_record, days, rental_value=0, payment_method=None):
 		frappe.throw(_("لا يمكن تمديد حاوية تم تفريغها أو سحبها"))
 
 	days = frappe.utils.cint(days)
-	min_days = (
-		frappe.db.get_single_value("Container Rental Settings", "min_extension_days") or 10
-	)
-	if days < min_days:
-		frappe.throw(_("أقل مدة تمديد هي {0} يوم").format(min_days))
+	if days <= 0:
+		frappe.throw(_("أدخل عدد أيام التمديد"))
 
 	base = record.due_on if record.due_on and get_datetime(record.due_on) > now_datetime() else now_datetime()
 	new_due = add_days(get_datetime(base), days)

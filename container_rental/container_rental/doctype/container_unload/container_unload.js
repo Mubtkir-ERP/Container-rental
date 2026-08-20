@@ -1,4 +1,60 @@
+// Shared extension dialog: any days count, billed as a NEW closed order
+window.container_rental_extend_dialog = window.container_rental_extend_dialog || function (rental_record, on_done) {
+	const d = new frappe.ui.Dialog({
+		title: __("تمديد مدة الحاوية"),
+		fields: [
+			{
+				fieldname: "days", fieldtype: "Int", label: __("عدد أيام التمديد"),
+				reqd: 1, default: 10,
+				description: __("يُحاسب التمديد بطلب جديد"),
+			},
+			{ fieldname: "rental_value", fieldtype: "Currency", label: __("قيمة التمديد"), reqd: 1 },
+			{
+				fieldname: "payment_method", fieldtype: "Link", label: __("طريقة الدفع"),
+				options: "Mode of Payment",
+			},
+		],
+		primary_action_label: __("تمديد"),
+		primary_action(values) {
+			d.hide();
+			frappe.call({
+				method: "container_rental.api.extend_rental",
+				args: {
+					rental_record: rental_record,
+					days: values.days,
+					rental_value: values.rental_value,
+					payment_method: values.payment_method,
+				},
+				callback(r) {
+					const m = r.message || {};
+					frappe.show_alert({
+						message: __("تم التمديد — أُنشئ الطلب {0}", [m.order]),
+						indicator: "green",
+					});
+					if (on_done) on_done(m);
+				},
+			});
+		},
+	});
+	d.show();
+};
+
 frappe.ui.form.on("Container Unload", {
+	refresh(frm) {
+		frm.trigger("render_extend_button");
+	},
+
+	render_extend_button(frm) {
+		frm.remove_custom_button(__("تمديد"));
+		if (frm.doc.docstatus === 0 && frm.doc.rental_record) {
+			frm.add_custom_button(__("تمديد"), () => {
+				window.container_rental_extend_dialog(frm.doc.rental_record, () => {
+					frappe.msgprint(__("تم التمديد — لا حاجة للتفريغ الآن، يمكنك إغلاق هذه الشاشة"));
+				});
+			});
+		}
+	},
+
 	setup(frm) {
 		frm.set_query("container", () => ({
 			filters: { status: ["in", ["مؤجرة", "متأخرة"]] },
@@ -23,6 +79,7 @@ frappe.ui.form.on("Container Unload", {
 				}
 				const r = rows[0];
 				frm.set_value("rental_record", r.name);
+				frm.trigger("render_extend_button");
 				frappe.db.get_value("Customer", r.client, "customer_name").then((res) => {
 					frm.dashboard.set_headline(
 						__("العميل: {0} — تاريخ التوصيل: {1} — الاستحقاق: {2}", [

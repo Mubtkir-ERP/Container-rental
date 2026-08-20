@@ -1,3 +1,44 @@
+// Shared extension dialog: any days count, billed as a NEW closed order
+window.container_rental_extend_dialog = window.container_rental_extend_dialog || function (rental_record, on_done) {
+	const d = new frappe.ui.Dialog({
+		title: __("تمديد مدة الحاوية"),
+		fields: [
+			{
+				fieldname: "days", fieldtype: "Int", label: __("عدد أيام التمديد"),
+				reqd: 1, default: 10,
+				description: __("يُحاسب التمديد بطلب جديد"),
+			},
+			{ fieldname: "rental_value", fieldtype: "Currency", label: __("قيمة التمديد"), reqd: 1 },
+			{
+				fieldname: "payment_method", fieldtype: "Link", label: __("طريقة الدفع"),
+				options: "Mode of Payment",
+			},
+		],
+		primary_action_label: __("تمديد"),
+		primary_action(values) {
+			d.hide();
+			frappe.call({
+				method: "container_rental.api.extend_rental",
+				args: {
+					rental_record: rental_record,
+					days: values.days,
+					rental_value: values.rental_value,
+					payment_method: values.payment_method,
+				},
+				callback(r) {
+					const m = r.message || {};
+					frappe.show_alert({
+						message: __("تم التمديد — أُنشئ الطلب {0}", [m.order]),
+						indicator: "green",
+					});
+					if (on_done) on_done(m);
+				},
+			});
+		},
+	});
+	d.show();
+};
+
 // S11 — the owner's most important screen: interactive table + card toggle,
 // live-updating delay durations, severity colors, filters, stats bar,
 // quick actions (supervisor unload request / WhatsApp / call) and export.
@@ -136,50 +177,7 @@ frappe.pages["overdue-containers"].on_page_load = function (wrapper) {
 	}
 
 	function open_extend_dialog(rec) {
-		frappe.db.get_single_value("Container Rental Settings", "min_extension_days").then((min_days) => {
-			min_days = min_days || 10;
-			const d = new frappe.ui.Dialog({
-				title: __("تمديد مدة الحاوية"),
-				fields: [
-					{
-						fieldname: "days", fieldtype: "Int", label: __("عدد أيام التمديد"),
-						reqd: 1, default: min_days,
-						description: __("أقل مدة تمديد: {0} يوم — يُحاسب التمديد بطلب جديد", [min_days]),
-					},
-					{ fieldname: "rental_value", fieldtype: "Currency", label: __("قيمة التمديد"), reqd: 1 },
-					{
-						fieldname: "payment_method", fieldtype: "Link", label: __("طريقة الدفع"),
-						options: "Mode of Payment",
-					},
-				],
-				primary_action_label: __("تمديد"),
-				primary_action(values) {
-					if (values.days < min_days) {
-						frappe.msgprint(__("أقل مدة تمديد هي {0} يوم", [min_days]));
-						return;
-					}
-					d.hide();
-					frappe.call({
-						method: "container_rental.api.extend_rental",
-						args: {
-							rental_record: rec,
-							days: values.days,
-							rental_value: values.rental_value,
-							payment_method: values.payment_method,
-						},
-						callback(r) {
-							const m = r.message || {};
-							frappe.show_alert({
-								message: __("تم التمديد — أُنشئ الطلب {0}", [m.order]),
-								indicator: "green",
-							});
-							load();
-						},
-					});
-				},
-			});
-			d.show();
-		});
+		container_rental_extend_dialog(rec, () => load());
 	}
 
 	function last_wa(row) {
