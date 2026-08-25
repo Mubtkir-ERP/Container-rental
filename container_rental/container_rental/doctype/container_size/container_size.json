@@ -6,7 +6,7 @@
  "engine": "InnoDB",
  "field_order": [
   "size_name",
-  "driver_whatsapp_no"
+  "whatsapp_instance"
  ],
  "fields": [
   {
@@ -18,15 +18,15 @@
    "in_list_view": 1
   },
   {
-   "fieldname": "driver_whatsapp_no",
-   "fieldtype": "Data",
-   "label": "Driver WhatsApp No",
-   "options": "Phone",
-   "description": "رقم واتساب سائق شاحنة هذا الحجم — تُرسل إليه إشعارات الإسناد"
+   "fieldname": "whatsapp_instance",
+   "fieldtype": "Link",
+   "label": "Sending WhatsApp Instance",
+   "options": "Whatsapp Instance",
+   "description": "رقم الواتساب (Instance) الذي تُرسل منه رسائل السائق لطلبات هذا الحجم"
   }
  ],
  "links": [],
- "modified": "2026-08-25 14:13:48.000000",
+ "modified": "2026-08-25 15:53:46.000000",
  "modified_by": "Administrator",
  "module": "Container Rental",
  "name": "Container Size",

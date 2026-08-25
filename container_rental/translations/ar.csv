@@ -227,6 +227,7 @@ Extension Days,عدد أيام التمديد
 Extension Value,قيمة التمديد
 Request Unload,طلب تفريغ
 Delivery Info,معلومات التوصيل
-Driver WhatsApp No,رقم واتساب السائق (حسب حجم الحاوية)
 Default Driver Commission %,نسبة عمولة السائق الافتراضية %
 Remind Client Before Due (Days),تذكير العميل قبل الاستحقاق بـ (أيام)
+Sending WhatsApp Instance,رقم الواتساب المرسِل (Instance)
+Default WhatsApp Instance,رقم الواتساب المرسِل الافتراضي
