@@ -8,6 +8,7 @@
   "default_rental_days",
   "column_break_rental",
   "default_supervisor",
+  "default_commission_percent",
   "alerts_section",
   "expiry_alert_days",
   "unload_reminder_after_days",
@@ -56,8 +57,9 @@
    "default": "2",
    "fieldname": "unload_reminder_after_days",
    "fieldtype": "Int",
-   "label": "Unload Reminder After (Days)",
-   "reqd": 1
+   "label": "Remind Client Before Due (Days)",
+   "reqd": 1,
+   "description": "يصل العميل تنبيه بالتفريغ قبل انتهاء المدة بهذا العدد من الأيام"
   },
   {
    "fieldname": "column_break_alerts",
@@ -76,11 +78,18 @@
    "fieldtype": "Check",
    "label": "Send Document Expiry Alerts via WhatsApp",
    "description": "ترسل نسخة من تنبيهات انتهاء وثائق الموظفين والشاحنات إلى واتساب مشرف السواقين"
+  },
+  {
+   "fieldname": "default_commission_percent",
+   "fieldtype": "Percent",
+   "label": "Default Driver Commission %",
+   "default": "4",
+   "description": "نسبة من قيمة الطلب — تُحتسب عند إسناد الطلب للسائق (ما لم تُحدد نسبة على Sales Person)"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-08-01 00:00:00.000000",
+ "modified": "2026-08-25 14:13:48.000000",
  "modified_by": "Administrator",
  "module": "Container Rental",
  "name": "Container Rental Settings",

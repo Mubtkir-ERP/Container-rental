@@ -56,3 +56,10 @@ def get_open_record(container):
 		{"container": container, "status": ("in", ["مؤجرة", "متأخرة"])},
 		order_by="delivered_on desc",
 	)
+
+
+def get_maps_link(record):
+	"""Google Maps link of the delivery location (lives on the source order)."""
+	if record.source_doctype == "Container Order" and record.source_name:
+		return frappe.db.get_value("Container Order", record.source_name, "google_maps_link") or ""
+	return ""

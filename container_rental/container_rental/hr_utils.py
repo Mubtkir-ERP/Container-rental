@@ -66,3 +66,17 @@ def get_supervisor_contact():
 		return None, None, None
 	full_name, mobile = frappe.db.get_value("User", user, ["full_name", "mobile_no"])
 	return user, full_name, mobile
+
+
+def get_commission_percent(employee):
+	"""Commission % of the order value: Sales Person.commission_rate, else the
+	default from Container Rental Settings (4%)."""
+	sales_person = get_sales_person(employee)
+	rate = 0
+	if sales_person:
+		rate = frappe.utils.flt(frappe.db.get_value("Sales Person", sales_person, "commission_rate"))
+	if not rate:
+		rate = frappe.utils.flt(
+			frappe.db.get_single_value("Container Rental Settings", "default_commission_percent")
+		) or 4
+	return sales_person, rate

@@ -13,6 +13,13 @@ frappe.ui.form.on("Container Order", {
 	},
 
 	refresh(frm) {
+		// The status changes server-side (driver confirm / delivery submit);
+		// re-fetch when the cached form is behind so it never shows a stale state.
+		if (!frm.is_new() && !frm.is_dirty()) {
+			frappe.db.get_value("Container Order", frm.doc.name, "status").then((r) => {
+				if (r.message && r.message.status !== frm.doc.status) frm.reload_doc();
+			});
+		}
 		frm.trigger("render_status_buttons");
 		frm.trigger("render_location_button");
 		frm.trigger("render_driver_view");
@@ -34,7 +41,14 @@ frappe.ui.form.on("Container Order", {
 
 	render_driver_view(frm) {
 		if (frm.is_new() || !frm.events.is_driver_only()) return;
-		// Driver's simplified screen: container box + payment + delivery note + location
+		// Driver's screen = the "Delivery Info" section only, one action button
+		const other_sections = [
+			"client_section", "order_section", "additional_section", "rental_section",
+			"delivery_schedule_section", "assignment_section", "transfer_section",
+			"payment_track_section", "meta_section",
+		];
+		frm.toggle_display(other_sections, false);
+		frm.disable_save();
 		if (frm.doc.status === "مُسنَد لسائق") {
 			frm.page.set_primary_action(__("تأكيد التوصيل"), () => {
 				if (!frm.doc.container) {
@@ -45,15 +59,19 @@ frappe.ui.form.on("Container Order", {
 					frappe.msgprint(__("أدخل رقم دفتر التسليم للدفع الآجل"));
 					return;
 				}
-				const proceed = () =>
-					frm.call("driver_confirm_delivery", {
-						container: frm.doc.container,
-						delivery_note_no: frm.doc.delivery_note_no,
-					}).then(() => {
+				// One step: the server stores the container / note and records the delivery
+				frappe.call({
+					method: "run_doc_method",
+					args: {
+						dt: frm.doctype, dn: frm.docname, method: "driver_confirm_delivery",
+						args: { container: frm.doc.container, delivery_note_no: frm.doc.delivery_note_no },
+					},
+					callback() {
 						frappe.show_alert({ message: __("تم تأكيد التوصيل"), indicator: "green" });
+						frm.doc.__unsaved = 0;
 						frappe.set_route("List", "Container Order");
-					});
-				frm.is_dirty() ? frm.save().then(proceed) : proceed();
+					},
+				});
 			});
 		}
 	},
@@ -63,20 +81,23 @@ frappe.ui.form.on("Container Order", {
 	},
 
 	rental_days(frm) {
-		frm.trigger("compute_end_date");
+		// days → end date (only when it actually changes, so the two handlers converge)
+		if (frm.doc.rental_start_date && frm.doc.rental_days) {
+			const end = frappe.datetime.add_days(frm.doc.rental_start_date, frm.doc.rental_days);
+			if (end !== frm.doc.rental_end_date) frm.set_value("rental_end_date", end);
+		}
+	},
+
+	rental_end_date(frm) {
+		// end date → days, recomputed on EVERY change of the date
+		if (frm.doc.rental_start_date && frm.doc.rental_end_date) {
+			const days = frappe.datetime.get_day_diff(frm.doc.rental_end_date, frm.doc.rental_start_date);
+			if (days > 0 && days !== frm.doc.rental_days) frm.set_value("rental_days", days);
+		}
 	},
 
 	rental_start_date(frm) {
-		frm.trigger("compute_end_date");
-	},
-
-	compute_end_date(frm) {
-		if (frm.doc.rental_start_date && frm.doc.rental_days) {
-			frm.set_value(
-				"rental_end_date",
-				frappe.datetime.add_days(frm.doc.rental_start_date, frm.doc.rental_days)
-			);
-		}
+		frm.trigger("rental_days");
 	},
 
 	client(frm) {

@@ -27,3 +27,12 @@ def execute():
 			"status": "Local",
 		}).insert(ignore_permissions=True)
 	frappe.db.commit()
+
+
+def refresh_default_bodies(keys=("driver_assignment", "supervisor_unload_request")):
+	"""Overwrite the stored body with the app default for the given template keys."""
+	for key in keys:
+		name = frappe.db.get_value("WhatsApp Templates", {"template_name": key})
+		if name:
+			frappe.db.set_value("WhatsApp Templates", name, "template", DEFAULT_TEMPLATES[key]["body"])
+	frappe.db.commit()

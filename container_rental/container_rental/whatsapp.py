@@ -35,6 +35,7 @@ DEFAULT_TEMPLATES = {
 			"رقم الطلب: {{ order_no }}\n"
 			"رابط الطلب: {{ order_link }}\n"
 			"حجم الحاوية: {{ container_size }}\n"
+			"{% if payment_method %}طريقة الدفع: {{ payment_method }}\n{% endif %}"
 			"{% if google_maps_link %}موقع التسليم: {{ google_maps_link }}\n{% endif %}"
 			"{% if delivery_date %}الموعد المطلوب: {{ delivery_date }} {{ delivery_time }}{% endif %}"
 		),
@@ -79,6 +80,7 @@ DEFAULT_TEMPLATES = {
 			"الحاوية: {{ container_no }}\n"
 			"العميل: {{ client_name }}\n"
 			"العنوان: {{ address }}\n"
+			"{% if google_maps_link %}الموقع على الخريطة: {{ google_maps_link }}\n{% endif %}"
 			"{% if due_date %}تاريخ الاستحقاق: {{ due_date }}\n{% endif %}"
 			"{% if overdue_days and overdue_days > 0 %}متأخرة {{ overdue_days }} يوم.\n{% endif %}"
 			"يرجى إرسال سائق للتفريغ."

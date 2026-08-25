@@ -16,6 +16,7 @@ from frappe.utils import (
 )
 
 from container_rental.container_rental import whatsapp
+from container_rental.container_rental.doctype.rental_record.rental_record import get_maps_link
 
 
 # ─── Hourly: overdue detection ───────────────────────────────────────────────
@@ -49,11 +50,12 @@ def daily_alerts():
 
 
 def send_unload_reminders(settings):
-	"""WhatsApp event 3: remind the client to allow unloading after N days."""
-	threshold = add_days(now_datetime(), -(settings.unload_reminder_after_days or 2))
+	"""WhatsApp event 3: remind the client N days BEFORE the rental due date
+	(the period is counted from the actual delivery day)."""
+	horizon = add_days(now_datetime(), settings.unload_reminder_after_days or 2)
 	records = frappe.get_all(
 		"Rental Record",
-		filters={"status": ("in", ["مؤجرة", "متأخرة"]), "delivered_on": ("<=", threshold)},
+		filters={"status": "مؤجرة", "due_on": ("between", [now_datetime(), horizon])},
 		fields=["name", "client", "mobile_no", "container", "due_on", "address", "last_whatsapp_on"],
 	)
 	for row in records:
@@ -138,6 +140,7 @@ def send_supervisor_unload_requests(settings):
 				"driver_name": supervisor_name,
 				"container_no": row.container,
 				"address": row.address or "",
+				"google_maps_link": get_maps_link(record),
 				"due_date": frappe.format(row.due_on, {"fieldtype": "Datetime"}) if row.due_on else "",
 				"overdue_days": max(0, date_diff(today(), getdate(row.due_on))) if row.due_on else 0,
 			},

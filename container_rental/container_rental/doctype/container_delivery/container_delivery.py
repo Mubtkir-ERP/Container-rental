@@ -88,14 +88,23 @@ class ContainerDelivery(Document):
 			payment_method=payment_method,
 		)
 
-		# Section 6: commission frozen at the driver's current per-delivery rate
-		create_commission_entry(self.driver, "Container Delivery", self.name, self.container, self.client)
-
 		if self.contract:
-			frappe.get_doc("Container Contract", self.contract).register_delivery(self.container)
+			contract = frappe.get_doc("Container Contract", self.contract)
+			contract.register_delivery(self.container)
+			# Contract deliveries: commission on the agreed trip price for this size
+			size = frappe.db.get_value("Container", self.container, "size")
+			trip_price = next((item.price for item in contract.items if item.container_size == size), 0)
+			create_commission_entry(self.driver, "Container Delivery", self.name, self.container,
+				self.client, base_amount=trip_price)
 
 		if self.order:
-			frappe.get_doc("Container Order", self.order).mark_delivered_if_complete()
+			order = frappe.get_doc("Container Order", self.order)
+			# The rental period starts on the actual delivery day, not the order day
+			start = get_datetime(self.delivery_datetime).date()
+			order.db_set("rental_start_date", start)
+			if order.rental_days:
+				order.db_set("rental_end_date", add_days(start, int(order.rental_days)))
+			order.mark_delivered_if_complete()
 
 	def on_cancel(self):
 		record_name = frappe.db.get_value(

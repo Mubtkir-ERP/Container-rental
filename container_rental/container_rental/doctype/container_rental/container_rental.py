@@ -65,7 +65,8 @@ class ContainerRental(Document):
 		)
 
 		if self.driver:
-			create_commission_entry(self.driver, "Container Rental", self.name, self.container, self.client)
+			create_commission_entry(self.driver, "Container Rental", self.name, self.container, self.client,
+				base_amount=self.amount)
 
 		customer_utils.refresh_balance(self.client)
 

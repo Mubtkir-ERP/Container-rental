@@ -5,6 +5,7 @@ from frappe import _
 from frappe.utils import add_days, date_diff, get_datetime, now_datetime, today
 
 from container_rental.container_rental import whatsapp
+from container_rental.container_rental.doctype.rental_record.rental_record import get_maps_link
 
 
 # ─── S9: dashboard cards ─────────────────────────────────────────────────────
@@ -212,6 +213,7 @@ def send_unload_request(rental_record):
 			"driver_name": supervisor_name,
 			"container_no": record.container,
 			"address": record.address or "",
+			"google_maps_link": get_maps_link(record),
 			"due_date": frappe.format(record.due_on, {"fieldtype": "Datetime"}) if record.due_on else "",
 			"overdue_days": overdue_hours // 24,
 		},

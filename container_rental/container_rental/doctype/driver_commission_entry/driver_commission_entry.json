@@ -79,7 +79,7 @@
    "fieldname": "delivery_reference_doctype",
    "fieldtype": "Select",
    "label": "Reference Type",
-   "options": "Container Delivery\nContainer Rental",
+   "options": "Container Order\nContainer Delivery\nContainer Rental",
    "read_only": 1
   },
   {
@@ -116,7 +116,7 @@
  ],
  "in_create": 1,
  "links": [],
- "modified": "2026-08-01 00:00:00.000000",
+ "modified": "2026-08-25 14:13:48.000000",
  "modified_by": "Administrator",
  "module": "Container Rental",
  "name": "Driver Commission Entry",

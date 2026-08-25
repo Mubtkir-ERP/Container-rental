@@ -123,7 +123,18 @@ class ContainerOrder(Document):
 		self.db_set("assigned_driver", driver)
 		if vehicle:
 			self.db_set("assigned_vehicle", vehicle)
-		driver_mobile = hr_utils.get_employee_mobile(driver)
+		# Message goes to the truck's WhatsApp number for this container size
+		# (big/small truck), falling back to the driver's own mobile.
+		driver_mobile = (
+			frappe.db.get_value("Container Size", self.container_size, "driver_whatsapp_no")
+			or hr_utils.get_employee_mobile(driver)
+		)
+		# Commission is a % of the order value, earned at assignment (not invoicing)
+		from container_rental.container_rental.doctype.driver_commission_entry.driver_commission_entry import (
+			create_commission_entry,
+		)
+		create_commission_entry(driver, "Container Order", self.name, self.container, self.client,
+			base_amount=self.rental_value)
 		context = self.get_whatsapp_context()
 		context["driver_name"] = hr_utils.get_employee_name(driver)
 		whatsapp.send_event("driver_assignment", driver_mobile, context, reference_doc=self)
@@ -136,6 +147,10 @@ class ContainerOrder(Document):
 			[STATUS_NEW, STATUS_AWAITING_TRANSFER, STATUS_AWAITING_DRIVER, STATUS_ASSIGNED],
 			STATUS_CANCELLED,
 		)
+		for entry in frappe.get_all("Driver Commission Entry",
+			filters={"delivery_reference_doctype": "Container Order", "delivery_reference": self.name},
+			pluck="name"):
+			frappe.delete_doc("Driver Commission Entry", entry, force=True, ignore_permissions=True)
 		return STATUS_CANCELLED
 
 	@frappe.whitelist()
@@ -242,6 +257,7 @@ class ContainerOrder(Document):
 			"container_size": self.container_size,
 			"address": self.delivery_address or "",
 			"google_maps_link": self.google_maps_link or "",
+			"payment_method": self.payment_method or "",
 			"rental_days": self.rental_days or "",
 			"rental_value": self.rental_value or 0,
 			"delivery_date": frappe.format(self.required_delivery_date, {"fieldtype": "Date"})

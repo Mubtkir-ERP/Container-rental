@@ -5,17 +5,21 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "driver_section",
+  "container_size",
+  "container",
+  "column_break_driver",
+  "payment_method",
+  "delivery_note_no",
+  "google_maps_link",
   "client_section",
   "client",
   "mobile_no",
   "column_break_client",
   "delivery_address",
-  "google_maps_link",
   "order_section",
   "order_type",
-  "container_size",
   "column_break_order",
-  "container",
   "contract",
   "status",
   "additional_section",
@@ -23,8 +27,6 @@
   "rental_section",
   "rental_days",
   "rental_value",
-  "payment_method",
-  "delivery_note_no",
   "column_break_rental",
   "rental_start_date",
   "rental_end_date",
@@ -183,8 +185,7 @@
    "fieldname": "rental_end_date",
    "fieldtype": "Date",
    "label": "Rental End Date",
-   "read_only": 1,
-   "description": "تاريخ التأجير + مدة التأجير",
+   "description": "يُحسب من تاريخ التوصيل الفعلي + المدة؛ تعديله يعيد حساب عدد الأيام",
    "permlevel": 1
   },
   {
@@ -320,10 +321,19 @@
    "label": "Delivery Note No",
    "depends_on": "eval:doc.payment_method=='آجل'",
    "description": "رقم دفتر التسليم — يُعبأ عند الدفع الآجل"
+  },
+  {
+   "fieldname": "driver_section",
+   "fieldtype": "Section Break",
+   "label": "Delivery Info"
+  },
+  {
+   "fieldname": "column_break_driver",
+   "fieldtype": "Column Break"
   }
  ],
  "links": [],
- "modified": "2026-08-01 00:00:00.000000",
+ "modified": "2026-08-25 14:13:48.000000",
  "modified_by": "Administrator",
  "module": "Container Rental",
  "name": "Container Order",
