@@ -184,3 +184,15 @@ def link_check():
 	order = frappe.get_doc("Container Order", frappe.get_all("Container Order", filters={"status": "مُسنَد لسائق"}, limit=1)[0].name)
 	ctx = order.get_whatsapp_context(); ctx["driver_name"] = "سواق1"
 	print("---"); print(whatsapp.render_event("driver_assignment", ctx))
+
+
+def supervisor_check():
+	from frappe.utils import add_days, now_datetime
+	from container_rental.container_rental import tasks
+	rec = frappe.get_all("Rental Record", filters={"status": "مؤجرة", "source_doctype": "Container Order"}, limit=1)[0].name
+	frappe.db.set_value("Rental Record", rec, {"due_on": add_days(now_datetime(), -1), "unload_request_sent_on": None}, update_modified=False)
+	frappe.db.set_value("Rental Record", rec, "payment_method", "نقدي", update_modified=False)
+	n = tasks.mark_overdue_rentals()
+	r = frappe.get_doc("Rental Record", rec)
+	print("overdue flagged:", n, "| status:", r.status, "| supervisor request stamped:", bool(r.unload_request_sent_on))
+	frappe.db.rollback()

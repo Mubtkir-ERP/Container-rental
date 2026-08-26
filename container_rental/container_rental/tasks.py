@@ -34,9 +34,44 @@ def mark_overdue_rentals():
 		# Don't override damaged/maintenance flags set manually in the meantime
 		if frappe.db.get_value("Container", row.container, "status") == "مؤجرة":
 			frappe.db.set_value("Container", row.container, "status", "متأخرة", update_modified=False)
+		# Ask the supervisor to dispatch a driver right away (not at the next 07:00 run)
+		send_supervisor_request(frappe.get_doc("Rental Record", row.name))
 	if overdue:
 		frappe.db.commit()
 	return len(overdue)
+
+
+def send_supervisor_request(record):
+	"""WhatsApp event 6 for one overdue rental (cash / short-term only).
+	Idempotent: skipped when a request was already sent for this rental."""
+	from container_rental.container_rental import hr_utils
+
+	if record.unload_request_sent_on or record.payment_method == "آجل":
+		return False
+	if record.source_doctype not in ("Container Order", "Container Rental"):
+		return False
+	_user, supervisor_name, supervisor_mobile = hr_utils.get_supervisor_contact()
+	if not supervisor_mobile:
+		return False
+	client_name = frappe.db.get_value("Customer", record.client, "customer_name")
+	whatsapp.send_event(
+		"supervisor_unload_request",
+		supervisor_mobile,
+		{
+			"client_name": client_name,
+			"driver_name": supervisor_name,
+			"container_no": record.container,
+			"container_size": record.container_size,
+			"address": record.address or "",
+			"google_maps_link": get_maps_link(record),
+			"order_link": get_order_link(record),
+			"due_date": frappe.format(record.due_on, {"fieldtype": "Datetime"}) if record.due_on else "",
+			"overdue_days": max(0, date_diff(today(), getdate(record.due_on))) if record.due_on else 0,
+		},
+		reference_doc=record,
+	)
+	record.db_set("unload_request_sent_on", now_datetime(), update_modified=False)
+	return True
 
 
 # ─── Daily: WhatsApp reminders + document expiry alerts ─────────────────────
@@ -112,44 +147,14 @@ def send_contract_expiry_alerts(settings):
 
 
 def send_supervisor_unload_requests(settings):
-	"""WhatsApp event 6: overdue cash/short-term rentals → ask the supervisor
-	to dispatch a driver for unloading."""
-	from container_rental.container_rental import hr_utils
-
-	_user, supervisor_name, supervisor_mobile = hr_utils.get_supervisor_contact()
-	if not supervisor_name:
-		return
-	records = frappe.get_all(
+	"""Daily safety net: any overdue cash/short-term rental still without a
+	supervisor request (the hourly job normally sends it immediately)."""
+	for name in frappe.get_all(
 		"Rental Record",
-		filters={
-			"status": "متأخرة",
-			"source_doctype": ("in", ["Container Order", "Container Rental"]),
-			"unload_request_sent_on": ("is", "not set"),
-		},
-		fields=["name", "client", "container", "container_size", "address", "due_on", "payment_method"],
-	)
-	for row in records:
-		if row.payment_method == "آجل":
-			continue  # section 5 event 6 targets cash / short-term rentals
-		record = frappe.get_doc("Rental Record", row.name)
-		client_name = frappe.db.get_value("Customer", row.client, "customer_name")
-		whatsapp.send_event(
-			"supervisor_unload_request",
-			supervisor_mobile,
-			{
-				"client_name": client_name,
-				"driver_name": supervisor_name,
-				"container_no": row.container,
-				"container_size": row.container_size,
-				"address": row.address or "",
-				"google_maps_link": get_maps_link(record),
-				"order_link": get_order_link(record),
-				"due_date": frappe.format(row.due_on, {"fieldtype": "Datetime"}) if row.due_on else "",
-				"overdue_days": max(0, date_diff(today(), getdate(row.due_on))) if row.due_on else 0,
-			},
-			reference_doc=record,
-		)
-		record.db_set("unload_request_sent_on", now_datetime(), update_modified=False)
+		filters={"status": "متأخرة", "unload_request_sent_on": ("is", "not set")},
+		pluck="name",
+	):
+		send_supervisor_request(frappe.get_doc("Rental Record", name))
 
 
 def send_document_expiry_alerts(settings):

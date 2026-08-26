@@ -7,6 +7,14 @@ frappe.ui.form.on("Container Delivery", {
 		frm.set_query("contract", () => ({ filters: { docstatus: 1, contract_status: "ساري" } }));
 	},
 
+	refresh(frm) {
+		// One step: saving a draft delivery submits it right away (no separate Submit click)
+		if (frm.doc.docstatus === 0) {
+			frm.disable_save();
+			frm.page.set_primary_action(__("تسجيل التوصيل"), () => frm.save("Submit"));
+		}
+	},
+
 	order(frm) {
 		if (!frm.doc.order) return;
 		frappe.db.get_doc("Container Order", frm.doc.order).then((order) => {
