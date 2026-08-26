@@ -55,12 +55,28 @@ class ContainerOrder(Document):
 		if self.status != STATUS_NEW:
 			return  # e.g. rental-extension orders are inserted already closed
 		self.db_set("status", STATUS_AWAITING_DRIVER)
-		whatsapp.send_event(
-			"order_confirmation",
-			self.mobile_no,
-			self.get_whatsapp_context(),
-			reference_doc=self,
-		)
+		context = self.get_whatsapp_context()
+		whatsapp.send_event("order_confirmation", self.mobile_no, context, reference_doc=self)
+		self.notify_supervisor_new_order(context)
+
+	def notify_supervisor_new_order(self, context=None):
+		"""Drivers supervisor gets the order link the moment it is saved,
+		so he can assign a driver (WhatsApp + in-system notification)."""
+		supervisor_user, supervisor_name, supervisor_mobile = hr_utils.get_supervisor_contact()
+		if not supervisor_user:
+			return
+		context = dict(context or self.get_whatsapp_context())
+		context["driver_name"] = supervisor_name
+		whatsapp.send_event("supervisor_new_order", supervisor_mobile, context, reference_doc=self)
+		frappe.get_doc({
+			"doctype": "Notification Log",
+			"for_user": supervisor_user,
+			"subject": _("طلب جديد {0} بانتظار إسناد سائق — {1}").format(self.name, context.get("client_name") or ""),
+			"email_content": _("العنوان: {0}").format(self.delivery_address or "-"),
+			"document_type": "Container Order",
+			"document_name": self.name,
+			"type": "Alert",
+		}).insert(ignore_permissions=True)
 
 	def validate_containers(self):
 		for fieldname, size, container in self._container_rows():

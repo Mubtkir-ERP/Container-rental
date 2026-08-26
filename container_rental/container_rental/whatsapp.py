@@ -75,6 +75,20 @@ DEFAULT_TEMPLATES = {
 			"يسعدنا تواصلكم معنا لتجديد التعاقد."
 		),
 	},
+	"supervisor_new_order": {
+		"title": "طلب جديد بانتظار إسناد سائق — لمشرف السواقين",
+		"body": (
+			"طلب جديد بانتظار إسناد سائق:\n"
+			"رقم الطلب: {{ order_no }}\n"
+			"رابط الطلب: {{ order_link }}\n"
+			"العميل: {{ client_name }} — {{ client_mobile }}\n"
+			"حجم الحاوية: {{ container_size }}\n"
+			"{% if address %}العنوان: {{ address }}\n{% endif %}"
+			"{% if google_maps_link %}الموقع على الخريطة: {{ google_maps_link }}\n{% endif %}"
+			"{% if delivery_date %}موعد التوصيل المطلوب: {{ delivery_date }} {{ delivery_time }}\n{% endif %}"
+			"يرجى إسناد الطلب لسائق."
+		),
+	},
 	"supervisor_unload_request": {
 		"title": "طلب إرسال سائق للتفريغ — لمشرف السواقين",
 		"body": (

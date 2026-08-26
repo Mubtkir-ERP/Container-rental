@@ -192,7 +192,23 @@ def supervisor_check():
 	rec = frappe.get_all("Rental Record", filters={"status": "مؤجرة", "source_doctype": "Container Order"}, limit=1)[0].name
 	frappe.db.set_value("Rental Record", rec, {"due_on": add_days(now_datetime(), -1), "unload_request_sent_on": None}, update_modified=False)
 	frappe.db.set_value("Rental Record", rec, "payment_method", "نقدي", update_modified=False)
+	sup = frappe.db.get_single_value("Container Rental Settings", "default_supervisor")
+	frappe.db.set_value("User", sup, "mobile_no", "0551000004", update_modified=False)
 	n = tasks.mark_overdue_rentals()
 	r = frappe.get_doc("Rental Record", rec)
 	print("overdue flagged:", n, "| status:", r.status, "| supervisor request stamped:", bool(r.unload_request_sent_on))
+	frappe.db.rollback()
+
+
+def new_order_supervisor_check():
+	sup = frappe.db.get_single_value("Container Rental Settings", "default_supervisor")
+	frappe.db.set_value("User", sup, "mobile_no", "0551000004", update_modified=False)
+	before = frappe.db.count("Notification Log", {"for_user": sup})
+	customer = frappe.get_all("Customer", limit=1, pluck="name")[0]
+	order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "دفع عند الاستلام",
+		"container_size": "10 ياردة", "rental_days": 10, "rental_value": 500, "payment_method": "نقدي",
+		"rental_start_date": frappe.utils.today(), "delivery_address": "حي النخيل"}).insert(ignore_permissions=True)
+	print("status:", order.status, "| supervisor notifications +", frappe.db.count("Notification Log", {"for_user": sup}) - before)
+	from container_rental.container_rental import whatsapp
+	print(whatsapp.render_event("supervisor_new_order", dict(order.get_whatsapp_context(), driver_name="المشرف")))
 	frappe.db.rollback()
