@@ -5,13 +5,15 @@ Person, Sales Invoice, Account, Mode of Payment...). Idempotent."""
 import frappe
 from frappe.permissions import add_permission, update_permission_property
 
-# doctype → {role: [ptypes]}  (read is always granted with the row)
+# doctype → {role: [ptypes]}  (read is always granted with the row, except
+# "select"-only rows: link search / titles without access to the documents)
 ERPNEXT_PERMS = {
 	"Customer": {
 		"Customer Service": ["read", "write", "create"],
 		"Transfer Follow-up": ["read"],
 		"Driver Supervisor": ["read"],
 		"Container Manager": ["read", "write", "create"],
+		"Driver": ["select"],  # the order list filters on the customer title field
 	},
 	"Employee": {
 		"Customer Service": ["read"],
@@ -71,6 +73,8 @@ def execute():
 				continue
 			if not frappe.db.exists("Custom DocPerm", {"parent": doctype, "role": role, "permlevel": 0}):
 				add_permission(doctype, role, 0)
+			if ptypes == ["select"]:
+				update_permission_property(doctype, role, 0, "read", 0)
 			for ptype in ptypes:
 				update_permission_property(doctype, role, 0, ptype, 1)
 

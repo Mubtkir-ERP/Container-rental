@@ -5,7 +5,7 @@ from frappe import _
 from frappe.utils import add_days, date_diff, get_datetime, now_datetime, today
 
 from container_rental.container_rental import whatsapp
-from container_rental.container_rental.doctype.rental_record.rental_record import get_maps_link
+from container_rental.container_rental.doctype.rental_record.rental_record import get_maps_link, get_order_link
 
 
 # ─── S9: dashboard cards ─────────────────────────────────────────────────────
@@ -200,6 +200,9 @@ def send_unload_request(rental_record):
 	supervisor_user, supervisor_name, supervisor_mobile = hr_utils.get_supervisor_contact()
 	if not supervisor_user:
 		frappe.throw(_("حدد مشرف السواقين (مستخدم النظام) في إعدادات النظام أولًا"))
+	if not supervisor_mobile:
+		# The WhatsApp adapter skips silently without a number — surface it here
+		frappe.throw(_("أضف رقم الجوال لمستخدم مشرف السواقين ({0}) ليصله واتساب طلب التفريغ").format(supervisor_user))
 	client_name = frappe.db.get_value("Customer", record.client, "customer_name")
 	overdue_hours = max(
 		0, int((now_datetime() - get_datetime(record.due_on)).total_seconds() // 3600)
@@ -215,6 +218,7 @@ def send_unload_request(rental_record):
 			"container_size": record.container_size,
 			"address": record.address or "",
 			"google_maps_link": get_maps_link(record),
+			"order_link": get_order_link(record),
 			"due_date": frappe.format(record.due_on, {"fieldtype": "Datetime"}) if record.due_on else "",
 			"overdue_days": overdue_hours // 24,
 		},
@@ -322,3 +326,10 @@ def send_client_whatsapp(rental_record):
 		whatsapp._stamp_rental_record(record, "unload_reminder")
 
 	return {"sent": configured, "wa_link": wa_link}
+
+
+@frappe.whitelist()
+def get_current_employee():
+	"""Employee linked to the session user — used by the driver list view,
+	which cannot read Employee directly."""
+	return frappe.db.get_value("Employee", {"user_id": frappe.session.user}, "name")

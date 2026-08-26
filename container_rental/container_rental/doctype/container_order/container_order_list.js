@@ -4,8 +4,7 @@ frappe.listview_settings["Container Order"] = {
 		const office = ["System Manager", "Container Manager", "Customer Service", "Driver Supervisor", "Transfer Follow-up"];
 		const driver_only = frappe.user.has_role("Driver") && !office.some((r) => frappe.user.has_role(r));
 		if (!driver_only) return;
-		frappe.db.get_value("Employee", { user_id: frappe.session.user }, "name").then((r) => {
-			const employee = r.message && r.message.name;
+		frappe.xcall("container_rental.api.get_current_employee").then((employee) => {
 			listview.filter_area.clear();
 			listview.filter_area.add([["Container Order", "status", "=", "مُسنَد لسائق"]]);
 			if (employee) listview.filter_area.add([["Container Order", "assigned_driver", "=", employee]]);

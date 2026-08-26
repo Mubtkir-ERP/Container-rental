@@ -63,3 +63,12 @@ def get_maps_link(record):
 	if record.source_doctype == "Container Order" and record.source_name:
 		return frappe.db.get_value("Container Order", record.source_name, "google_maps_link") or ""
 	return ""
+
+
+def get_order_link(record):
+	"""Full URL that opens the order (or the rental record) behind a rental."""
+	from frappe.utils import get_url
+
+	if record.source_doctype == "Container Order" and record.source_name:
+		return get_url(f"/app/container-order/{record.source_name}")
+	return get_url(f"/app/rental-record/{record.name}")

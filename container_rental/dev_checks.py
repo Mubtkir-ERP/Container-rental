@@ -173,3 +173,14 @@ def payout_check():
 		[(a.account, a.debit, a.credit) for a in jed.accounts])
 	print("size instance lookup:", whatsapp.instance_for_size("10 ياردة"))
 	frappe.db.rollback()
+
+
+def link_check():
+	from container_rental.container_rental import whatsapp
+	from container_rental.container_rental.doctype.rental_record.rental_record import get_order_link
+	rec = frappe.get_doc("Rental Record", frappe.get_all("Rental Record", filters={"source_doctype": "Container Order"}, limit=1)[0].name)
+	print(whatsapp.render_event("supervisor_unload_request", {"client_name": "x", "container_no": rec.container,
+		"address": "y", "order_link": get_order_link(rec), "google_maps_link": "https://maps.app.goo.gl/x", "due_date": "", "overdue_days": 0}))
+	order = frappe.get_doc("Container Order", frappe.get_all("Container Order", filters={"status": "مُسنَد لسائق"}, limit=1)[0].name)
+	ctx = order.get_whatsapp_context(); ctx["driver_name"] = "سواق1"
+	print("---"); print(whatsapp.render_event("driver_assignment", ctx))

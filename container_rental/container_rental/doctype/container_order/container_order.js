@@ -101,7 +101,7 @@ frappe.ui.form.on("Container Order", {
 	},
 
 	client(frm) {
-		if (!frm.doc.client) return;
+		if (!frm.doc.client || !frappe.model.can_read("Customer")) return;
 		// Offer the customer's saved delivery locations as the delivery address
 		frappe.db.get_doc("Customer", frm.doc.client).then((customer) => {
 			const locations = customer.cr_delivery_locations || [];

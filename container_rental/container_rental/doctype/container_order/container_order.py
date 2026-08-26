@@ -248,10 +248,19 @@ class ContainerOrder(Document):
 
 	def get_whatsapp_context(self):
 		client_name = frappe.db.get_value("Customer", self.client, "customer_name")
+		mobile = self.mobile_no or frappe.db.get_value("Customer", self.client, "mobile_no") or ""
+		maps = self.google_maps_link or ""
 		return {
 			"order_no": self.name,
 			"order_link": get_url(f"/app/container-order/{self.name}"),
 			"client_name": client_name,
+			# aliases so hand-edited templates keep working
+			"customer_name": client_name,
+			"client_mobile": mobile,
+			"customer_mobile": mobile,
+			"mobile_no": mobile,
+			"map_link": maps,
+			"location_link": maps,
 			"container_no": self.container or "",
 			"container_size": self.container_size,
 			"address": self.delivery_address or "",

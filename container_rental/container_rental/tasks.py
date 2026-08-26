@@ -16,7 +16,7 @@ from frappe.utils import (
 )
 
 from container_rental.container_rental import whatsapp
-from container_rental.container_rental.doctype.rental_record.rental_record import get_maps_link
+from container_rental.container_rental.doctype.rental_record.rental_record import get_maps_link, get_order_link
 
 
 # ─── Hourly: overdue detection ───────────────────────────────────────────────
@@ -143,6 +143,7 @@ def send_supervisor_unload_requests(settings):
 				"container_size": row.container_size,
 				"address": row.address or "",
 				"google_maps_link": get_maps_link(record),
+				"order_link": get_order_link(record),
 				"due_date": frappe.format(row.due_on, {"fieldtype": "Datetime"}) if row.due_on else "",
 				"overdue_days": max(0, date_diff(today(), getdate(row.due_on))) if row.due_on else 0,
 			},
