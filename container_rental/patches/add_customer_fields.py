@@ -1,5 +1,6 @@
 """Custom fields on ERPNext Customer for the container-rental domain
-(document section 2.4). Tagged with module "Container Rental" so the fixture
+(document section 2.4). The WhatsApp number is the standard Customer
+`mobile_no` (primary Contact) — the same field frappe_whatsapp resolves. Tagged with module "Container Rental" so the fixture
 filter in hooks.py exports them. Idempotent — also re-syncs labels."""
 
 import frappe
@@ -15,24 +16,12 @@ CUSTOM_FIELDS = {
 			"module": "Container Rental",
 		},
 		{
-			"fieldname": "cr_mobile_no",
-			"fieldtype": "Data",
-			"label": "Mobile No (WhatsApp)",
-			"options": "Phone",
-			"insert_after": "cr_rental_section",
-			"allow_in_quick_entry": 1,
-			"in_list_view": 1,
-			"in_standard_filter": 1,
-			"module": "Container Rental",
-			"description": "Used for WhatsApp notifications",
-		},
-		{
 			"fieldname": "cr_account_type",
 			"fieldtype": "Select",
 			"label": "Account Type",
 			"options": "نقدي\nآجل",
 			"default": "نقدي",
-			"insert_after": "cr_mobile_no",
+			"insert_after": "cr_rental_section",
 			"allow_in_quick_entry": 1,
 			"in_standard_filter": 1,
 			"module": "Container Rental",

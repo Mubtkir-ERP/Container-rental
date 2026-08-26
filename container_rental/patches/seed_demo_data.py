@@ -280,7 +280,7 @@ def seed_clients():
 			"doctype": "Customer",
 			"customer_name": name,
 			"customer_type": ctype,
-			"cr_mobile_no": mobile,
+			"mobile_no": mobile,
 			"cr_account_type": account,
 			"cr_delivery_locations": [
 				{"address_title": f"موقع {i + 1}", "address": a, "is_default": 1 if i == 0 else 0}

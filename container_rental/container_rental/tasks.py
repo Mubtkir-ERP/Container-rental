@@ -56,7 +56,7 @@ def send_unload_reminders(settings):
 	records = frappe.get_all(
 		"Rental Record",
 		filters={"status": "مؤجرة", "due_on": ("between", [now_datetime(), horizon])},
-		fields=["name", "client", "mobile_no", "container", "due_on", "address", "last_whatsapp_on"],
+		fields=["name", "client", "mobile_no", "container", "container_size", "due_on", "address", "last_whatsapp_on"],
 	)
 	for row in records:
 		if row.last_whatsapp_on and get_datetime(row.last_whatsapp_on) > add_days(now_datetime(), -1):
@@ -70,6 +70,7 @@ def send_unload_reminders(settings):
 			{
 				"client_name": client_name,
 				"container_no": row.container,
+				"container_size": row.container_size,
 				"due_date": frappe.format(row.due_on, {"fieldtype": "Datetime"}) if row.due_on else "",
 				"overdue_days": overdue_days,
 				"address": row.address or "",
@@ -95,7 +96,7 @@ def send_contract_expiry_alerts(settings):
 	)
 	for row in contracts:
 		contract = frappe.get_doc("Container Contract", row.name)
-		client_name, mobile_no = frappe.db.get_value("Customer", row.client, ["customer_name", "cr_mobile_no"])
+		client_name, mobile_no = frappe.db.get_value("Customer", row.client, ["customer_name", "mobile_no"])
 		whatsapp.send_event(
 			"contract_expiry",
 			mobile_no,
@@ -125,7 +126,7 @@ def send_supervisor_unload_requests(settings):
 			"source_doctype": ("in", ["Container Order", "Container Rental"]),
 			"unload_request_sent_on": ("is", "not set"),
 		},
-		fields=["name", "client", "container", "address", "due_on", "payment_method"],
+		fields=["name", "client", "container", "container_size", "address", "due_on", "payment_method"],
 	)
 	for row in records:
 		if row.payment_method == "آجل":
@@ -139,6 +140,7 @@ def send_supervisor_unload_requests(settings):
 				"client_name": client_name,
 				"driver_name": supervisor_name,
 				"container_no": row.container,
+				"container_size": row.container_size,
 				"address": row.address or "",
 				"google_maps_link": get_maps_link(record),
 				"due_date": frappe.format(row.due_on, {"fieldtype": "Datetime"}) if row.due_on else "",
@@ -333,7 +335,7 @@ def generate_monthly_invoices(month_key=None):
 
 		# WhatsApp event 4: monthly invoice to the client
 		client_name, mobile_no = frappe.db.get_value(
-			"Customer", contract.client, ["customer_name", "cr_mobile_no"]
+			"Customer", contract.client, ["customer_name", "mobile_no"]
 		)
 		whatsapp.send_event(
 			"monthly_invoice",

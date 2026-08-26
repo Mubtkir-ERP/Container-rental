@@ -23,7 +23,7 @@ def create_rental_record(
 	container_doc = frappe.db.get_value(
 		"Container", container, ["size", "classification", "branch"], as_dict=True
 	)
-	mobile_no = frappe.db.get_value("Customer", client, "cr_mobile_no")
+	mobile_no = frappe.db.get_value("Customer", client, "mobile_no")
 
 	record = frappe.get_doc({
 		"doctype": "Rental Record",

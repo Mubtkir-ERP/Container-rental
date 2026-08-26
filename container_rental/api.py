@@ -212,6 +212,7 @@ def send_unload_request(rental_record):
 			"client_name": client_name,
 			"driver_name": supervisor_name,
 			"container_no": record.container,
+			"container_size": record.container_size,
 			"address": record.address or "",
 			"google_maps_link": get_maps_link(record),
 			"due_date": frappe.format(record.due_on, {"fieldtype": "Datetime"}) if record.due_on else "",
@@ -301,6 +302,7 @@ def send_client_whatsapp(rental_record):
 	context = {
 		"client_name": client_name,
 		"container_no": record.container,
+		"container_size": record.container_size,
 		"due_date": frappe.format(record.due_on, {"fieldtype": "Datetime"}) if record.due_on else "",
 		"overdue_days": overdue_days,
 		"address": record.address or "",

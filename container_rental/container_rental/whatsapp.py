@@ -114,6 +114,13 @@ def resolve_instance(instance=None):
 	return frappe.db.get_value("Whatsapp Instance", {"connection_status": "Connected"})
 
 
+def instance_for_size(container_size):
+	"""Sending instance tied to a container size (big / small truck number)."""
+	if not container_size or not frappe.db.table_exists("Container Size"):
+		return None
+	return frappe.db.get_value("Container Size", container_size, "whatsapp_instance")
+
+
 def is_configured(instance=None):
 	"""A message can go out either through an Evolution instance or Meta."""
 	return bool(resolve_instance(instance)) or is_meta_configured()
@@ -155,7 +162,9 @@ def _send_event(template_key, mobile_no, context, reference_doc, instance=None):
 	if not body or not mobile_no:
 		return
 
-	sender = resolve_instance(instance)
+	# Every message related to a container goes out from the number of that
+	# container's size (client, supervisor and driver alike) unless forced.
+	sender = resolve_instance(instance or instance_for_size(context.get("container_size")))
 	if sender:
 		_send_via_evolution(sender, mobile_no, body, reference_doc)
 		_stamp_rental_record(reference_doc, template_key)

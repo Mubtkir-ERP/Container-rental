@@ -55,7 +55,7 @@ def e2e():
 
 	client = frappe.get_doc({
 		"doctype": "Customer", "customer_name": f"عميل اختبار E2E {suffix}",
-		"customer_type": "Individual", "cr_mobile_no": "0559999999", "cr_account_type": "نقدي",
+		"customer_type": "Individual", "mobile_no": "0559999999", "cr_account_type": "نقدي",
 	}).insert(ignore_permissions=True)
 
 	container = frappe.get_doc({
@@ -142,3 +142,34 @@ def e2e():
 	frappe.db.commit()
 	import json
 	print(json.dumps(results, ensure_ascii=False, indent=1, default=str))
+
+
+def rename_check():
+	"""Verify Container rename keeps container_no + barcode in sync (rolled back)."""
+	frappe.get_doc({"doctype": "Container", "container_no": "C-REN-1", "size": "10 ياردة", "status": "متاحة"}).insert(ignore_permissions=True)
+	frappe.rename_doc("Container", "C-REN-1", "C-REN-2", force=True)
+	d = frappe.get_doc("Container", "C-REN-2")
+	print("renamed:", d.name, "| field:", d.container_no, "| barcode ok:", d.barcode.startswith("<svg"))
+	frappe.db.rollback()
+
+
+def payout_check():
+	"""Commission payout → Journal Entry (rolled back)."""
+	from container_rental.container_rental.doctype.driver_commission_entry.driver_commission_entry import mark_paid
+	from container_rental.container_rental import whatsapp
+
+	print("workspace Driver Deliveries:", bool(frappe.db.exists("Workspace", "Driver Deliveries")))
+	print("settings has expense acct field:", frappe.get_meta("Container Rental Settings").has_field("commission_expense_account"))
+	expense = frappe.db.get_value("Account", {"account_name": "Commission on Sales", "is_group": 0})
+	cash = frappe.db.get_value("Account", {"account_type": "Cash", "is_group": 0})
+	frappe.db.set_value("Container Rental Settings", None, "commission_expense_account", expense)
+	frappe.clear_cache(doctype="Container Rental Settings")
+	entry = frappe.db.get_value("Driver Commission Entry", {"payout_status": "مستحقة", "commission_amount": (">", 0)})
+	amount = frappe.db.get_value("Driver Commission Entry", entry, "commission_amount")
+	n = mark_paid([entry], payout_account=cash)
+	je = frappe.db.get_value("Driver Commission Entry", entry, "journal_entry")
+	jed = frappe.get_doc("Journal Entry", je)
+	print(f"paid {n} | JE {je} docstatus={jed.docstatus} total_debit={jed.total_debit} (entry amount {amount}) | accounts:",
+		[(a.account, a.debit, a.credit) for a in jed.accounts])
+	print("size instance lookup:", whatsapp.instance_for_size("10 ياردة"))
+	frappe.db.rollback()

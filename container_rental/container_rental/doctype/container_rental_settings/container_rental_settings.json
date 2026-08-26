@@ -10,6 +10,7 @@
   "default_supervisor",
   "default_whatsapp_instance",
   "default_commission_percent",
+  "commission_expense_account",
   "alerts_section",
   "expiry_alert_days",
   "unload_reminder_after_days",
@@ -93,11 +94,18 @@
    "label": "Default WhatsApp Instance",
    "options": "Whatsapp Instance",
    "description": "الرقم المرسِل الافتراضي لرسائل العملاء والمشرف (يُستخدم ما لم يُحدد رقم لحجم الحاوية)"
+  },
+  {
+   "fieldname": "commission_expense_account",
+   "fieldtype": "Link",
+   "label": "Commission Expense Account",
+   "options": "Account",
+   "description": "حساب مصروف عمولات السائقين — يُقيَّد عليه عند صرف العمولة"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-08-25 15:53:46.000000",
+ "modified": "2026-08-26 14:37:16.000000",
  "modified_by": "Administrator",
  "module": "Container Rental",
  "name": "Container Rental Settings",

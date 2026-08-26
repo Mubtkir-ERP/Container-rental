@@ -2,7 +2,7 @@
 
 Clients are ERPNext Customers extended with app custom fields (module
 "Container Rental", created by patches.add_customer_fields):
-- cr_mobile_no          رقم الجوال (واتساب)
+- mobile_no             رقم الجوال (واتساب) — الحقل القياسي (جهة الاتصال الرئيسية)، نفس ما يقرأه frappe_whatsapp
 - cr_account_type       نوع الحساب (نقدي / آجل)
 - cr_delivery_locations العناوين / المواقع (child: Client Address)
 - cr_rental_balance     الرصيد الحالي (إجمالي المستحق من التأجير)
@@ -12,11 +12,11 @@ import frappe
 
 
 def get_mobile(customer):
-	return frappe.db.get_value("Customer", customer, "cr_mobile_no")
+	return frappe.db.get_value("Customer", customer, "mobile_no")
 
 
 def get_name_and_mobile(customer):
-	return frappe.db.get_value("Customer", customer, ["customer_name", "cr_mobile_no"])
+	return frappe.db.get_value("Customer", customer, ["customer_name", "mobile_no"])
 
 
 def refresh_balance(customer):

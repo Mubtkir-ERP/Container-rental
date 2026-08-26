@@ -206,7 +206,6 @@ Alerts & Reports,التنبيهات والتقارير
 Employee Documents,مستندات الموظف
 Commission Per Delivery,قيمة العمولة لكل توصيلة
 Container Rental Details,بيانات تأجير الحاويات
-Mobile No (WhatsApp),رقم الجوال (واتساب)
 Account Type,نوع الحساب
 Rental Balance,رصيد التأجير
 Delivery Locations,مواقع التسليم
@@ -231,3 +230,7 @@ Default Driver Commission %,نسبة عمولة السائق الافتراضي�
 Remind Client Before Due (Days),تذكير العميل قبل الاستحقاق بـ (أيام)
 Sending WhatsApp Instance,رقم الواتساب المرسِل (Instance)
 Default WhatsApp Instance,رقم الواتساب المرسِل الافتراضي
+Driver Deliveries,توصيلات السائق
+My Assigned Orders,طلباتي المُسندة
+Commission Expense Account,حساب مصروف العمولات
+Journal Entry,قيد اليومية

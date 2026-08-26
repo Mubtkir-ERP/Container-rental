@@ -38,6 +38,7 @@ class ContainerUnload(Document):
 				{
 					"client_name": client_name,
 					"container_no": self.container,
+					"container_size": record.container_size,
 					"due_date": frappe.format(record.due_on, {"fieldtype": "Datetime"}) if record.due_on else "",
 					"address": record.address or "",
 					"unload_date": frappe.format(self.unload_date, {"fieldtype": "Date"}),

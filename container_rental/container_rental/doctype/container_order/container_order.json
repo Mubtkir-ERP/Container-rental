@@ -66,7 +66,7 @@
    "permlevel": 1
   },
   {
-   "fetch_from": "client.cr_mobile_no",
+   "fetch_from": "client.mobile_no",
    "fieldname": "mobile_no",
    "fieldtype": "Data",
    "label": "Mobile No",

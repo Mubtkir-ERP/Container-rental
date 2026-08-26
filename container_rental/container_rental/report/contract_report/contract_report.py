@@ -52,7 +52,7 @@ def get_data(filters):
 	rows = frappe.db.sql(
 		f"""
 		SELECT
-			c.name AS contract_no, cl.customer_name AS client_name, cl.cr_mobile_no AS mobile_no,
+			c.name AS contract_no, cl.customer_name AS client_name, cl.mobile_no AS mobile_no,
 			DATEDIFF(c.end_date, c.start_date) AS duration_days,
 			c.start_date, c.end_date, c.contract_value,
 			c.paid_amount, c.tax_on_paid, c.outstanding,

@@ -1,4 +1,17 @@
 frappe.listview_settings["Container Order"] = {
+	onload(listview) {
+		// Drivers land on "my assigned orders" — nothing else is relevant to them
+		const office = ["System Manager", "Container Manager", "Customer Service", "Driver Supervisor", "Transfer Follow-up"];
+		const driver_only = frappe.user.has_role("Driver") && !office.some((r) => frappe.user.has_role(r));
+		if (!driver_only) return;
+		frappe.db.get_value("Employee", { user_id: frappe.session.user }, "name").then((r) => {
+			const employee = r.message && r.message.name;
+			listview.filter_area.clear();
+			listview.filter_area.add([["Container Order", "status", "=", "مُسنَد لسائق"]]);
+			if (employee) listview.filter_area.add([["Container Order", "assigned_driver", "=", employee]]);
+			listview.page.set_title(__("طلباتي المُسندة"));
+		});
+	},
 	add_fields: ["status"],
 	get_indicator(doc) {
 		const colors = {

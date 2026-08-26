@@ -36,7 +36,7 @@ def execute():
 				"doctype": "Customer",
 				"customer_name": client.client_name,
 				"customer_type": TYPE_MAP.get(client.client_type, "Individual"),
-				"cr_mobile_no": client.mobile_no,
+				"mobile_no": client.mobile_no,
 				"cr_account_type": client.account_type,
 				"cr_rental_balance": client.current_balance,
 				"cr_delivery_locations": [
