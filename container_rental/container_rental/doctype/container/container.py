@@ -8,6 +8,11 @@ STATUS_AUTHORIZED_ROLES = ("Container Manager", "Driver Supervisor", "System Man
 
 
 class Container(Document):
+	def after_rename(self, old_name, new_name, merge=False):
+		# The container number IS the document name — keep the field and barcode in sync
+		self.db_set("container_no", new_name, update_modified=False)
+		self.db_set("barcode", generate_barcode_svg(new_name), update_modified=False)
+
 	def before_save(self):
 		# Barcode always mirrors the container number so labels stay consistent.
 		# Stored as SVG so both the form control and print formats render it.

@@ -145,6 +145,7 @@ def send_event(template_key, mobile_no, context, reference_doc=None, instance=No
 		_send_event(template_key, mobile_no, context or {}, reference_doc, instance)
 	except Exception:
 		frappe.log_error(title=f"WhatsApp send_event failed: {template_key}")
+		frappe.clear_last_message()
 
 
 def _send_event(template_key, mobile_no, context, reference_doc, instance=None):
@@ -210,7 +211,7 @@ def _send_via_evolution(instance, mobile_no, body, reference_doc=None):
 		"to": to,
 		"message": body,
 		"message_id": message_id,
-		"status": "Success",
+		"status": "Sent",
 		"reference_doctype": reference_doc.doctype if reference_doc else None,
 		"reference_name": reference_doc.name if reference_doc else None,
 	})
@@ -247,6 +248,7 @@ def send_text(mobile_no, body, reference_doc=None, instance=None):
 		message.insert()
 	except Exception:
 		frappe.log_error(title="WhatsApp send_text failed")
+		frappe.clear_last_message()
 
 
 def normalize_number(mobile_no):

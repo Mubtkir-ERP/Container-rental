@@ -128,7 +128,7 @@
   }
  ],
  "links": [],
- "modified": "2026-08-01 00:00:00.000000",
+ "modified": "2026-08-26 13:39:06.000000",
  "modified_by": "Administrator",
  "module": "Container Rental",
  "name": "Container",
@@ -190,5 +190,6 @@
  "sort_order": "DESC",
  "states": [],
  "title_field": "container_no",
- "track_changes": 1
+ "track_changes": 1,
+ "allow_rename": 1
 }
