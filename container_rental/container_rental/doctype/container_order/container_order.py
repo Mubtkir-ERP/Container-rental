@@ -55,9 +55,9 @@ class ContainerOrder(Document):
 		if self.status != STATUS_NEW:
 			return  # e.g. rental-extension orders are inserted already closed
 		self.db_set("status", STATUS_AWAITING_DRIVER)
-		context = self.get_whatsapp_context()
-		whatsapp.send_event("order_confirmation", self.mobile_no, context, reference_doc=self)
-		self.notify_supervisor_new_order(context)
+		# The client is messaged only when the driver confirms the delivery —
+		# on save only the supervisor is notified to assign a driver.
+		self.notify_supervisor_new_order(self.get_whatsapp_context())
 
 	def notify_supervisor_new_order(self, context=None):
 		"""Drivers supervisor gets the order link the moment it is saved,

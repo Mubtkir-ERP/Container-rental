@@ -3,6 +3,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import add_days, get_datetime
 
+from container_rental.container_rental import whatsapp
 from container_rental.container_rental.doctype.driver_commission_entry.driver_commission_entry import (
 	create_commission_entry,
 )
@@ -33,6 +34,8 @@ class ContainerDelivery(Document):
 				self.vehicle = order.assigned_vehicle
 		if self.contract and not self.agreed_days:
 			self.agreed_days = frappe.db.get_value("Container Contract", self.contract, "trip_duration_days")
+		if not self.agreed_days:
+			self.agreed_days = frappe.db.get_single_value("Container Rental Settings", "default_rental_days") or 10
 		if self.contract and not self.order:
 			contract_client = frappe.db.get_value("Container Contract", self.contract, "client")
 			if self.client and self.client != contract_client:
@@ -105,6 +108,11 @@ class ContainerDelivery(Document):
 			if order.rental_days:
 				order.db_set("rental_end_date", add_days(start, int(order.rental_days)))
 			order.mark_delivered_if_complete()
+			# Client gets the confirmation now (delivery actually happened)
+			context = order.get_whatsapp_context()
+			context["container_no"] = self.container
+			context["delivery_date"] = frappe.format(start, {"fieldtype": "Date"})
+			whatsapp.send_event("order_confirmation", order.mobile_no, context, reference_doc=order)
 
 	def on_cancel(self):
 		record_name = frappe.db.get_value(

@@ -119,7 +119,7 @@ def get_overdue_data(filters=None):
 	"""Open rentals past due, most-overdue first. Shared by the S11 page and
 	the 'تقرير الحاويات المتأخرة' script report so both show identical data."""
 	filters = filters or {}
-	conditions = ["r.status IN ('مؤجرة', 'متأخرة')", "r.due_on IS NOT NULL", "r.due_on < %(now)s"]
+	conditions = ["(r.status = 'متأخرة' OR (r.status = 'مؤجرة' AND r.due_on IS NOT NULL AND r.due_on < %(now)s))"]
 	values = {"now": now_datetime()}
 
 	for field in ("classification", "container_size", "branch", "driver"):
@@ -129,11 +129,11 @@ def get_overdue_data(filters=None):
 
 	delay_range = filters.get("delay_range")
 	if delay_range == "0-2":
-		conditions.append("TIMESTAMPDIFF(HOUR, r.due_on, %(now)s) < 48")
+		conditions.append("TIMESTAMPDIFF(HOUR, COALESCE(r.due_on, %(now)s), %(now)s) < 48")
 	elif delay_range == "3-7":
-		conditions.append("TIMESTAMPDIFF(HOUR, r.due_on, %(now)s) BETWEEN 48 AND 168")
+		conditions.append("TIMESTAMPDIFF(HOUR, COALESCE(r.due_on, %(now)s), %(now)s) BETWEEN 48 AND 168")
 	elif delay_range == "7+":
-		conditions.append("TIMESTAMPDIFF(HOUR, r.due_on, %(now)s) > 168")
+		conditions.append("TIMESTAMPDIFF(HOUR, COALESCE(r.due_on, %(now)s), %(now)s) > 168")
 
 	rows = frappe.db.sql(
 		f"""
@@ -143,7 +143,7 @@ def get_overdue_data(filters=None):
 			r.client, c.customer_name AS client_name, r.mobile_no, r.address,
 			r.driver, e.employee_name AS driver_name,
 			r.delivered_on, r.due_on,
-			TIMESTAMPDIFF(HOUR, r.due_on, %(now)s) AS overdue_hours,
+			TIMESTAMPDIFF(HOUR, COALESCE(r.due_on, %(now)s), %(now)s) AS overdue_hours,
 			r.last_whatsapp_message, r.last_whatsapp_on, r.unload_request_sent_on
 		FROM `tabRental Record` r
 		LEFT JOIN `tabCustomer` c ON c.name = r.client

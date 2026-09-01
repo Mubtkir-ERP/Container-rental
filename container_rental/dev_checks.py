@@ -212,3 +212,28 @@ def new_order_supervisor_check():
 	from container_rental.container_rental import whatsapp
 	print(whatsapp.render_event("supervisor_new_order", dict(order.get_whatsapp_context(), driver_name="المشرف")))
 	frappe.db.rollback()
+
+
+def delivery_flow_check():
+	from frappe.utils import add_days, today
+	customer = frappe.get_all("Customer", limit=1, pluck="name")[0]
+	driver = frappe.db.get_value("Employee", {"designation": "سائق", "status": "Active"})
+	order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "دفع عند الاستلام",
+		"container_size": "10 ياردة", "rental_days": 10, "rental_value": 750, "payment_method": "نقدي",
+		"rental_start_date": add_days(today(), -5)}).insert(ignore_permissions=True)
+	order.assign_driver(driver)
+	free = frappe.get_all("Container", filters={"status": "متاحة", "size": "10 ياردة"}, limit=1, pluck="name")[0]
+	order.driver_confirm_delivery(free)
+	order.reload()
+	rec = frappe.get_doc("Rental Record", {"source_name": order.name})
+	print("start == today (delivery day):", str(order.rental_start_date) == today(),
+		"| end:", order.rental_end_date, "| record due:", rec.due_on)
+	# متأخرة row with NULL due must still appear in the overdue report
+	nodate = frappe.get_doc({"doctype": "Rental Record", "container": free, "container_size": "10 ياردة",
+		"client": customer, "status": "متأخرة", "delivered_on": add_days(today(), -20),
+		"source_doctype": "Container Order", "source_name": order.name})
+	nodate.flags.ignore_permissions = True; nodate.insert()
+	from container_rental import api
+	rows = api.get_overdue_rentals({})["rows"]
+	print("NULL-due overdue row in report:", any(r["rental_record"] == nodate.name for r in rows))
+	frappe.db.rollback()
