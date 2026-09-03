@@ -181,15 +181,24 @@ class ContainerOrder(Document):
 		return True
 
 	def mark_delivered_if_complete(self):
-		"""Called by Container Delivery.on_submit — closes the order when all
-		its container rows have a submitted delivery."""
-		expected = [c for _, _, c in self._container_rows() if c]
+		"""Called by Container Delivery.on_submit — closes the order when its
+		deliveries are complete. Container numbers are often unknown until the
+		driver is on site, so when none were pre-chosen the order closes once
+		one delivery per requested container row is submitted."""
 		delivered = frappe.get_all(
 			"Container Delivery",
 			filters={"order": self.name, "docstatus": 1},
 			pluck="container",
 		)
-		if expected and set(expected) <= set(delivered):
+		expected = [c for _, _, c in self._container_rows() if c]
+		if expected:
+			done = set(expected) <= set(delivered)
+		else:
+			required = len(self._container_rows())  # primary + additional rows
+			done = len(delivered) >= required
+		if done and delivered:
+			if not self.container:
+				self.db_set("container", delivered[0])
 			self.db_set("status", STATUS_DELIVERED)
 
 	@frappe.whitelist()

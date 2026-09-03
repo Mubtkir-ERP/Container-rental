@@ -26,4 +26,4 @@ def order_has_permission(doc, ptype=None, user=None):
 	employee = _driver_employee(user or frappe.session.user)
 	if employee is None:
 		return True
-	return doc.assigned_driver == employee
+	return doc.get("assigned_driver") == employee

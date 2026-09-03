@@ -237,3 +237,52 @@ def delivery_flow_check():
 	rows = api.get_overdue_rentals({})["rows"]
 	print("NULL-due overdue row in report:", any(r["rental_record"] == nodate.name for r in rows))
 	frappe.db.rollback()
+
+
+def driver_close_check():
+	import traceback
+	from frappe.utils import today
+	customer = frappe.get_all("Customer", limit=1, pluck="name")[0]
+	driver = frappe.db.get_value("Employee", {"designation": "سائق", "status": "Active"})
+	order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "دفع عند الاستلام",
+		"container_size": "10 ياردة", "rental_days": 10, "rental_value": 900, "payment_method": "نقدي",
+		"rental_start_date": today()}).insert(ignore_permissions=True)
+	order.assign_driver(driver)
+	free = frappe.get_all("Container", filters={"status": "متاحة", "size": "10 ياردة"}, limit=1, pluck="name")[0]
+	# Simulate the driver's run_doc_method path: fresh doc from dict like the client form sends
+	client_doc = frappe.get_doc("Container Order", order.name)
+	try:
+		dn = client_doc.driver_confirm_delivery(free)
+		status = frappe.db.get_value("Container Order", order.name, "status")
+		print("delivery:", dn, "| status after confirm:", status)
+		d = frappe.get_doc("Container Delivery", dn)
+		print("delivery docstatus:", d.docstatus, "| delivered for order:",
+			frappe.get_all("Container Delivery", filters={"order": order.name, "docstatus": 1}, pluck="container"),
+			"| expected:", [c for _f, _s, c in frappe.get_doc("Container Order", order.name)._container_rows() if c])
+	except Exception:
+		traceback.print_exc()
+	frappe.db.rollback()
+
+
+def no_container_close_check():
+	from frappe.utils import today, now_datetime
+	customer = frappe.get_all("Customer", limit=1, pluck="name")[0]
+	driver = frappe.db.get_value("Employee", {"designation": "سائق", "status": "Active"})
+	# order WITHOUT a container number (the real new-scenario shape)
+	order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "دفع عند الاستلام",
+		"container_size": "10 ياردة", "rental_days": 10, "rental_value": 400, "payment_method": "نقدي",
+		"rental_start_date": today()}).insert(ignore_permissions=True)
+	order.assign_driver(driver)
+	free = frappe.get_all("Container", filters={"status": "متاحة", "size": "10 ياردة"}, limit=1, pluck="name")[0]
+	# office path: a Container Delivery form submitted directly (order.container stays empty)
+	d = frappe.get_doc({"doctype": "Container Delivery", "order": order.name, "container": free,
+		"driver": driver, "delivery_datetime": now_datetime()})
+	d.insert(ignore_permissions=True); d.submit()
+	print("status:", frappe.db.get_value("Container Order", order.name, "status"),
+		"| container backfilled:", frappe.db.get_value("Container Order", order.name, "container"))
+	# stuck-order patch check: force it back then run the patch
+	frappe.db.set_value("Container Order", order.name, "status", "مُسنَد لسائق", update_modified=False)
+	from container_rental.patches.close_delivered_orders import execute as fix
+	fix()
+	print("after patch:", frappe.db.get_value("Container Order", order.name, "status"))
+	frappe.db.rollback()
