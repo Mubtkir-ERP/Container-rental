@@ -1,6 +1,6 @@
 {
  "actions": [],
- "autoname": "CON-.YYYY.-.####",
+ "autoname": "CON-.YY.-.####",
  "creation": "2026-08-01 00:00:00.000000",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -65,11 +65,11 @@
    "fieldtype": "Column Break"
   },
   {
-   "default": "ساري",
+   "default": "active",
    "fieldname": "contract_status",
    "fieldtype": "Select",
    "label": "Contract Status",
-   "options": "ساري\nمنتهٍ",
+   "options": "Active\nExpire",
    "read_only": 1,
    "in_list_view": 1,
    "in_standard_filter": 1
