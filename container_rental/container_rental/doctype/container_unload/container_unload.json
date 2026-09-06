@@ -1,6 +1,6 @@
 {
  "actions": [],
- "autoname": "UNL-.YYYY.-.#####",
+ "autoname": "UNL-.YY.-.MM.-.#####",
  "creation": "2026-08-01 00:00:00.000000",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -75,7 +75,7 @@
    "fieldname": "unload_reason",
    "fieldtype": "Select",
    "label": "Unload Reason",
-   "options": "طلب من العميل\nانتهاء المدة المحددة",
+   "options": "Customer Request\nSpecified Period Expired",
    "in_list_view": 1
   },
   {
