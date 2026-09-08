@@ -6,7 +6,8 @@
  "engine": "InnoDB",
  "field_order": [
   "size_name",
-  "whatsapp_instance"
+  "whatsapp_instance",
+  "supervisor"
  ],
  "fields": [
   {
@@ -23,10 +24,17 @@
    "label": "Sending WhatsApp Instance",
    "options": "Whatsapp Instance",
    "description": "رقم الواتساب (Instance) الذي تُرسل منه رسائل السائق لطلبات هذا الحجم"
+  },
+  {
+   "fieldname": "supervisor",
+   "fieldtype": "Link",
+   "label": "Drivers Supervisor (User)",
+   "options": "User",
+   "description": "مشرف السواقين لهذا الحجم — تصل له إشعارات الطلبات الجديدة وطلبات التفريغ لهذا الحجم. إن تُرك فارغًا يُستخدم المشرف الافتراضي من الإعدادات"
   }
  ],
  "links": [],
- "modified": "2026-08-25 15:53:46.000000",
+ "modified": "2026-09-08 15:00:00.000000",
  "modified_by": "Administrator",
  "module": "Container Rental",
  "name": "Container Size",

@@ -4,14 +4,14 @@ frappe.ui.form.on("Container Delivery", {
 		frm.set_query("driver", () => ({ filters: { designation: "سائق", status: "Active" } }));
 		frm.set_query("supervisor", () => ({ filters: { designation: "مشرف سواقين", status: "Active" } }));
 		frm.set_query("order", () => ({ filters: { status: "مُسنَد لسائق" } }));
-		frm.set_query("contract", () => ({ filters: { docstatus: 1, contract_status: "ساري" } }));
+		frm.set_query("contract", () => ({ filters: { docstatus: 1, contract_status: "Active" } }));
 	},
 
 	refresh(frm) {
 		// One step: saving a draft delivery submits it right away (no separate Submit click)
 		if (frm.doc.docstatus === 0) {
 			frm.disable_save();
-			frm.page.set_primary_action(__("تسجيل التوصيل"), () => frm.save("Submit"));
+			frm.page.set_primary_action(__("Record Delivery"), () => frm.save("Submit"));
 		}
 	},
 

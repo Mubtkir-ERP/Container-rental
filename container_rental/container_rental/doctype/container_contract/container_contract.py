@@ -28,9 +28,9 @@ class ContainerContract(Document):
 
 	def set_contract_status(self):
 		if self.end_date and getdate(self.end_date) < getdate(today()):
-			self.contract_status = "منتهٍ"
+			self.contract_status = "Expire"
 		else:
-			self.contract_status = "ساري"
+			self.contract_status = "Active"
 
 	def on_update_after_submit(self):
 		# Payments table is editable after submit; keep totals + client balance fresh
@@ -75,7 +75,7 @@ class ContainerContract(Document):
 			frappe.throw(_("تاريخ التجديد يجب أن يكون بعد تاريخ الانتهاء الحالي"))
 		old_end = self.end_date
 		self.db_set("end_date", getdate(new_end_date))
-		self.db_set("contract_status", "ساري" if getdate(new_end_date) >= getdate(today()) else "منتهٍ")
+		self.db_set("contract_status", "Active" if getdate(new_end_date) >= getdate(today()) else "Expire")
 		self.db_set("expiry_alert_sent_on", None, update_modified=False)
 		self.add_comment("Info", _("تجديد التعاقد: تمديد النهاية من {0} إلى {1}").format(old_end, new_end_date))
 		return self.end_date

@@ -1,20 +1,20 @@
 // Shared extension dialog: any days count, billed as a NEW closed order
 window.container_rental_extend_dialog = window.container_rental_extend_dialog || function (rental_record, on_done) {
 	const d = new frappe.ui.Dialog({
-		title: __("تمديد مدة الحاوية"),
+		title: __("Extend Container Rental"),
 		fields: [
 			{
-				fieldname: "days", fieldtype: "Int", label: __("عدد أيام التمديد"),
+				fieldname: "days", fieldtype: "Int", label: __("Extension Days"),
 				reqd: 1, default: 10,
-				description: __("يُحاسب التمديد بطلب جديد"),
+				description: __("The extension is billed as a new order"),
 			},
-			{ fieldname: "rental_value", fieldtype: "Currency", label: __("قيمة التمديد"), reqd: 1 },
+			{ fieldname: "rental_value", fieldtype: "Currency", label: __("Extension Value"), reqd: 1 },
 			{
-				fieldname: "payment_method", fieldtype: "Link", label: __("طريقة الدفع"),
+				fieldname: "payment_method", fieldtype: "Link", label: __("Payment Method"),
 				options: "Mode of Payment",
 			},
 		],
-		primary_action_label: __("تمديد"),
+		primary_action_label: __("Extend"),
 		primary_action(values) {
 			d.hide();
 			frappe.call({
@@ -28,7 +28,7 @@ window.container_rental_extend_dialog = window.container_rental_extend_dialog ||
 				callback(r) {
 					const m = r.message || {};
 					frappe.show_alert({
-						message: __("تم التمديد — أُنشئ الطلب {0}", [m.order]),
+						message: __("Extended — order {0} created", [m.order]),
 						indicator: "green",
 					});
 					if (on_done) on_done(m);
@@ -46,7 +46,7 @@ window.container_rental_extend_dialog = window.container_rental_extend_dialog ||
 frappe.pages["overdue-containers"].on_page_load = function (wrapper) {
 	const page = frappe.ui.make_app_page({
 		parent: wrapper,
-		title: __("متابعة الحاويات المتأخرة"),
+		title: __("Overdue Containers Follow-up"),
 		single_column: true,
 	});
 
@@ -80,23 +80,23 @@ frappe.pages["overdue-containers"].on_page_load = function (wrapper) {
 	// ── Filters ──────────────────────────────────────────────────────────
 	const filters = {};
 	filters.classification = page.add_field({
-		fieldname: "classification", label: __("التصنيف"), fieldtype: "Link",
+		fieldname: "classification", label: __("Classification"), fieldtype: "Link",
 		options: "Container Classification", change: () => load(),
 	});
 	filters.container_size = page.add_field({
-		fieldname: "container_size", label: __("حجم الحاوية"), fieldtype: "Link",
+		fieldname: "container_size", label: __("Container Size"), fieldtype: "Link",
 		options: "Container Size", change: () => load(),
 	});
 	filters.branch = page.add_field({
-		fieldname: "branch", label: __("الفرع"), fieldtype: "Link",
+		fieldname: "branch", label: __("Branch"), fieldtype: "Link",
 		options: "Rental Branch", change: () => load(),
 	});
 	filters.driver = page.add_field({
-		fieldname: "driver", label: __("السائق"), fieldtype: "Link", options: "Employee",
+		fieldname: "driver", label: __("Driver"), fieldtype: "Link", options: "Employee",
 		get_query: () => ({ filters: { designation: "سائق" } }), change: () => load(),
 	});
 	filters.delay_range = page.add_field({
-		fieldname: "delay_range", label: __("نطاق التأخير"), fieldtype: "Select",
+		fieldname: "delay_range", label: __("Overdue Range"), fieldtype: "Select",
 		options: ["", "0-2", "3-7", "7+"], change: () => load(),
 	});
 
@@ -110,13 +110,13 @@ frappe.pages["overdue-containers"].on_page_load = function (wrapper) {
 	}
 
 	// ── Actions ──────────────────────────────────────────────────────────
-	page.set_primary_action(__("تحديث"), () => load(), "refresh");
-	page.add_inner_button(__("عرض جدول / بطاقات"), () => {
+	page.set_primary_action(__("Refresh"), () => load(), "refresh");
+	page.add_inner_button(__("Table / Cards View"), () => {
 		state.view = state.view === "table" ? "cards" : "table";
 		render();
 	});
-	page.add_inner_button(__("تصدير Excel"), () => open_report());
-	page.add_inner_button(__("تصدير PDF"), () => open_report());
+	page.add_inner_button(__("Export Excel"), () => open_report());
+	page.add_inner_button(__("Export PDF"), () => open_report());
 
 	function open_report() {
 		// Same dataset + filters in the query report, where native Excel/PDF export applies
@@ -149,20 +149,20 @@ frappe.pages["overdue-containers"].on_page_load = function (wrapper) {
 
 	function delay_text(row) {
 		const d = delay_parts(row);
-		return __("متأخرة {0} يوم {1} ساعة", [d.days, d.hours]);
+		return __("Overdue {0} days {1} hours", [d.days, d.hours]);
 	}
 
 	// ── Render ───────────────────────────────────────────────────────────
 	function render() {
 		const s = state.stats;
 		$stats.html(`
-			<div class="odc-stat"><b>${s.total ?? 0}</b>${__("إجمالي الحاويات المتأخرة")}</div>
-			<div class="odc-stat"><b>${s.avg_days ?? 0}</b>${__("متوسط مدة التأخير (يوم)")}</div>
-			<div class="odc-stat"><b style="color:#c0392b">${s.over_week ?? 0}</b>${__("متأخرة أكثر من أسبوع")}</div>
+			<div class="odc-stat"><b>${s.total ?? 0}</b>${__("Total Overdue Containers")}</div>
+			<div class="odc-stat"><b>${s.avg_days ?? 0}</b>${__("Average Overdue (Days)")}</div>
+			<div class="odc-stat"><b style="color:#c0392b">${s.over_week ?? 0}</b>${__("Overdue over a week")}</div>
 		`);
 
 		if (!state.rows.length) {
-			$body.html(`<div class="text-muted" style="padding:30px;text-align:center">${__("لا توجد حاويات متأخرة 🎉")}</div>`);
+			$body.html(`<div class="text-muted" style="padding:30px;text-align:center">${__("No overdue containers 🎉")}</div>`);
 			return;
 		}
 		state.view === "table" ? render_table() : render_cards();
@@ -170,10 +170,10 @@ frappe.pages["overdue-containers"].on_page_load = function (wrapper) {
 
 	function action_buttons(row) {
 		return `
-			<button class="btn btn-xs btn-primary odc-unload" data-rec="${row.rental_record}">${__("طلب تفريغ")}</button>
-			<button class="btn btn-xs btn-warning odc-extend" data-rec="${row.rental_record}">${__("تمديد")}</button>
-			<button class="btn btn-xs btn-success odc-wa" data-rec="${row.rental_record}">${__("واتساب")}</button>
-			<a class="btn btn-xs btn-default" href="tel:${row.mobile_no || ""}">${__("اتصال")}</a>`;
+			<button class="btn btn-xs btn-primary odc-unload" data-rec="${row.rental_record}">${__("Request Unload")}</button>
+			<button class="btn btn-xs btn-warning odc-extend" data-rec="${row.rental_record}">${__("Extend")}</button>
+			<button class="btn btn-xs btn-success odc-wa" data-rec="${row.rental_record}">${__("WhatsApp")}</button>
+			<a class="btn btn-xs btn-default" href="tel:${row.mobile_no || ""}">${__("Call")}</a>`;
 	}
 
 	function open_extend_dialog(rec) {
@@ -181,15 +181,15 @@ frappe.pages["overdue-containers"].on_page_load = function (wrapper) {
 	}
 
 	function last_wa(row) {
-		if (!row.last_whatsapp_on) return __("لم يتم التذكير");
+		if (!row.last_whatsapp_on) return __("Not Reminded");
 		return `${row.last_whatsapp_message || ""}<br><span class="text-muted">${frappe.datetime.str_to_user(row.last_whatsapp_on)}</span>`;
 	}
 
 	function render_table() {
 		const headers = [
-			__("رقم الحاوية"), __("العميل"), __("رقم الجوال"), __("الحجم"), __("الفرع"),
-			__("العنوان / الموقع"), __("السائق"), __("تاريخ التوصيل"), __("تاريخ الاستحقاق"),
-			__("مدة التأخير"), __("درجة الخطورة"), __("آخر رسالة واتساب"), __("إجراء سريع"),
+			__("Container No"), __("Client"), __("Mobile No"), __("Size"), __("Branch"),
+			__("Address / Location"), __("Driver"), __("Delivery Date"), __("Due Date"),
+			__("Overdue Duration"), __("Severity"), __("Last WhatsApp Message"), __("Quick Action"),
 		];
 		const rows_html = state.rows
 			.map(
@@ -225,11 +225,11 @@ frappe.pages["overdue-containers"].on_page_load = function (wrapper) {
 				(row) => `
 			<div class="odc-card ${row.severity}">
 				<div class="odc-title">${row.container} — ${row.container_size || ""}</div>
-				<div class="odc-line">${__("العميل")}: ${row.client_name || ""} — <span dir="ltr">${row.mobile_no || ""}</span></div>
-				<div class="odc-line">${__("فترة التأجير")}: ${frappe.datetime.str_to_user(row.delivered_on) || ""} ← ${frappe.datetime.str_to_user(row.due_on) || ""}</div>
-				<div class="odc-line">${__("السائق")}: ${row.driver_name || "-"}</div>
-				<div class="odc-line">${__("العنوان")}: ${row.address || "-"}</div>
-				<div class="odc-line">${__("آخر واتساب")}: ${last_wa(row)}</div>
+				<div class="odc-line">${__("Client")}: ${row.client_name || ""} — <span dir="ltr">${row.mobile_no || ""}</span></div>
+				<div class="odc-line">${__("Rental Period")}: ${frappe.datetime.str_to_user(row.delivered_on) || ""} ← ${frappe.datetime.str_to_user(row.due_on) || ""}</div>
+				<div class="odc-line">${__("Driver")}: ${row.driver_name || "-"}</div>
+				<div class="odc-line">${__("Address")}: ${row.address || "-"}</div>
+				<div class="odc-line">${__("Last WhatsApp")}: ${last_wa(row)}</div>
 				<div class="odc-line odc-delay" data-rec="${row.rental_record}"><b>${delay_text(row)}</b></div>
 				<div class="odc-actions">${action_buttons(row)}</div>
 			</div>`
@@ -249,7 +249,7 @@ frappe.pages["overdue-containers"].on_page_load = function (wrapper) {
 				method: "container_rental.api.send_unload_request",
 				args: { rental_record: rec },
 				callback() {
-					frappe.show_alert({ message: __("أُرسل طلب التفريغ لمشرف السواقين"), indicator: "green" });
+					frappe.show_alert({ message: __("Unload request sent to the drivers supervisor"), indicator: "green" });
 					load();
 				},
 			});
@@ -262,7 +262,7 @@ frappe.pages["overdue-containers"].on_page_load = function (wrapper) {
 				callback(r) {
 					const m = r.message || {};
 					if (m.sent) {
-						frappe.show_alert({ message: __("أُرسلت رسالة واتساب للعميل"), indicator: "green" });
+						frappe.show_alert({ message: __("WhatsApp message sent to the client"), indicator: "green" });
 					} else if (m.wa_link) {
 						window.open(m.wa_link, "_blank");
 					}

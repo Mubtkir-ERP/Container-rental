@@ -8,7 +8,7 @@ frappe.listview_settings["Container Order"] = {
 			listview.filter_area.clear();
 			listview.filter_area.add([["Container Order", "status", "=", "مُسنَد لسائق"]]);
 			if (employee) listview.filter_area.add([["Container Order", "assigned_driver", "=", employee]]);
-			listview.page.set_title(__("طلباتي المُسندة"));
+			listview.page.set_title(__("My Assigned Orders"));
 		});
 	},
 	add_fields: ["status"],

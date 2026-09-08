@@ -46,11 +46,11 @@ def send_supervisor_request(record):
 	Idempotent: skipped when a request was already sent for this rental."""
 	from container_rental.container_rental import hr_utils
 
-	if record.unload_request_sent_on or record.payment_method == "آجل":
+	if record.unload_request_sent_on or record.payment_method in ("آجل", "Credit", "D.Note"):
 		return False
 	if record.source_doctype not in ("Container Order", "Container Rental"):
 		return False
-	_user, supervisor_name, supervisor_mobile = hr_utils.get_supervisor_contact()
+	_user, supervisor_name, supervisor_mobile = hr_utils.get_supervisor_contact(record.container_size)
 	if not supervisor_mobile:
 		return False
 	client_name = frappe.db.get_value("Customer", record.client, "customer_name")
@@ -123,7 +123,7 @@ def send_contract_expiry_alerts(settings):
 		"Container Contract",
 		filters={
 			"docstatus": 1,
-			"contract_status": "ساري",
+			"contract_status": "Active",
 			"end_date": ("between", [today(), horizon]),
 			"expiry_alert_sent_on": ("is", "not set"),
 		},

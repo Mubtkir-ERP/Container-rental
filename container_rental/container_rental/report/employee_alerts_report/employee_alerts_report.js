@@ -2,7 +2,7 @@ frappe.query_reports["Employee Alerts Report"] = {
 	filters: [
 		{
 			fieldname: "employee",
-			label: __("اختر الموظف"),
+			label: __("Select Employee"),
 			fieldtype: "Link",
 			options: "Employee",
 		},
@@ -17,11 +17,11 @@ frappe.query_reports["Employee Alerts Report"] = {
 			}
 		}
 		if (column.fieldname === "attachment" && data && data.attachment) {
-			return `<a href="${data.attachment}" target="_blank">${__("عرض الملف")}</a>`;
+			return `<a href="${data.attachment}" target="_blank">${__("View File")}</a>`;
 		}
 		if (column.fieldname === "actions" && data && data.employee) {
 			return `<button class="btn btn-xs btn-default"
-				onclick="frappe.set_route('Form','Employee','${data.employee}')">${__("تعديل")}</button>`;
+				onclick="frappe.set_route('Form','Employee','${data.employee}')">${__("Edit")}</button>`;
 		}
 		return html;
 	},

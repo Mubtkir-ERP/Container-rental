@@ -2,27 +2,27 @@ frappe.query_reports["Overdue Containers Report"] = {
 	filters: [
 		{
 			fieldname: "classification",
-			label: __("التصنيف"),
+			label: __("Classification"),
 			fieldtype: "Link",
 			options: "Container Classification",
 		},
 		{
 			fieldname: "container_size",
-			label: __("حجم الحاوية"),
+			label: __("Container Size"),
 			fieldtype: "Link",
 			options: "Container Size",
 		},
-		{ fieldname: "branch", label: __("الفرع"), fieldtype: "Link", options: "Rental Branch" },
+		{ fieldname: "branch", label: __("Branch"), fieldtype: "Link", options: "Rental Branch" },
 		{
 			fieldname: "driver",
-			label: __("السائق"),
+			label: __("Driver"),
 			fieldtype: "Link",
 			options: "Employee",
 			get_query: () => ({ filters: { designation: "سائق" } }),
 		},
 		{
 			fieldname: "delay_range",
-			label: __("نطاق مدة التأخير"),
+			label: __("Overdue Duration Range"),
 			fieldtype: "Select",
 			options: ["", "0-2", "3-7", "7+"],
 		},

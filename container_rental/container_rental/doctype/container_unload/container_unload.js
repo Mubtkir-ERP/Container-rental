@@ -1,20 +1,20 @@
 // Shared extension dialog: any days count, billed as a NEW closed order
 window.container_rental_extend_dialog = window.container_rental_extend_dialog || function (rental_record, on_done) {
 	const d = new frappe.ui.Dialog({
-		title: __("تمديد مدة الحاوية"),
+		title: __("Extend Container Rental"),
 		fields: [
 			{
-				fieldname: "days", fieldtype: "Int", label: __("عدد أيام التمديد"),
+				fieldname: "days", fieldtype: "Int", label: __("Extension Days"),
 				reqd: 1, default: 10,
-				description: __("يُحاسب التمديد بطلب جديد"),
+				description: __("The extension is billed as a new order"),
 			},
-			{ fieldname: "rental_value", fieldtype: "Currency", label: __("قيمة التمديد"), reqd: 1 },
+			{ fieldname: "rental_value", fieldtype: "Currency", label: __("Extension Value"), reqd: 1 },
 			{
-				fieldname: "payment_method", fieldtype: "Link", label: __("طريقة الدفع"),
+				fieldname: "payment_method", fieldtype: "Link", label: __("Payment Method"),
 				options: "Mode of Payment",
 			},
 		],
-		primary_action_label: __("تمديد"),
+		primary_action_label: __("Extend"),
 		primary_action(values) {
 			d.hide();
 			frappe.call({
@@ -28,7 +28,7 @@ window.container_rental_extend_dialog = window.container_rental_extend_dialog ||
 				callback(r) {
 					const m = r.message || {};
 					frappe.show_alert({
-						message: __("تم التمديد — أُنشئ الطلب {0}", [m.order]),
+						message: __("Extended — order {0} created", [m.order]),
 						indicator: "green",
 					});
 					if (on_done) on_done(m);
@@ -45,11 +45,11 @@ frappe.ui.form.on("Container Unload", {
 	},
 
 	render_extend_button(frm) {
-		frm.remove_custom_button(__("تمديد"));
+		frm.remove_custom_button(__("Extend"));
 		if (frm.doc.docstatus === 0 && frm.doc.rental_record) {
-			frm.add_custom_button(__("تمديد"), () => {
+			frm.add_custom_button(__("Extend"), () => {
 				window.container_rental_extend_dialog(frm.doc.rental_record, () => {
-					frappe.msgprint(__("تم التمديد — لا حاجة للتفريغ الآن، يمكنك إغلاق هذه الشاشة"));
+					frappe.msgprint(__("Extended — no unload needed now, you can close this screen"));
 				});
 			});
 		}
@@ -74,7 +74,7 @@ frappe.ui.form.on("Container Unload", {
 			})
 			.then((rows) => {
 				if (!rows.length) {
-					frappe.msgprint(__("لا يوجد سجل تأجير مفتوح لهذه الحاوية"));
+					frappe.msgprint(__("No open rental record for this container"));
 					return;
 				}
 				const r = rows[0];
@@ -82,7 +82,7 @@ frappe.ui.form.on("Container Unload", {
 				frm.trigger("render_extend_button");
 				frappe.db.get_value("Customer", r.client, "customer_name").then((res) => {
 					frm.dashboard.set_headline(
-						__("العميل: {0} — تاريخ التوصيل: {1} — الاستحقاق: {2}", [
+						__("Client: {0} — Delivered: {1} — Due: {2}", [
 							res.message.customer_name,
 							frappe.datetime.str_to_user(r.delivered_on),
 							r.due_on ? frappe.datetime.str_to_user(r.due_on) : "-",

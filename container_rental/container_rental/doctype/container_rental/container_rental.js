@@ -32,7 +32,7 @@ frappe.ui.form.on("Container Rental", {
 		frappe.db
 			.count("Container", { filters: { size: frm.doc.container_size, status: "متاحة" } })
 			.then((count) => {
-				if (!count) frappe.msgprint(__("لا يوجد حاوية فارغة بهذا الحجم"));
+				if (!count) frappe.msgprint(__("No available container of this size"));
 			});
 	},
 

@@ -5,9 +5,14 @@ from frappe.utils import add_days, get_url, getdate, now_datetime
 
 from container_rental.container_rental import hr_utils, whatsapp
 
-SHORT_TERM = "أجل قصير المدى"
-LONG_TERM = "أجل طويل المدى"
-COD = "دفع عند الاستلام"
+# Order-type / payment values are stored in English (per the team's data
+# convention on the production site); Arabic is display-only via ar.csv.
+SHORT_TERM = "Short Credit"
+LONG_TERM = "Long Credit"
+COD = "Cash"
+# Mode of Payment names that mean deferred/credit payment (mixed naming in
+# production: the legacy Arabic mode plus the English ones the team created)
+CREDIT_MODES = ("آجل", "Credit", "D.Note")
 
 STATUS_NEW = "جديد"
 STATUS_AWAITING_TRANSFER = "بانتظار تأكيد الحوالة"
@@ -62,7 +67,7 @@ class ContainerOrder(Document):
 	def notify_supervisor_new_order(self, context=None):
 		"""Drivers supervisor gets the order link the moment it is saved,
 		so he can assign a driver (WhatsApp + in-system notification)."""
-		supervisor_user, supervisor_name, supervisor_mobile = hr_utils.get_supervisor_contact()
+		supervisor_user, supervisor_name, supervisor_mobile = hr_utils.get_supervisor_contact(self.container_size)
 		if not supervisor_user:
 			return
 		context = dict(context or self.get_whatsapp_context())
@@ -132,18 +137,32 @@ class ContainerOrder(Document):
 
 	@frappe.whitelist()
 	def assign_driver(self, driver, vehicle=None):
-		"""Driver supervisor assigns the delivery driver."""
-		_require_roles("Driver Supervisor", "Container Manager")
+		"""Driver supervisor (or office staff) assigns — or RE-assigns — the
+		delivery driver. Re-assignment (e.g. the first driver's truck broke
+		down) is allowed while the order is still مُسنَد لسائق; the order keeps
+		a visible assignment counter and a timeline entry of the change."""
+		_require_roles("Driver Supervisor", "Customer Service", "Container Manager")
 		hr_utils.ensure_driver(driver)
-		self._transition([STATUS_AWAITING_DRIVER], STATUS_ASSIGNED)
+		previous_driver = self.assigned_driver if self.status == STATUS_ASSIGNED else None
+		if previous_driver:
+			if previous_driver == driver:
+				frappe.throw(_("الطلب مُسنَد بالفعل لهذا السائق"))
+			self._drop_unpaid_commission(previous_driver)
+		else:
+			self._transition([STATUS_AWAITING_DRIVER], STATUS_ASSIGNED)
 		self.db_set("assigned_driver", driver)
+		self.db_set("assignment_count", (self.assignment_count or 0) + 1)
 		if vehicle:
 			self.db_set("assigned_vehicle", vehicle)
+		elif previous_driver:
+			# On re-assignment the old truck is likely out of service — don't keep it
+			self.db_set("assigned_vehicle", None)
 		# The message is SENT FROM the WhatsApp number tied to this container
 		# size (big truck / small truck instance) to the driver's own mobile.
 		driver_mobile = hr_utils.get_employee_mobile(driver)
 		sender_instance = frappe.db.get_value("Container Size", self.container_size, "whatsapp_instance")
-		# Commission is a % of the order value, earned at assignment (not invoicing)
+		# Commission is a % of the order value, earned at assignment (not
+		# invoicing) and follows the driver who will actually deliver.
 		from container_rental.container_rental.doctype.driver_commission_entry.driver_commission_entry import (
 			create_commission_entry,
 		)
@@ -153,7 +172,28 @@ class ContainerOrder(Document):
 		context["driver_name"] = hr_utils.get_employee_name(driver)
 		whatsapp.send_event("driver_assignment", driver_mobile, context, reference_doc=self,
 			instance=sender_instance)
+		if previous_driver:
+			self.add_comment("Info", _("أُعيد إسناد الطلب من السائق {0} إلى السائق {1} بواسطة {2}").format(
+				hr_utils.get_employee_name(previous_driver) or previous_driver,
+				hr_utils.get_employee_name(driver) or driver,
+				frappe.session.user,
+			))
 		return STATUS_ASSIGNED
+
+	def _drop_unpaid_commission(self, driver):
+		"""Remove the replaced driver's unpaid commission entry for this order
+		(the commission goes to the driver who actually delivers)."""
+		for entry in frappe.get_all(
+			"Driver Commission Entry",
+			filters={
+				"delivery_reference_doctype": "Container Order",
+				"delivery_reference": self.name,
+				"driver": driver,
+				"payout_status": ("!=", "مصروفة"),
+			},
+			pluck="name",
+		):
+			frappe.delete_doc("Driver Commission Entry", entry, force=True, ignore_permissions=True)
 
 	@frappe.whitelist()
 	def cancel_order(self):
@@ -300,12 +340,29 @@ class ContainerOrder(Document):
 		}
 
 
+def _first_existing(doctype, names):
+	for name in names:
+		if frappe.db.exists(doctype, name):
+			return name
+
+
 def _ensure_rental_item():
-	"""Get or create the service item used on rental Sales Invoices."""
+	"""Get or create the service item used on rental Sales Invoices.
+	Item Group and UOM names differ per site language (Arabic installs have
+	no "All Item Groups"/"Nos"), so both are resolved from the database."""
 	item_code = "Container Rental Service"
 	if frappe.db.exists("Item", item_code):
 		return item_code
-	item_group = "Services" if frappe.db.exists("Item Group", "Services") else "All Item Groups"
+	item_group = (
+		_first_existing("Item Group", ["Services", "الخدمات"])
+		or frappe.db.get_value("Item Group", {"is_group": 0})
+		or frappe.db.get_value("Item Group", {"is_group": 1})
+	)
+	uom = (
+		frappe.db.get_single_value("Stock Settings", "stock_uom")
+		or _first_existing("UOM", ["Nos", "Unit", "وحدة", "PCs"])
+		or frappe.db.get_value("UOM", {})
+	)
 	frappe.get_doc({
 		"doctype": "Item",
 		"item_code": item_code,
@@ -313,6 +370,6 @@ def _ensure_rental_item():
 		"item_group": item_group,
 		"is_stock_item": 0,
 		"is_sales_item": 1,
-		"stock_uom": "Nos",
+		"stock_uom": uom,
 	}).insert(ignore_permissions=True)
 	return item_code

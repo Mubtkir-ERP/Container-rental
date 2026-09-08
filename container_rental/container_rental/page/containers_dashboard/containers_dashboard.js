@@ -1,12 +1,12 @@
 frappe.pages["containers-dashboard"].on_page_load = function (wrapper) {
 	const page = frappe.ui.make_app_page({
 		parent: wrapper,
-		title: __("لوحة التحكم الرئيسية"),
+		title: __("Main Dashboard"),
 		single_column: true,
 	});
 
-	page.set_secondary_action(__("تحديث"), () => render_cards(page), "refresh");
-	page.add_inner_button(__("التقرير العام للحاويات"), () => {
+	page.set_secondary_action(__("Refresh"), () => render_cards(page), "refresh");
+	page.add_inner_button(__("General Containers Report"), () => {
 		frappe.set_route("query-report", "General Containers Report");
 	});
 
@@ -32,67 +32,67 @@ function render_cards(page) {
 			const c = r.message || {};
 			const cards = [
 				{
-					label: __("إجمالي عدد الحاويات"), value: c.total_containers,
+					label: __("Total Containers"), value: c.total_containers,
 					route: () => frappe.set_route("List", "Container"),
 				},
 				{
-					label: __("الحاويات الخالية"), value: c.available_containers, cls: "cr-ok",
+					label: __("Available Containers"), value: c.available_containers, cls: "cr-ok",
 					route: () => frappe.set_route("List", "Container", { status: "متاحة" }),
 				},
 				{
-					label: __("الحاويات المؤجرة"), value: c.rented_containers,
+					label: __("Rented Containers"), value: c.rented_containers,
 					route: () => frappe.set_route("List", "Container", { status: "مؤجرة" }),
 				},
 				{
-					label: __("الحاويات المتأخرة"), value: c.overdue_containers, cls: "cr-danger",
+					label: __("Overdue Containers"), value: c.overdue_containers, cls: "cr-danger",
 					route: () => frappe.set_route("overdue-containers"),
 				},
 				{
-					label: __("الحاويات المسحوبة"), value: c.withdrawn_containers,
+					label: __("Withdrawn Containers"), value: c.withdrawn_containers,
 					route: () => frappe.set_route("List", "Container", { status: "مسحوبة" }),
 				},
 				{
-					label: __("تأخيرات الدفع"), value: c.payment_delays, cls: "cr-danger",
+					label: __("Payment Delays"), value: c.payment_delays, cls: "cr-danger",
 					route: () =>
 						frappe.set_route("List", "Container Order", {
-							payment_method: "آجل",
+							payment_method: ["in", ["آجل", "Credit", "D.Note"]],
 							payment_received: 0,
 							status: "تم التوصيل",
 						}),
 				},
 				{
-					label: __("تأخيرات غيار الزيت"), value: c.oil_change_delays, cls: "cr-warning",
+					label: __("Oil Change Delays"), value: c.oil_change_delays, cls: "cr-warning",
 					route: () => frappe.set_route("query-report", "Truck Alerts Report"),
 				},
 				{
-					label: __("التصاريح المنتهية"), value: c.expired_permits, cls: "cr-danger",
+					label: __("Expired Permits"), value: c.expired_permits, cls: "cr-danger",
 					route: () => frappe.set_route("query-report", "Employee Alerts Report"),
 				},
 				{
-					label: __("تنبيهات الشاحنات"), value: c.truck_alerts, cls: "cr-warning",
+					label: __("Truck Alerts"), value: c.truck_alerts, cls: "cr-warning",
 					route: () => frappe.set_route("query-report", "Truck Alerts Report"),
 				},
 				{
-					label: __("تنبيهات الموظفين"), value: c.employee_alerts, cls: "cr-warning",
+					label: __("Employee Alerts"), value: c.employee_alerts, cls: "cr-warning",
 					route: () => frappe.set_route("query-report", "Employee Alerts Report"),
 				},
 				{
-					label: __("العقود المنتهية"), value: c.expired_contracts,
+					label: __("Expired Contracts"), value: c.expired_contracts,
 					route: () => {
-						frappe.route_options = { status: "منتهٍ" };
+						frappe.route_options = { contract_status: "Expire" };
 						frappe.set_route("query-report", "Contract Report");
 					},
 				},
 				{
-					label: __("العقود المنتهية ولها رحلات"), value: c.expired_contracts_with_trips, cls: "cr-warning",
+					label: __("Expired Contracts With Remaining Trips"), value: c.expired_contracts_with_trips, cls: "cr-warning",
 					route: () => {
-						frappe.route_options = { status: "منتهٍ" };
+						frappe.route_options = { contract_status: "Expire" };
 						frappe.set_route("query-report", "Contract Report");
 					},
 				},
 				{
-					label: __("الإيجارات الآجلة"), value: c.credit_rentals,
-					route: () => frappe.set_route("List", "Container Order", { payment_method: "آجل" }),
+					label: __("Credit Rentals"), value: c.credit_rentals,
+					route: () => frappe.set_route("List", "Container Order", { payment_method: ["in", ["آجل", "Credit", "D.Note"]] }),
 				},
 			];
 
@@ -102,7 +102,7 @@ function render_cards(page) {
 					<div class="cr-card ${card.cls || ""}">
 						<div class="cr-label">${card.label}</div>
 						<div class="cr-count">${card.value ?? 0}</div>
-						<button class="btn btn-xs btn-default">${__("عرض")}</button>
+						<button class="btn btn-xs btn-default">${__("View")}</button>
 					</div>`);
 				$card.find("button").on("click", card.route);
 				page.body.append($card);

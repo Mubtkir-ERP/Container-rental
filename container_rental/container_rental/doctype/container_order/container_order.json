@@ -38,6 +38,7 @@
   "assigned_driver",
   "column_break_assignment",
   "assigned_vehicle",
+  "assignment_count",
   "transfer_section",
   "transfer_confirmed_by",
   "column_break_transfer",
@@ -318,7 +319,7 @@
    "fieldname": "delivery_note_no",
    "fieldtype": "Data",
    "label": "Delivery Note No",
-   "depends_on": "eval:doc.payment_method=='Credit'",
+   "depends_on": "eval:[\"آجل\",\"Credit\",\"D.Note\"].includes(doc.payment_method)",
    "description": "رقم دفتر التسليم — يُعبأ عند الدفع الآجل"
   },
   {
@@ -329,10 +330,19 @@
   {
    "fieldname": "column_break_driver",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "assignment_count",
+   "fieldtype": "Int",
+   "label": "Times Assigned",
+   "read_only": 1,
+   "no_copy": 1,
+   "default": "0",
+   "description": "أكبر من 1 يعني أن الطلب أُعيد إسناده لسائق آخر"
   }
  ],
  "links": [],
- "modified": "2026-09-01 12:13:50.000000",
+ "modified": "2026-09-08 15:40:00.000000",
  "modified_by": "Administrator",
  "module": "Container Rental",
  "name": "Container Order",

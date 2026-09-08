@@ -31,7 +31,7 @@ def get_dashboard_counts():
 	counts["payment_delays"] = frappe.db.count(
 		"Container Order",
 		{
-			"payment_method": "آجل",
+			"payment_method": ("in", ["آجل", "Credit", "D.Note"]),
 			"status": "تم التوصيل",
 			"payment_received": 0,
 			"rental_end_date": ("<", today()),
@@ -74,9 +74,9 @@ def get_dashboard_counts():
 
 	counts["credit_rentals"] = frappe.db.count(
 		"Container Order",
-		{"payment_method": "آجل", "status": ("not in", ["ملغي", "تم التوصيل"])},
+		{"payment_method": ("in", ["آجل", "Credit", "D.Note"]), "status": ("not in", ["ملغي", "تم التوصيل"])},
 	) + frappe.db.count(
-		"Container Contract", {"docstatus": 1, "contract_status": "ساري"}
+		"Container Contract", {"docstatus": 1, "contract_status": "Active"}
 	)
 
 	return counts
@@ -197,7 +197,7 @@ def send_unload_request(rental_record):
 	from container_rental.container_rental import hr_utils
 
 	record = frappe.get_doc("Rental Record", rental_record)
-	supervisor_user, supervisor_name, supervisor_mobile = hr_utils.get_supervisor_contact()
+	supervisor_user, supervisor_name, supervisor_mobile = hr_utils.get_supervisor_contact(record.container_size)
 	if not supervisor_user:
 		frappe.throw(_("حدد مشرف السواقين (مستخدم النظام) في إعدادات النظام أولًا"))
 	if not supervisor_mobile:
@@ -263,7 +263,7 @@ def extend_rental(rental_record, days, rental_value=0, payment_method=None):
 	order = frappe.get_doc({
 		"doctype": "Container Order",
 		"client": record.client,
-		"order_type": "أجل قصير المدى",
+		"order_type": "Short Credit",
 		"container_size": record.container_size,
 		"container": record.container,
 		"rental_days": days,

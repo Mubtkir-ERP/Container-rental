@@ -1,18 +1,18 @@
 frappe.ui.form.on("Container Contract", {
 	refresh(frm) {
 		if (frm.doc.docstatus === 1) {
-			frm.add_custom_button(__("تجديد التعاقد"), () => {
+			frm.add_custom_button(__("Renew Contract"), () => {
 				const d = new frappe.ui.Dialog({
-					title: __("تجديد التعاقد"),
+					title: __("Renew Contract"),
 					fields: [
 						{
 							fieldname: "new_end_date",
 							fieldtype: "Date",
-							label: __("تاريخ الانتهاء الجديد"),
+							label: __("New End Date"),
 							reqd: 1,
 						},
 					],
-					primary_action_label: __("تجديد"),
+					primary_action_label: __("Renew"),
 					primary_action(values) {
 						d.hide();
 						frm.call("renew_contract", { new_end_date: values.new_end_date }).then(() =>
@@ -23,7 +23,7 @@ frappe.ui.form.on("Container Contract", {
 				d.show();
 			}).addClass("btn-primary");
 
-			frm.add_custom_button(__("تسجيل توصيل من العقد"), () => {
+			frm.add_custom_button(__("Record Delivery From Contract"), () => {
 				frappe.new_doc("Container Delivery", {
 					contract: frm.doc.name,
 					client: frm.doc.client,

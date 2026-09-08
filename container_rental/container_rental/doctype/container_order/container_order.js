@@ -4,7 +4,7 @@ frappe.ui.form.on("Container Order", {
 			filters: { size: frm.doc.container_size, status: "متاحة" },
 		}));
 		frm.set_query("contract", () => ({
-			filters: { client: frm.doc.client, docstatus: 1, contract_status: "ساري" },
+			filters: { client: frm.doc.client, docstatus: 1, contract_status: "Active" },
 		}));
 		frm.set_query("container", "additional_containers", (doc, cdt, cdn) => {
 			const row = locals[cdt][cdn];
@@ -23,11 +23,20 @@ frappe.ui.form.on("Container Order", {
 		frm.trigger("render_status_buttons");
 		frm.trigger("render_location_button");
 		frm.trigger("render_driver_view");
+		if (frm.doc.assignment_count > 1) {
+			// Visible marker that the order was re-assigned after the first driver
+			frm.dashboard.set_headline(
+				__("This order was reassigned to another driver ({0} assignments) — see the timeline below", [
+					frm.doc.assignment_count,
+				]),
+				"orange"
+			);
+		}
 	},
 
 	render_location_button(frm) {
 		if (frm.doc.google_maps_link) {
-			frm.add_custom_button(__("فتح الموقع"), () => {
+			frm.add_custom_button(__("Open Location"), () => {
 				window.open(frm.doc.google_maps_link, "_blank");
 			});
 		}
@@ -50,13 +59,13 @@ frappe.ui.form.on("Container Order", {
 		frm.toggle_display(other_sections, false);
 		frm.disable_save();
 		if (frm.doc.status === "مُسنَد لسائق") {
-			frm.page.set_primary_action(__("تأكيد التوصيل"), () => {
+			frm.page.set_primary_action(__("Confirm Delivery"), () => {
 				if (!frm.doc.container) {
-					frappe.msgprint(__("أدخل رقم الحاوية أولًا"));
+					frappe.msgprint(__("Enter the container number first"));
 					return;
 				}
-				if (frm.doc.payment_method === "آجل" && !frm.doc.delivery_note_no) {
-					frappe.msgprint(__("أدخل رقم دفتر التسليم للدفع الآجل"));
+				if (["آجل", "Credit", "D.Note"].includes(frm.doc.payment_method) && !frm.doc.delivery_note_no) {
+					frappe.msgprint(__("Enter the delivery note number for credit payment"));
 					return;
 				}
 				// One step: the server stores the container / note and records the delivery
@@ -67,7 +76,7 @@ frappe.ui.form.on("Container Order", {
 						args: { container: frm.doc.container, delivery_note_no: frm.doc.delivery_note_no },
 					},
 					callback() {
-						frappe.show_alert({ message: __("تم تأكيد التوصيل"), indicator: "green" });
+						frappe.show_alert({ message: __("Delivery confirmed"), indicator: "green" });
 						frm.doc.__unsaved = 0;
 						frappe.set_route("List", "Container Order");
 					},
@@ -113,7 +122,7 @@ frappe.ui.form.on("Container Order", {
 
 	suggest_container(frm) {
 		if (!frm.doc.container_size) {
-			frappe.msgprint(__("اختر حجم الحاوية أولًا"));
+			frappe.msgprint(__("Select the container size first"));
 			return;
 		}
 		frappe.call({
@@ -123,7 +132,7 @@ frappe.ui.form.on("Container Order", {
 				if (r.message) {
 					frm.set_value("container", r.message);
 				} else {
-					frappe.msgprint(__("لا يوجد حاوية فارغة بهذا الحجم"));
+					frappe.msgprint(__("No available container of this size"));
 				}
 			},
 		});
@@ -135,7 +144,7 @@ frappe.ui.form.on("Container Order", {
 			frm.call(method, args).then(() => frm.reload_doc());
 
 		if (frm.doc.status === "تم التوصيل") {
-			frm.add_custom_button(__("إنشاء فاتورة مبيعات"), () => {
+			frm.add_custom_button(__("Create Sales Invoice"), () => {
 				frm.call("make_sales_invoice").then((r) => {
 					if (r.message) frappe.set_route("Form", "Sales Invoice", r.message);
 				});
@@ -144,42 +153,49 @@ frappe.ui.form.on("Container Order", {
 
 		if (frm.doc.docstatus === 0 && !frm.is_dirty()) {
 			if (frm.doc.status === "جديد") {
-				frm.add_custom_button(__("تأكيد الطلب"), () => call("confirm_order")).addClass("btn-primary");
+				frm.add_custom_button(__("Confirm Order"), () => call("confirm_order")).addClass("btn-primary");
 			}
 			if (frm.doc.status === "بانتظار تأكيد الحوالة") {
-				frm.add_custom_button(__("تأكيد وصول الحوالة"), () => call("confirm_transfer")).addClass("btn-primary");
+				frm.add_custom_button(__("Confirm Transfer Receipt"), () => call("confirm_transfer")).addClass("btn-primary");
 			}
-			if (frm.doc.status === "بانتظار تحديد سائق") {
-				frm.add_custom_button(__("إسناد سائق"), () => {
-					const d = new frappe.ui.Dialog({
-						title: __("إسناد سائق للطلب"),
-						fields: [
-							{
-								fieldname: "driver",
-								fieldtype: "Link",
-								label: __("السائق"),
-								options: "Employee",
-								reqd: 1,
-								get_query: () => ({ filters: { designation: "سائق", status: "Active" } }),
-							},
-							{
-								fieldname: "vehicle",
-								fieldtype: "Link",
-								label: __("الشاحنة"),
-								options: "Truck",
-							},
-						],
-						primary_action_label: __("إسناد"),
-						primary_action(values) {
-							d.hide();
-							call("assign_driver", { driver: values.driver, vehicle: values.vehicle });
+			const assign_dialog = (title) => {
+				const d = new frappe.ui.Dialog({
+					title: title,
+					fields: [
+						{
+							fieldname: "driver",
+							fieldtype: "Link",
+							label: __("Driver"),
+							options: "Employee",
+							reqd: 1,
+							get_query: () => ({ filters: { designation: "سائق", status: "Active" } }),
 						},
-					});
-					d.show();
-				}).addClass("btn-primary");
+						{
+							fieldname: "vehicle",
+							fieldtype: "Link",
+							label: __("Truck"),
+							options: "Truck",
+						},
+					],
+					primary_action_label: __("Assign"),
+					primary_action(values) {
+						d.hide();
+						call("assign_driver", { driver: values.driver, vehicle: values.vehicle });
+					},
+				});
+				d.show();
+			};
+			if (frm.doc.status === "بانتظار تحديد سائق") {
+				frm.add_custom_button(__("Assign Driver"), () =>
+					assign_dialog(__("Assign Driver to Order"))
+				).addClass("btn-primary");
 			}
 			if (frm.doc.status === "مُسنَد لسائق") {
-				frm.add_custom_button(__("تسجيل توصيل"), () => {
+				// e.g. the first driver's truck broke down on the way
+				frm.add_custom_button(__("Reassign Driver"), () =>
+					assign_dialog(__("Reassign Order to Another Driver"))
+				);
+				frm.add_custom_button(__("Record Delivery"), () => {
 					frappe.new_doc("Container Delivery", {
 						order: frm.doc.name,
 						container: frm.doc.container,
@@ -189,26 +205,26 @@ frappe.ui.form.on("Container Order", {
 				}).addClass("btn-primary");
 			}
 			if (["جديد", "بانتظار تأكيد الحوالة", "بانتظار تحديد سائق", "مُسنَد لسائق"].includes(frm.doc.status)) {
-				frm.add_custom_button(__("إلغاء الطلب"), () => {
-					frappe.confirm(__("هل أنت متأكد من إلغاء الطلب؟"), () => call("cancel_order"));
+				frm.add_custom_button(__("Cancel Order"), () => {
+					frappe.confirm(__("Are you sure you want to cancel the order?"), () => call("cancel_order"));
 				});
 			}
 			if (frm.doc.status === "جديد" || frm.doc.status === "بانتظار تحديد سائق") {
-				frm.add_custom_button(__("اقتراح حاوية"), () => frm.trigger("suggest_container"));
+				frm.add_custom_button(__("Suggest Container"), () => frm.trigger("suggest_container"));
 			}
 		}
 		if (
 			frm.doc.status === "تم التوصيل" &&
-			frm.doc.payment_method === "آجل" &&
+			["آجل", "Credit", "D.Note"].includes(frm.doc.payment_method) &&
 			!frm.doc.payment_received
 		) {
-			frm.add_custom_button(__("تسجيل استلام المبلغ"), () => {
+			frm.add_custom_button(__("Record Payment Receipt"), () => {
 				const d = new frappe.ui.Dialog({
-					title: __("استلام المبلغ"),
+					title: __("Receive Payment"),
 					fields: [
-						{ fieldname: "cash_box", fieldtype: "Link", label: __("الصندوق النقدي"), options: "Account", get_query: () => ({ filters: { account_type: "Cash", is_group: 0 } }) },
+						{ fieldname: "cash_box", fieldtype: "Link", label: __("Cash Account"), options: "Account", get_query: () => ({ filters: { account_type: "Cash", is_group: 0 } }) },
 					],
-					primary_action_label: __("تسجيل"),
+					primary_action_label: __("Record"),
 					primary_action(values) {
 						d.hide();
 						call("mark_payment_received", { cash_box: values.cash_box });

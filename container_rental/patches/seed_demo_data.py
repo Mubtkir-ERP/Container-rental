@@ -311,7 +311,7 @@ def seed_orders(clients, containers, employees):
 			"container_size": size,
 			"container": container,
 			"classification": "أنقاض",
-			"rental_days": None if order_type == "أجل طويل المدى" else 10,
+			"rental_days": None if order_type == "Long Credit" else 10,
 			"rental_value": kwargs.pop("rental_value", 400),
 			"payment_method": kwargs.pop("payment_method", "نقدي"),
 			"rental_start_date": today(),
@@ -324,19 +324,19 @@ def seed_orders(clients, containers, employees):
 		return order
 
 	# 1) جديد
-	new_order(clients["منصور الدوسري"], "أجل قصير المدى", "10 ياردة", payment_method="تحويل بنكي")
+	new_order(clients["منصور الدوسري"], "Short Credit", "10 ياردة", payment_method="تحويل بنكي")
 
 	# 2) بانتظار تأكيد الحوالة
-	o2 = new_order(clients["عبدالعزيز السبيعي"], "أجل قصير المدى", "10 ياردة", payment_method="تحويل بنكي")
+	o2 = new_order(clients["عبدالعزيز السبيعي"], "Short Credit", "10 ياردة", payment_method="تحويل بنكي")
 	o2.confirm_order()
 
 	# 3) بانتظار تحديد سائق
-	o3 = new_order(clients["سارة العنزي"], "دفع عند الاستلام", "10 ياردة")
+	o3 = new_order(clients["سارة العنزي"], "Cash", "10 ياردة")
 	o3.confirm_order()
 
 	# 4) مُسنَد لسائق — multi-container order (open question 2)
 	o4 = new_order(
-		clients["مؤسسة البناء الحديث"], "دفع عند الاستلام", "10 ياردة",
+		clients["مؤسسة البناء الحديث"], "Cash", "10 ياردة",
 		container=containers[6],  # C-1007
 		delivery_address="حي العليا — شارع التحلية",
 	)
@@ -347,7 +347,7 @@ def seed_orders(clients, containers, employees):
 
 	# 5) تم التوصيل (آجل — feeds the credit-rentals card)
 	o5 = new_order(
-		clients["مصنع الخرسانة المتحدة"], "أجل طويل المدى", "20 ياردة",
+		clients["مصنع الخرسانة المتحدة"], "Long Credit", "20 ياردة",
 		container=containers[15],  # C-1016
 		payment_method="آجل", rental_value=600,
 		delivery_address="المنطقة الصناعية الثانية",
@@ -369,7 +369,7 @@ def seed_orders(clients, containers, employees):
 	delivery.submit()
 
 	# 6) ملغي
-	o6 = new_order(clients["سارة العنزي"], "دفع عند الاستلام", "20 ياردة")
+	o6 = new_order(clients["سارة العنزي"], "Cash", "20 ياردة")
 	o6.cancel_order()
 
 
@@ -420,7 +420,7 @@ def seed_active_contract(clients, containers, employees, classifications):
 			"driver": driver,
 			"supervisor": supervisor,
 			"unload_date": add_days(last_month_start, 9 + i),
-			"unload_reason": "انتهاء المدة المحددة",
+			"unload_reason": "Specified Period Expired",
 			"municipality_fee": 150 if i < 2 else 0,
 			"send_whatsapp_confirmation": 0,
 		})

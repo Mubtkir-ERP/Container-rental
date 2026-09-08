@@ -234,3 +234,108 @@ Driver Deliveries,توصيلات السائق
 My Assigned Orders,طلباتي المُسندة
 Commission Expense Account,حساب مصروف العمولات
 Journal Entry,قيد اليومية
+Are you sure you want to cancel the order?,هل أنت متأكد من إلغاء الطلب؟
+Assign,إسناد
+Assign Driver,إسناد سائق
+Assign Driver to Order,إسناد سائق للطلب
+Available Containers,الحاويات الخالية
+Average Overdue (Days),متوسط مدة التأخير (يوم)
+Call,اتصال
+Cancel Order,إلغاء الطلب
+Change,تغيير
+Change Container Status,تغيير حالة الحاوية
+Change Status,تغيير الحالة
+Client: {0} — Delivered: {1} — Due: {2},العميل: {0} — تاريخ التوصيل: {1} — الاستحقاق: {2}
+Confirm Order,تأكيد الطلب
+Confirm Transfer Receipt,تأكيد وصول الحوالة
+Contract No,رقم العقد
+Credit Rentals,الإيجارات الآجلة
+Delivery confirmed,تم تأكيد التوصيل
+Driver's cash box or bank — credited against the commission expense account,صندوق السائق أو البنك — يُقيَّد عليه المبلغ مقابل حساب مصروف العمولات
+Edit,تعديل
+Employee Alerts,تنبيهات الموظفين
+Enter the container number first,أدخل رقم الحاوية أولًا
+Enter the delivery note number for credit payment,أدخل رقم دفتر التسليم للدفع الآجل
+Expense Type,نوع المصروف
+Expired Contracts,العقود المنتهية
+Expired Contracts With Remaining Trips,العقود المنتهية ولها رحلات
+Expired Permits,التصاريح المنتهية
+Export Excel,تصدير Excel
+Export PDF,تصدير PDF
+Extend Container Rental,تمديد مدة الحاوية
+"Extended — no unload needed now, you can close this screen",تم التمديد — لا حاجة للتفريغ الآن، يمكنك إغلاق هذه الشاشة
+Extended — order {0} created,تم التمديد — أُنشئ الطلب {0}
+From Date,من تاريخ
+Generate Last Month Invoices,توليد فواتير الشهر السابق
+Generate last month's contract invoices?,توليد الفواتير الشهرية للعقود عن الشهر السابق؟
+Generated {0} invoices: {1},تم توليد {0} فاتورة: {1}
+Last WhatsApp,آخر واتساب
+Month (YYYY-MM),الشهر (YYYY-MM)
+New End Date,تاريخ الانتهاء الجديد
+New Status,الحالة الجديدة
+No available container of this size,لا يوجد حاوية فارغة بهذا الحجم
+No due commissions in the current results,لا توجد عمولات مستحقة في النتائج الحالية
+No new invoices to generate,لا توجد فواتير جديدة للتوليد
+No open rental record for this container,لا يوجد سجل تأجير مفتوح لهذه الحاوية
+No overdue containers 🎉,لا توجد حاويات متأخرة 🎉
+Not Reminded,لم يتم التذكير
+Oil Change Delays,تأخيرات غيار الزيت
+Overdue Containers Follow-up,متابعة الحاويات المتأخرة
+Overdue Duration,مدة التأخير
+Overdue Duration Range,نطاق مدة التأخير
+Overdue Range,نطاق التأخير
+Overdue over a week,متأخرة أكثر من أسبوع
+Overdue {0} days {1} hours,متأخرة {0} يوم {1} ساعة
+Paid {0} commissions and created the journal entries,تم صرف {0} عمولة وإنشاء القيود المحاسبية
+Pay Listed (Journal Entry),صرف المعروض (قيد محاسبي)
+Pay and Create Entry,صرف وإنشاء القيد
+Pay {0} Commissions,صرف {0} عمولة
+Payment Delays,تأخيرات الدفع
+Payout Account,حساب الصرف
+Posting Date,تاريخ القيد
+Print,طباعة
+Print Barcode Label,طباعة ملصق الباركود
+Quick Action,إجراء سريع
+Reassign Driver,إعادة إسناد سائق
+Reassign Order to Another Driver,إعادة إسناد الطلب لسائق آخر
+Receive Payment,استلام المبلغ
+Record,تسجيل
+Record Delivery,تسجيل التوصيل
+Record Delivery From Contract,تسجيل توصيل من العقد
+Record Payment Receipt,تسجيل استلام المبلغ
+Refresh,تحديث
+Renew,تجديد
+Renew Contract,تجديد التعاقد
+Renew Contract {0},تجديد التعاقد {0}
+Rental Period,فترة التأجير
+Rented Containers,الحاويات المؤجرة
+Return to Available After Inspection,إعادة للمتاح بعد الفحص
+Select Employee,اختر الموظف
+Select Truck,اختر شاحنة
+Select the container size first,اختر حجم الحاوية أولًا
+Severity,درجة الخطورة
+Suggest Container,اقتراح حاوية
+Table / Cards View,عرض جدول / بطاقات
+The extension is billed as a new order,يُحاسب التمديد بطلب جديد
+This order was reassigned to another driver ({0} assignments) — see the timeline below,أُعيد إسناد هذا الطلب لسائق آخر (عدد مرات الإسناد: {0}) — راجع السجل بالأسفل
+Times Assigned,عدد مرات الإسناد
+To Date,إلى تاريخ
+Total Containers,إجمالي عدد الحاويات
+Total Overdue Containers,إجمالي الحاويات المتأخرة
+Truck Alerts,تنبيهات الشاحنات
+Unload request sent to the drivers supervisor,أُرسل طلب التفريغ لمشرف السواقين
+Vehicle No,رقم السيارة
+View,عرض
+View File,عرض الملف
+WhatsApp,واتساب
+WhatsApp message sent to the client,أُرسلت رسالة واتساب للعميل
+Withdrawn Containers,الحاويات المسحوبة
+Long Credit,أجل طويل المدى
+Short Credit,أجل قصير المدى
+Cash,نقدي
+Credit,آجل
+D.Note,دفتر تسليم
+Active,ساري
+Expire,منتهٍ
+Customer Request,طلب من العميل
+Specified Period Expired,انتهاء المدة المحددة

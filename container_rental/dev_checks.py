@@ -66,16 +66,14 @@ def e2e():
 
 	order = frappe.get_doc({
 		"doctype": "Container Order", "client": client.name,
-		"order_type": "أجل قصير المدى", "container_size": "10 ياردة",
+		"order_type": "Short Credit", "container_size": "10 ياردة",
 		"container": container.name, "rental_days": 10, "rental_value": 350,
 		"payment_method": "تحويل بنكي", "rental_start_date": frappe.utils.today(),
 		"delivery_address": "موقع الاختبار",
 	}).insert(ignore_permissions=True)
 
-	order.confirm_order()
-	results["after_confirm"] = order.status  # بانتظار تأكيد الحوالة
-	order.confirm_transfer()
-	results["after_transfer"] = order.status
+	# after_insert auto-advances every new order to "بانتظار تحديد سائق"
+	results["after_insert_status"] = order.status
 	driver = frappe.db.get_value("Employee", {"employee_name": "سالم القحطاني"})
 	order.assign_driver(driver)
 	results["after_assign"] = order.status
@@ -93,9 +91,10 @@ def e2e():
 		"Rental Record", {"source_doctype": "Container Order", "source_name": order.name}
 	)
 	results["rental_record_created"] = bool(record)
+	# Commission is earned at assignment, referenced to the order
 	results["commission_created"] = bool(frappe.db.exists(
 		"Driver Commission Entry",
-		{"delivery_reference_doctype": "Container Delivery", "delivery_reference": delivery.name},
+		{"delivery_reference_doctype": "Container Order", "delivery_reference": order.name},
 	))
 
 	# Force overdue and run the hourly job
@@ -116,7 +115,7 @@ def e2e():
 	# Unload with municipality fee → back to available
 	unload = frappe.get_doc({
 		"doctype": "Container Unload", "container": container.name,
-		"unload_date": frappe.utils.today(), "unload_reason": "انتهاء المدة المحددة",
+		"unload_date": frappe.utils.today(), "unload_reason": "Specified Period Expired",
 		"municipality_fee": 175, "send_whatsapp_confirmation": 1,
 	})
 	unload.insert(ignore_permissions=True)
@@ -205,7 +204,7 @@ def new_order_supervisor_check():
 	frappe.db.set_value("User", sup, "mobile_no", "0551000004", update_modified=False)
 	before = frappe.db.count("Notification Log", {"for_user": sup})
 	customer = frappe.get_all("Customer", limit=1, pluck="name")[0]
-	order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "دفع عند الاستلام",
+	order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
 		"container_size": "10 ياردة", "rental_days": 10, "rental_value": 500, "payment_method": "نقدي",
 		"rental_start_date": frappe.utils.today(), "delivery_address": "حي النخيل"}).insert(ignore_permissions=True)
 	print("status:", order.status, "| supervisor notifications +", frappe.db.count("Notification Log", {"for_user": sup}) - before)
@@ -218,7 +217,7 @@ def delivery_flow_check():
 	from frappe.utils import add_days, today
 	customer = frappe.get_all("Customer", limit=1, pluck="name")[0]
 	driver = frappe.db.get_value("Employee", {"designation": "سائق", "status": "Active"})
-	order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "دفع عند الاستلام",
+	order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
 		"container_size": "10 ياردة", "rental_days": 10, "rental_value": 750, "payment_method": "نقدي",
 		"rental_start_date": add_days(today(), -5)}).insert(ignore_permissions=True)
 	order.assign_driver(driver)
@@ -244,7 +243,7 @@ def driver_close_check():
 	from frappe.utils import today
 	customer = frappe.get_all("Customer", limit=1, pluck="name")[0]
 	driver = frappe.db.get_value("Employee", {"designation": "سائق", "status": "Active"})
-	order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "دفع عند الاستلام",
+	order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
 		"container_size": "10 ياردة", "rental_days": 10, "rental_value": 900, "payment_method": "نقدي",
 		"rental_start_date": today()}).insert(ignore_permissions=True)
 	order.assign_driver(driver)
@@ -269,7 +268,7 @@ def no_container_close_check():
 	customer = frappe.get_all("Customer", limit=1, pluck="name")[0]
 	driver = frappe.db.get_value("Employee", {"designation": "سائق", "status": "Active"})
 	# order WITHOUT a container number (the real new-scenario shape)
-	order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "دفع عند الاستلام",
+	order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
 		"container_size": "10 ياردة", "rental_days": 10, "rental_value": 400, "payment_method": "نقدي",
 		"rental_start_date": today()}).insert(ignore_permissions=True)
 	order.assign_driver(driver)
@@ -285,4 +284,55 @@ def no_container_close_check():
 	from container_rental.patches.close_delivered_orders import execute as fix
 	fix()
 	print("after patch:", frappe.db.get_value("Container Order", order.name, "status"))
+	frappe.db.rollback()
+
+def reassign_invoice_supervisor_check():
+	"""Covers the four fixes: per-size supervisor, driver re-assignment with
+	commission transfer + counter, delivery close, and Sales Invoice item
+	resolution (site-language-independent group/UOM)."""
+	from frappe.utils import today
+	from container_rental.container_rental import hr_utils
+	customer = frappe.get_all("Customer", limit=1, pluck="name")[0]
+	drivers = frappe.get_all("Employee", filters={"designation": "سائق", "status": "Active"}, limit=2, pluck="name")
+	if len(drivers) < 2:
+		emp = frappe.get_doc({"doctype": "Employee", "first_name": "سائق ثاني للتجربة",
+			"designation": "سائق", "status": "Active", "gender": "Male",
+			"date_of_birth": "1990-01-01", "date_of_joining": "2020-01-01"})
+		emp.flags.ignore_permissions = True
+		emp.insert()
+		drivers.append(emp.name)
+	a, b = drivers[0], drivers[1]
+	size = "10 ياردة"
+
+	# 1) supervisor per size, with settings fallback
+	su = frappe.get_all("User", filters={"enabled": 1}, limit=5, pluck="name")[-1]
+	frappe.db.set_value("Container Size", size, "supervisor", su)
+	print("size supervisor:", hr_utils.get_supervisor_contact(size)[0],
+		"| fallback (no size):", hr_utils.get_supervisor_contact()[0])
+
+	# 2) assign then re-assign
+	order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
+		"container_size": size, "rental_days": 10, "rental_value": 1000, "payment_method": "نقدي",
+		"rental_start_date": today()}).insert(ignore_permissions=True)
+	order.assign_driver(a)
+	order.reload()
+	print("after 1st assign — driver:", order.assigned_driver == a, "| count:", order.assignment_count)
+	order.assign_driver(b)
+	order.reload()
+	entries = frappe.get_all("Driver Commission Entry",
+		filters={"delivery_reference_doctype": "Container Order", "delivery_reference": order.name},
+		fields=["driver", "commission_amount"])
+	print("after reassign — driver:", order.assigned_driver == b, "| count:", order.assignment_count,
+		"| commission entries:", [(e.driver == b, e.commission_amount) for e in entries])
+
+	# 3) driver B delivers → order closes
+	free = frappe.get_all("Container", filters={"status": "متاحة", "size": size}, limit=1, pluck="name")[0]
+	frappe.get_doc("Container Order", order.name).driver_confirm_delivery(free)
+	print("status after delivery:", frappe.db.get_value("Container Order", order.name, "status"))
+
+	# 4) Sales Invoice with resolved item group / uom
+	inv = frappe.get_doc("Container Order", order.name).make_sales_invoice()
+	item = frappe.db.get_value("Sales Invoice Item", {"parent": inv}, "item_code")
+	print("invoice:", bool(inv), "| item:", item,
+		"| group/uom:", frappe.db.get_value("Item", item, ["item_group", "stock_uom"]))
 	frappe.db.rollback()

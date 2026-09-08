@@ -1,6 +1,6 @@
 frappe.query_reports["Truck Alerts Report"] = {
 	filters: [
-		{ fieldname: "vehicle", label: __("اختر شاحنة"), fieldtype: "Link", options: "Truck" },
+		{ fieldname: "vehicle", label: __("Select Truck"), fieldtype: "Link", options: "Truck" },
 	],
 
 	formatter(value, row, column, data, default_formatter) {
@@ -20,7 +20,7 @@ frappe.query_reports["Truck Alerts Report"] = {
 		}
 		if (column.fieldname === "actions" && data && data.vehicle_no) {
 			return `<button class="btn btn-xs btn-default"
-				onclick="frappe.set_route('Form','Truck','${data.vehicle_no}')">${__("تعديل")}</button>`;
+				onclick="frappe.set_route('Form','Truck','${data.vehicle_no}')">${__("Edit")}</button>`;
 		}
 		return html;
 	},

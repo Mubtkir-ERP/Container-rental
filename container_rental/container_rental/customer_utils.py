@@ -26,7 +26,7 @@ def refresh_balance(customer):
 	unpaid_orders = frappe.db.sql(
 		"""
 		SELECT COALESCE(SUM(rental_value), 0) FROM `tabContainer Order`
-		WHERE client = %s AND payment_method = 'آجل' AND payment_received = 0
+		WHERE client = %s AND payment_method IN ('آجل', 'Credit', 'D.Note') AND payment_received = 0
 		  AND status = 'تم التوصيل'
 		""",
 		customer,
@@ -35,7 +35,7 @@ def refresh_balance(customer):
 	unpaid_rentals = frappe.db.sql(
 		"""
 		SELECT COALESCE(SUM(amount), 0) FROM `tabContainer Rental`
-		WHERE client = %s AND payment_method = 'آجل' AND docstatus = 1
+		WHERE client = %s AND payment_method IN ('آجل', 'Credit', 'D.Note') AND docstatus = 1
 		""",
 		customer,
 	)[0][0]

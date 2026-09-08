@@ -8,19 +8,19 @@ frappe.ui.form.on("Container", {
 	refresh(frm) {
 		if (frm.is_new()) return;
 
-		frm.add_custom_button(__("تغيير الحالة"), () => {
+		frm.add_custom_button(__("Change Status"), () => {
 			const d = new frappe.ui.Dialog({
-				title: __("تغيير حالة الحاوية"),
+				title: __("Change Container Status"),
 				fields: [
 					{
 						fieldname: "new_status",
 						fieldtype: "Select",
-						label: __("الحالة الجديدة"),
+						label: __("New Status"),
 						options: ["متاحة", "تالفة", "صيانة", "مسحوبة"],
 						reqd: 1,
 					},
 				],
-				primary_action_label: __("تغيير"),
+				primary_action_label: __("Change"),
 				primary_action(values) {
 					frappe.call({
 						method: "container_rental.container_rental.doctype.container.container.change_status",
@@ -36,7 +36,7 @@ frappe.ui.form.on("Container", {
 		});
 
 		if (frm.doc.status === "مسحوبة") {
-			frm.add_custom_button(__("إعادة للمتاح بعد الفحص"), () => {
+			frm.add_custom_button(__("Return to Available After Inspection"), () => {
 				frappe.call({
 					method: "container_rental.container_rental.doctype.container.container.release_to_available",
 					args: { container: frm.doc.name },
@@ -45,7 +45,7 @@ frappe.ui.form.on("Container", {
 			});
 		}
 
-		frm.add_custom_button(__("طباعة ملصق الباركود"), () => {
+		frm.add_custom_button(__("Print Barcode Label"), () => {
 			frappe.set_route("print", "Container", frm.doc.name);
 		});
 	},

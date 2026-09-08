@@ -58,10 +58,15 @@ def ensure_sales_person(employee):
 	return doc.name
 
 
-def get_supervisor_contact():
-	"""Supervisor is a system User (Container Rental Settings.default_supervisor)."""
-	settings = frappe.get_cached_doc("Container Rental Settings")
-	user = settings.default_supervisor
+def get_supervisor_contact(container_size=None):
+	"""Supervisor is a system User. Each container size can have its own
+	supervisor (Container Size.supervisor — e.g. big vs small containers);
+	Container Rental Settings.default_supervisor is the fallback."""
+	user = None
+	if container_size:
+		user = frappe.db.get_value("Container Size", container_size, "supervisor")
+	if not user:
+		user = frappe.get_cached_doc("Container Rental Settings").default_supervisor
 	if not user:
 		return None, None, None
 	full_name, mobile = frappe.db.get_value("User", user, ["full_name", "mobile_no"])
