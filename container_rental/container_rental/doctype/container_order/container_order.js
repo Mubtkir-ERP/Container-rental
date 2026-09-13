@@ -140,14 +140,28 @@ frappe.ui.form.on("Container Order", {
 
 	render_status_buttons(frm) {
 		if (frm.is_new() || frm.events.is_driver_only()) return;
+		// Call by dt/dn instead of frm.call: frm.call posts the doc from the
+		// browser cache (locals) and, when that lookup comes back empty, the
+		// request reaches the server without `docs` and fails with
+		// "First non keyword argument must be a string or dict".
 		const call = (method, args = {}) =>
-			frm.call(method, args).then(() => frm.reload_doc());
+			frappe
+				.call({
+					method: "run_doc_method",
+					args: { dt: frm.doctype, dn: frm.docname, method: method, args: args },
+				})
+				.then(() => frm.reload_doc());
 
 		if (frm.doc.status === "تم التوصيل") {
 			frm.add_custom_button(__("Create Sales Invoice"), () => {
-				frm.call("make_sales_invoice").then((r) => {
-					if (r.message) frappe.set_route("Form", "Sales Invoice", r.message);
-				});
+				frappe
+					.call({
+						method: "run_doc_method",
+						args: { dt: frm.doctype, dn: frm.docname, method: "make_sales_invoice" },
+					})
+					.then((r) => {
+						if (r.message) frappe.set_route("Form", "Sales Invoice", r.message);
+					});
 			}).addClass("btn-primary");
 		}
 

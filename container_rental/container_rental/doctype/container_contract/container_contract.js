@@ -15,9 +15,18 @@ frappe.ui.form.on("Container Contract", {
 					primary_action_label: __("Renew"),
 					primary_action(values) {
 						d.hide();
-						frm.call("renew_contract", { new_end_date: values.new_end_date }).then(() =>
-							frm.reload_doc()
-						);
+						// dt/dn form — see the note in container_order.js about frm.call
+						frappe
+							.call({
+								method: "run_doc_method",
+								args: {
+									dt: frm.doctype,
+									dn: frm.docname,
+									method: "renew_contract",
+									args: { new_end_date: values.new_end_date },
+								},
+							})
+							.then(() => frm.reload_doc());
 					},
 				});
 				d.show();
