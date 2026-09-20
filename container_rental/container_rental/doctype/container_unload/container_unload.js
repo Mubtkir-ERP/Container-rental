@@ -39,20 +39,57 @@ window.container_rental_extend_dialog = window.container_rental_extend_dialog ||
 	d.show();
 };
 
+// Extensions can be restricted to one authorized user (settings)
+window.container_rental_can_extend = window.container_rental_can_extend || function () {
+	return frappe.db
+		.get_single_value("Container Rental Settings", "extension_authorized_user")
+		.then((u) => !u || u === frappe.session.user || frappe.session.user === "Administrator");
+};
+
 frappe.ui.form.on("Container Unload", {
 	refresh(frm) {
 		frm.trigger("render_extend_button");
+		frm.trigger("render_replace_button");
 	},
 
 	render_extend_button(frm) {
 		frm.remove_custom_button(__("Extend"));
 		if (frm.doc.docstatus === 0 && frm.doc.rental_record) {
-			frm.add_custom_button(__("Extend"), () => {
-				window.container_rental_extend_dialog(frm.doc.rental_record, () => {
-					frappe.msgprint(__("Extended — no unload needed now, you can close this screen"));
+			window.container_rental_can_extend().then((allowed) => {
+				if (!allowed) return;
+				frm.add_custom_button(__("Extend"), () => {
+					window.container_rental_extend_dialog(frm.doc.rental_record, () => {
+						frappe.msgprint(__("Extended — no unload needed now, you can close this screen"));
+					});
 				});
 			});
 		}
+	},
+
+	render_replace_button(frm) {
+		frm.remove_custom_button(__("Replace Container"));
+		if (frm.doc.docstatus !== 0 || !frm.doc.rental_record) return;
+		// The client wants a fresh container: unload request to the same
+		// driver + a duplicate order on his confirmation
+		frm.add_custom_button(__("Replace Container"), () => {
+			frappe.confirm(
+				__("Send a replace request? The delivering driver gets a WhatsApp to remove this container, and on his confirmation a new order is created for the client."),
+				() => {
+					frappe.call({
+						method: "container_rental.api.send_unload_request",
+						args: { rental_record: frm.doc.rental_record, request_type: "Replace" },
+						callback(r) {
+							const m = r.message || {};
+							frappe.show_alert({
+								message: __("Replace request {0} sent to the driver", [m.request]),
+								indicator: "green",
+							});
+							if (m.request) frappe.set_route("Form", "Container Unload Request", m.request);
+						},
+					});
+				}
+			);
+		});
 	},
 
 	setup(frm) {

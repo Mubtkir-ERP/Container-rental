@@ -336,3 +336,85 @@ def reassign_invoice_supervisor_check():
 	print("invoice:", bool(inv), "| item:", item,
 		"| group/uom:", frappe.db.get_value("Item", item, ["item_group", "stock_uom"]))
 	frappe.db.rollback()
+
+def unload_flow_check():
+	"""Driver-first unload requests: deliver → request to delivering driver →
+	decline → reassign → confirm; replace flow duplicates the order; reminders
+	skip requested rentals; extension gate honors the authorized user."""
+	from frappe.utils import today, now_datetime
+	from container_rental import api
+	from container_rental.container_rental.doctype.container_unload_request import container_unload_request as cur
+
+	customer = frappe.get_all("Customer", limit=1, pluck="name")[0]
+	drivers = frappe.get_all("Employee", filters={"designation": "سائق", "status": "Active"}, limit=2, pluck="name")
+	a, b = drivers[0], drivers[-1]
+
+	def delivered_order():
+		order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
+			"container_size": "10 ياردة", "rental_days": 10, "rental_value": 300, "payment_method": "نقدي",
+			"rental_start_date": today(), "google_maps_link": "https://maps.app.goo.gl/test"}).insert(ignore_permissions=True)
+		order.assign_driver(a)
+		free = frappe.get_all("Container", filters={"status": "متاحة", "size": "10 ياردة"}, limit=1, pluck="name")[0]
+		frappe.get_doc("Container Order", order.name).driver_confirm_delivery(free)
+		record = frappe.db.get_value("Rental Record", {"source_name": order.name}, ["name", "driver"], as_dict=True)
+		return order, free, record
+
+	# 1) unload request goes to the delivering driver
+	order, container, record = delivered_order()
+	res = api.send_unload_request(record.name)
+	req = frappe.get_doc("Container Unload Request", res["request"])
+	print("request → delivering driver:", req.assigned_driver == a == record.driver,
+		"| status:", req.status, "| maps:", bool(req.google_maps_link), "| mobile:", bool(req.mobile_no))
+
+	# idempotent: second call returns the same active request
+	print("no duplicate request:", api.send_unload_request(record.name)["request"] == req.name)
+
+	# 2) reminders skip rentals that have a request
+	frappe.db.set_value("Rental Record", record.name, "due_on", now_datetime(), update_modified=False)
+	from container_rental.container_rental import tasks
+	tasks.send_unload_reminders(frappe.get_cached_doc("Container Rental Settings"))
+	last = frappe.db.get_value("Rental Record", record.name, "last_whatsapp_message")
+	print("client reminder suppressed:", last != "unload_reminder")
+
+	# 3) decline → supervisor reassign → confirm by the new driver
+	req.driver_decline()
+	print("after decline:", frappe.db.get_value("Container Unload Request", req.name, "status"))
+	req.reload(); req.assign_driver(b)
+	print("after reassign:", req.status, "| driver B:", req.assigned_driver == b)
+	req.reload(); out = req.driver_confirm()
+	print("after confirm — request:", frappe.db.get_value("Container Unload Request", req.name, "status"),
+		"| unload docstatus:", frappe.db.get_value("Container Unload", out["unload"], "docstatus"),
+		"| container:", frappe.db.get_value("Container", container, "status"),
+		"| rental:", frappe.db.get_value("Rental Record", record.name, "status"))
+
+	# 4) replace flow duplicates the order on confirmation
+	order2, container2, record2 = delivered_order()
+	res2 = api.send_unload_request(record2.name, request_type="Replace")
+	req2 = frappe.get_doc("Container Unload Request", res2["request"])
+	out2 = req2.driver_confirm()
+	new_order = frappe.get_doc("Container Order", out2["new_order"])
+	print("replace — new order:", bool(new_order), "| same client:", new_order.client == customer,
+		"| same size:", new_order.container_size == "10 ياردة",
+		"| status:", new_order.status, "| old container freed:", frappe.db.get_value("Container", container2, "status"))
+
+	# 5) extension authorized user gate
+	order3, container3, record3 = delivered_order()
+	rakan = "cs@containers.demo"  # stands in for راكان: an office user set as the authorized one
+	frappe.db.set_value("Container Rental Settings", None, "extension_authorized_user", rakan)
+	frappe.get_cached_doc("Container Rental Settings")  # refresh cache
+	frappe.clear_cache(doctype="Container Rental Settings")
+	other = "manager@containers.demo"
+	frappe.set_user(other)
+	try:
+		api.extend_rental(record3.name, 5, 100)
+		print("gate blocks others: FAIL")
+	except frappe.PermissionError:
+		print("gate blocks others: True")
+	frappe.set_user(rakan)
+	try:
+		ok = api.extend_rental(record3.name, 5, 100)
+		print("authorized user extends:", bool(ok.get("order")))
+	except Exception as e:
+		print("authorized extend failed:", e)
+	frappe.set_user("Administrator")
+	frappe.db.rollback()

@@ -1,0 +1,234 @@
+{
+ "actions": [],
+ "autoname": "UNR-.YY.-.MM.-.####",
+ "creation": "2026-09-20 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "request_section",
+  "rental_record",
+  "request_type",
+  "source",
+  "column_break_request",
+  "status",
+  "assigned_driver",
+  "container_section",
+  "container",
+  "container_size",
+  "column_break_container",
+  "google_maps_link",
+  "client_section",
+  "client",
+  "client_name",
+  "mobile_no",
+  "column_break_client",
+  "address",
+  "result_section",
+  "unload_reference",
+  "column_break_result",
+  "new_order"
+ ],
+ "fields": [
+  {
+   "fieldname": "request_section",
+   "fieldtype": "Section Break",
+   "label": "Request Details"
+  },
+  {
+   "fieldname": "rental_record",
+   "fieldtype": "Link",
+   "label": "Rental Record",
+   "options": "Rental Record",
+   "reqd": 1
+  },
+  {
+   "default": "Unload",
+   "fieldname": "request_type",
+   "fieldtype": "Select",
+   "label": "Request Type",
+   "options": "Unload\nReplace",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "default": "Customer Request",
+   "fieldname": "source",
+   "fieldtype": "Select",
+   "label": "Request Source",
+   "options": "Customer Request\nPeriod Expired\nReplacement"
+  },
+  {
+   "fieldname": "column_break_request",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "بانتظار تأكيد السائق",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "بانتظار تأكيد السائق\nبانتظار إسناد سائق\nمؤكد\nملغي",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "assigned_driver",
+   "fieldtype": "Link",
+   "label": "Assigned Driver",
+   "options": "Employee",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "container_section",
+   "fieldtype": "Section Break",
+   "label": "Container Details"
+  },
+  {
+   "fieldname": "container",
+   "fieldtype": "Link",
+   "label": "Container No",
+   "options": "Container",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "container_size",
+   "fieldtype": "Link",
+   "label": "Container Size",
+   "options": "Container Size",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_container",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "google_maps_link",
+   "fieldtype": "Data",
+   "label": "Google Maps Link",
+   "read_only": 1
+  },
+  {
+   "fieldname": "client_section",
+   "fieldtype": "Section Break",
+   "label": "Client Details"
+  },
+  {
+   "fieldname": "client",
+   "fieldtype": "Link",
+   "label": "Client",
+   "options": "Customer",
+   "read_only": 1
+  },
+  {
+   "fieldname": "client_name",
+   "fieldtype": "Data",
+   "label": "Client Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "mobile_no",
+   "fieldtype": "Data",
+   "label": "Mobile No",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_client",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Small Text",
+   "label": "Address",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "result_section",
+   "fieldtype": "Section Break",
+   "label": "Result"
+  },
+  {
+   "fieldname": "unload_reference",
+   "fieldtype": "Link",
+   "label": "Unload Reference",
+   "options": "Container Unload",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_result",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "new_order",
+   "fieldtype": "Link",
+   "label": "Replacement Order",
+   "options": "Container Order",
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-09-20 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Container Rental",
+ "name": "Container Unload Request",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Container Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Customer Service",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Driver Supervisor",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Driver"
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "container",
+ "track_changes": 1
+}

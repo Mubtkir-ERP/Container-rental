@@ -339,3 +339,29 @@ Active,ساري
 Expire,منتهٍ
 Customer Request,طلب من العميل
 Specified Period Expired,انتهاء المدة المحددة
+Container Unload Request,طلب تفريغ حاوية
+Request Details,بيانات الطلب
+Request Type,نوع الطلب
+Request Source,مصدر الطلب
+Unload,تفريغ
+Replace,استبدال
+Period Expired,انتهاء المدة
+Replacement,استبدال حاوية
+Result,النتيجة
+Unload Reference,مرجع التفريغ
+Replacement Order,طلب الاستبدال
+My Unload Requests,طلبات التفريغ المسندة لي
+Confirm Unload,تأكيد التفريغ
+Decline,اعتذار عن التنفيذ
+"Unload confirmed, thank you",تم تأكيد التفريغ، شكرًا لك
+The supervisor was notified,تم إشعار المشرف
+Decline this unload request? The supervisor will assign another driver.,هل تعتذر عن تنفيذ طلب التفريغ؟ سيقوم المشرف بإسناده لسائق آخر.
+Assign Driver to Unload Request,إسناد سائق لطلب التفريغ
+Cancel Request,إلغاء الطلب
+Cancel this unload request?,هل أنت متأكد من إلغاء طلب التفريغ؟
+Replace Container,تغيير الحاوية
+"Send a replace request? The delivering driver gets a WhatsApp to remove this container, and on his confirmation a new order is created for the client.",إرسال طلب استبدال؟ سيصل للسائق الموصّل واتساب لإزالة هذه الحاوية، وعند تأكيده يُنشأ طلب حاوية جديد للعميل بنفس البيانات.
+Replace request {0} sent to the driver,أُرسل طلب الاستبدال {0} للسائق
+Unload request {0} sent to the delivering driver,أُرسل طلب التفريغ {0} للسائق الموصّل
+Unload request {0} sent to the drivers supervisor,أُرسل طلب التفريغ {0} لمشرف السواقين
+Extension Authorized User,المستخدم المخوّل بالتمديد

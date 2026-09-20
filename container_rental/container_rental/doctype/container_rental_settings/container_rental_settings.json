@@ -8,6 +8,7 @@
   "default_rental_days",
   "column_break_rental",
   "default_supervisor",
+  "extension_authorized_user",
   "default_whatsapp_instance",
   "default_commission_percent",
   "commission_expense_account",
@@ -101,11 +102,18 @@
    "label": "Commission Expense Account",
    "options": "Account",
    "description": "حساب مصروف عمولات السائقين — يُقيَّد عليه عند صرف العمولة"
+  },
+  {
+   "fieldname": "extension_authorized_user",
+   "fieldtype": "Link",
+   "label": "Extension Authorized User",
+   "options": "User",
+   "description": "تمديد مدة التأجير يكون بإذن هذا المستخدم فقط (مثال: راكان). اتركه فارغًا للسماح لأدوار خدمة العملاء والمشرفين"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-08-26 14:37:16.000000",
+ "modified": "2026-09-20 10:05:00.000000",
  "modified_by": "Administrator",
  "module": "Container Rental",
  "name": "Container Rental Settings",

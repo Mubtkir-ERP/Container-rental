@@ -33,16 +33,13 @@ class ContainerUnload(Document):
 		if self.send_whatsapp_confirmation and record.client:
 			client_name = frappe.db.get_value("Customer", record.client, "customer_name")
 			whatsapp.send_event(
-				"unload_reminder",
+				"unload_done",
 				record.mobile_no,
 				{
 					"client_name": client_name,
 					"container_no": self.container,
 					"container_size": record.container_size,
-					"due_date": frappe.format(record.due_on, {"fieldtype": "Datetime"}) if record.due_on else "",
-					"address": record.address or "",
 					"unload_date": frappe.format(self.unload_date, {"fieldtype": "Date"}),
-					"confirmation": 1,
 				},
 				reference_doc=record,
 			)

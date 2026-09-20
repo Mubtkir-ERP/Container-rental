@@ -14,12 +14,14 @@ required_apps = ["erpnext", "frappe_whatsapp"]
 # effect (container status changes, commission entries, trip decrements) twice.
 doc_events = {}
 
-# Drivers (Driver role only) are limited to the orders assigned to them
+# Drivers (Driver role only) are limited to the orders/unload requests assigned to them
 permission_query_conditions = {
 	"Container Order": "container_rental.container_rental.permissions.order_query_conditions",
+	"Container Unload Request": "container_rental.container_rental.permissions.unload_request_query_conditions",
 }
 has_permission = {
 	"Container Order": "container_rental.container_rental.permissions.order_has_permission",
+	"Container Unload Request": "container_rental.container_rental.permissions.unload_request_has_permission",
 }
 
 scheduler_events = {

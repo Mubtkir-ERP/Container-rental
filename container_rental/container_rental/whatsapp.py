@@ -89,6 +89,39 @@ DEFAULT_TEMPLATES = {
 			"يرجى إسناد الطلب لسائق."
 		),
 	},
+	"unload_driver_request": {
+		"title": "طلب تفريغ حاوية — للسائق الموصّل",
+		"body": (
+			"الأخ {{ driver_name }}،\n"
+			"{% if replacement %}طلب تفريغ واستبدال حاوية:{% else %}طلب تفريغ حاوية:{% endif %}\n"
+			"رقم الحاوية: {{ container_no }}\n"
+			"العميل: {{ client_name }}\n"
+			"جوال العميل: {{ client_mobile }}\n"
+			"{% if google_maps_link %}موقع العميل: {{ google_maps_link }}\n{% endif %}"
+			"رابط طلب التفريغ: {{ request_link }}\n"
+			"يرجى الدخول على الرابط والضغط على تأكيد بعد إزالة الحاوية، أو إلغاء إن تعذّر التنفيذ."
+		),
+	},
+	"unload_reassign_request": {
+		"title": "إعادة إسناد طلب تفريغ — لمشرف السواقين",
+		"body": (
+			"طلب التفريغ بحاجة لإسناد سائق:\n"
+			"{% if driver_name %}اعتذر السائق {{ driver_name }} عن التنفيذ.\n{% endif %}"
+			"رقم الحاوية: {{ container_no }}\n"
+			"العميل: {{ client_name }} — {{ client_mobile }}\n"
+			"{% if address %}العنوان: {{ address }}\n{% endif %}"
+			"{% if google_maps_link %}الموقع على الخريطة: {{ google_maps_link }}\n{% endif %}"
+			"رابط طلب التفريغ: {{ request_link }}\n"
+			"يرجى إسناد سائق آخر."
+		),
+	},
+	"unload_done": {
+		"title": "تأكيد إزالة الحاوية — للعميل",
+		"body": (
+			"عزيزنا {{ client_name }}،\n"
+			"تم إزالة الحاوية{% if container_no %} رقم {{ container_no }}{% endif %} وشكرًا لتعاملكم معنا."
+		),
+	},
 	"supervisor_unload_request": {
 		"title": "طلب إرسال سائق للتفريغ — لمشرف السواقين",
 		"body": (

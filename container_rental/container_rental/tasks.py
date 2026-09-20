@@ -16,7 +16,6 @@ from frappe.utils import (
 )
 
 from container_rental.container_rental import whatsapp
-from container_rental.container_rental.doctype.rental_record.rental_record import get_maps_link, get_order_link
 
 
 # ─── Hourly: overdue detection ───────────────────────────────────────────────
@@ -42,34 +41,20 @@ def mark_overdue_rentals():
 
 
 def send_supervisor_request(record):
-	"""WhatsApp event 6 for one overdue rental (cash / short-term only).
+	"""Period expired for one overdue rental (cash / short-term only): open a
+	driver-first Container Unload Request — the driver who delivered the
+	container gets it by WhatsApp; if he declines (or there is no driver on
+	the record) the size's supervisor is alerted to assign someone else.
 	Idempotent: skipped when a request was already sent for this rental."""
-	from container_rental.container_rental import hr_utils
-
 	if record.unload_request_sent_on or record.payment_method in ("آجل", "Credit", "D.Note"):
 		return False
 	if record.source_doctype not in ("Container Order", "Container Rental"):
 		return False
-	_user, supervisor_name, supervisor_mobile = hr_utils.get_supervisor_contact(record.container_size)
-	if not supervisor_mobile:
-		return False
-	client_name = frappe.db.get_value("Customer", record.client, "customer_name")
-	whatsapp.send_event(
-		"supervisor_unload_request",
-		supervisor_mobile,
-		{
-			"client_name": client_name,
-			"driver_name": supervisor_name,
-			"container_no": record.container,
-			"container_size": record.container_size,
-			"address": record.address or "",
-			"google_maps_link": get_maps_link(record),
-			"order_link": get_order_link(record),
-			"due_date": frappe.format(record.due_on, {"fieldtype": "Datetime"}) if record.due_on else "",
-			"overdue_days": max(0, date_diff(today(), getdate(record.due_on))) if record.due_on else 0,
-		},
-		reference_doc=record,
+	from container_rental.container_rental.doctype.container_unload_request.container_unload_request import (
+		create_unload_request,
 	)
+
+	create_unload_request(record.name, source="Period Expired")
 	record.db_set("unload_request_sent_on", now_datetime(), update_modified=False)
 	return True
 
@@ -93,7 +78,15 @@ def send_unload_reminders(settings):
 		filters={"status": "مؤجرة", "due_on": ("between", [now_datetime(), horizon])},
 		fields=["name", "client", "mobile_no", "container", "container_size", "due_on", "address", "last_whatsapp_on"],
 	)
+	# An unload request on the container stops the client's reminder messages
+	requested = set(frappe.get_all(
+		"Container Unload Request",
+		filters={"rental_record": ("in", [r.name for r in records]), "status": ("!=", "ملغي")},
+		pluck="rental_record",
+	)) if records else set()
 	for row in records:
+		if row.name in requested:
+			continue
 		if row.last_whatsapp_on and get_datetime(row.last_whatsapp_on) > add_days(now_datetime(), -1):
 			continue  # already messaged in the last 24h
 		record = frappe.get_doc("Rental Record", row.name)

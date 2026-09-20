@@ -27,3 +27,17 @@ def order_has_permission(doc, ptype=None, user=None):
 	if employee is None:
 		return True
 	return doc.get("assigned_driver") == employee
+
+
+def unload_request_query_conditions(user=None):
+	employee = _driver_employee(user or frappe.session.user)
+	if employee is None:
+		return ""
+	return f"`tabContainer Unload Request`.assigned_driver = {frappe.db.escape(employee)}"
+
+
+def unload_request_has_permission(doc, ptype=None, user=None):
+	employee = _driver_employee(user or frappe.session.user)
+	if employee is None:
+		return True
+	return doc.get("assigned_driver") == employee

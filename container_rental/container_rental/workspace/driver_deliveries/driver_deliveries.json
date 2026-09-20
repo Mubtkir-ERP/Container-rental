@@ -14,7 +14,7 @@
  "is_hidden": 0,
  "label": "Driver Deliveries",
  "links": [],
- "modified": "2026-08-26 14:37:16.000000",
+ "modified": "2026-09-20 10:10:00.000000",
  "modified_by": "Administrator",
  "module": "Container Rental",
  "name": "Driver Deliveries",
@@ -36,6 +36,13 @@
    "link_to": "Container Order",
    "type": "DocType",
    "stats_filter": "{\"status\": \"\\u0645\\u064f\\u0633\\u0646\\u064e\\u062f \\u0644\\u0633\\u0627\\u0626\\u0642\"}"
+  },
+  {
+   "color": "Green",
+   "label": "My Unload Requests",
+   "link_to": "Container Unload Request",
+   "type": "DocType",
+   "stats_filter": "{\"status\": \"بانتظار تأكيد السائق\"}"
   }
  ],
  "title": "Driver Deliveries"

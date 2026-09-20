@@ -17,3 +17,5 @@ container_rental.patches.seed_demo_data
 container_rental.patches.migrate_mobile_to_primary_contact
 container_rental.patches.close_delivered_orders
 container_rental.patches.anglicize_select_values
+container_rental.patches.seed_whatsapp_templates_v3
+container_rental.patches.sync_container_workspace #2026-09-20 unload requests

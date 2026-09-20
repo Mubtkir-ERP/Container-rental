@@ -5,7 +5,6 @@ from frappe import _
 from frappe.utils import add_days, date_diff, get_datetime, now_datetime, today
 
 from container_rental.container_rental import whatsapp
-from container_rental.container_rental.doctype.rental_record.rental_record import get_maps_link, get_order_link
 
 
 # ─── S9: dashboard cards ─────────────────────────────────────────────────────
@@ -192,50 +191,20 @@ def get_overdue_rentals(filters=None):
 
 
 @frappe.whitelist()
-def send_unload_request(rental_record):
-	"""S11 quick action: WhatsApp + in-system notification to the supervisor."""
-	from container_rental.container_rental import hr_utils
-
-	record = frappe.get_doc("Rental Record", rental_record)
-	supervisor_user, supervisor_name, supervisor_mobile = hr_utils.get_supervisor_contact(record.container_size)
-	if not supervisor_user:
-		frappe.throw(_("حدد مشرف السواقين (مستخدم النظام) في إعدادات النظام أولًا"))
-	if not supervisor_mobile:
-		# The WhatsApp adapter skips silently without a number — surface it here
-		frappe.throw(_("أضف رقم الجوال لمستخدم مشرف السواقين ({0}) ليصله واتساب طلب التفريغ").format(supervisor_user))
-	client_name = frappe.db.get_value("Customer", record.client, "customer_name")
-	overdue_hours = max(
-		0, int((now_datetime() - get_datetime(record.due_on)).total_seconds() // 3600)
-	) if record.due_on else 0
-
-	whatsapp.send_event(
-		"supervisor_unload_request",
-		supervisor_mobile,
-		{
-			"client_name": client_name,
-			"driver_name": supervisor_name,
-			"container_no": record.container,
-			"container_size": record.container_size,
-			"address": record.address or "",
-			"google_maps_link": get_maps_link(record),
-			"order_link": get_order_link(record),
-			"due_date": frappe.format(record.due_on, {"fieldtype": "Datetime"}) if record.due_on else "",
-			"overdue_days": overdue_hours // 24,
-		},
-		reference_doc=record,
+def send_unload_request(rental_record, request_type="Unload"):
+	"""S11 / unload-screen quick action: open a driver-first Container Unload
+	Request. The driver who delivered the container gets it by WhatsApp
+	(container no, client mobile, maps link, request link) and confirms or
+	declines; declines route to the size's supervisor for re-assignment."""
+	from container_rental.container_rental.doctype.container_unload_request.container_unload_request import (
+		create_unload_request,
 	)
 
-	if supervisor_user:
-		frappe.get_doc({
-			"doctype": "Notification Log",
-			"for_user": supervisor_user,
-			"subject": _("طلب تفريغ: الحاوية {0} لدى {1}").format(record.container, client_name),
-			"email_content": _("العنوان: {0}").format(record.address or "-"),
-			"type": "Alert",
-		}).insert(ignore_permissions=True)
-
+	record = frappe.get_doc("Rental Record", rental_record)
+	source = "Replacement" if request_type == "Replace" else "Customer Request"
+	request = create_unload_request(record.name, request_type=request_type, source=source)
 	record.db_set("unload_request_sent_on", now_datetime(), update_modified=False)
-	return True
+	return {"request": request.name, "status": request.status, "driver": request.assigned_driver}
 
 
 @frappe.whitelist()
@@ -247,6 +216,14 @@ def extend_rental(rental_record, days, rental_value=0, payment_method=None):
 		"Customer Service", "Driver Supervisor", "Container Manager", "System Manager",
 	}:
 		frappe.throw(_("التمديد يتطلب صلاحية خدمة العملاء أو مشرف السواقين"), frappe.PermissionError)
+
+	# When an authorized user is set in settings, extensions are HIS call only
+	authorized = frappe.db.get_single_value("Container Rental Settings", "extension_authorized_user")
+	if authorized and frappe.session.user not in (authorized, "Administrator"):
+		frappe.throw(
+			_("تمديد مدة التأجير يكون بإذن من المستخدم {0} فقط").format(authorized),
+			frappe.PermissionError,
+		)
 
 	record = frappe.get_doc("Rental Record", rental_record)
 	if record.status not in ("مؤجرة", "متأخرة"):

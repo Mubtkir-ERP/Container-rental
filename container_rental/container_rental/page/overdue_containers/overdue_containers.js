@@ -1,4 +1,11 @@
 // Shared extension dialog: any days count, billed as a NEW closed order
+// Extensions can be restricted to one authorized user (settings)
+window.container_rental_can_extend = window.container_rental_can_extend || function () {
+	return frappe.db
+		.get_single_value("Container Rental Settings", "extension_authorized_user")
+		.then((u) => !u || u === frappe.session.user || frappe.session.user === "Administrator");
+};
+
 window.container_rental_extend_dialog = window.container_rental_extend_dialog || function (rental_record, on_done) {
 	const d = new frappe.ui.Dialog({
 		title: __("Extend Container Rental"),
@@ -240,6 +247,9 @@ frappe.pages["overdue-containers"].on_page_load = function (wrapper) {
 	}
 
 	function bind_actions() {
+		window.container_rental_can_extend().then((allowed) => {
+			if (!allowed) $body.find(".odc-extend").hide();
+		});
 		$body.find(".odc-extend").on("click", function () {
 			open_extend_dialog($(this).data("rec"));
 		});
@@ -248,8 +258,14 @@ frappe.pages["overdue-containers"].on_page_load = function (wrapper) {
 			frappe.call({
 				method: "container_rental.api.send_unload_request",
 				args: { rental_record: rec },
-				callback() {
-					frappe.show_alert({ message: __("Unload request sent to the drivers supervisor"), indicator: "green" });
+				callback(r) {
+					const m = r.message || {};
+					frappe.show_alert({
+						message: m.driver
+							? __("Unload request {0} sent to the delivering driver", [m.request])
+							: __("Unload request {0} sent to the drivers supervisor", [m.request]),
+						indicator: "green",
+					});
 					load();
 				},
 			});
