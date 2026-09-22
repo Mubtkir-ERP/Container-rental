@@ -60,11 +60,13 @@ class ContainerOrder(Document):
 		if self.status != STATUS_NEW:
 			return  # e.g. rental-extension orders are inserted already closed
 		self.db_set("status", STATUS_AWAITING_DRIVER)
+		if self.flags.skip_supervisor_notification:
+			return  # e.g. replacement orders go straight to the on-site driver
 		# The client is messaged only when the driver confirms the delivery —
 		# on save only the supervisor is notified to assign a driver.
 		self.notify_supervisor_new_order(self.get_whatsapp_context())
 
-	def notify_supervisor_new_order(self, context=None):
+	def notify_supervisor_new_order(self, context=None, returned_by=None):
 		"""Drivers supervisor gets the order link the moment it is saved,
 		so he can assign a driver (WhatsApp + in-system notification)."""
 		supervisor_user, supervisor_name, supervisor_mobile = hr_utils.get_supervisor_contact(self.container_size)
@@ -73,10 +75,15 @@ class ContainerOrder(Document):
 		context = dict(context or self.get_whatsapp_context())
 		context["driver_name"] = supervisor_name
 		whatsapp.send_event("supervisor_new_order", supervisor_mobile, context, reference_doc=self)
+		if returned_by:
+			subject = _("أعاد السائق {0} الطلب {1} — بحاجة لإسناد سائق آخر").format(
+				hr_utils.get_employee_name(returned_by) or returned_by, self.name)
+		else:
+			subject = _("طلب جديد {0} بانتظار إسناد سائق — {1}").format(self.name, context.get("client_name") or "")
 		frappe.get_doc({
 			"doctype": "Notification Log",
 			"for_user": supervisor_user,
-			"subject": _("طلب جديد {0} بانتظار إسناد سائق — {1}").format(self.name, context.get("client_name") or ""),
+			"subject": subject,
 			"email_content": _("العنوان: {0}").format(self.delivery_address or "-"),
 			"document_type": "Container Order",
 			"document_name": self.name,
@@ -142,6 +149,11 @@ class ContainerOrder(Document):
 		down) is allowed while the order is still مُسنَد لسائق; the order keeps
 		a visible assignment counter and a timeline entry of the change."""
 		_require_roles("Driver Supervisor", "Customer Service", "Container Manager")
+		return self._do_assign_driver(driver, vehicle)
+
+	def _do_assign_driver(self, driver, vehicle=None):
+		"""Assignment core without the role gate — also used internally when a
+		replacement order is auto-assigned to the on-site driver."""
 		hr_utils.ensure_driver(driver)
 		previous_driver = self.assigned_driver if self.status == STATUS_ASSIGNED else None
 		if previous_driver:
@@ -179,6 +191,28 @@ class ContainerOrder(Document):
 				frappe.session.user,
 			))
 		return STATUS_ASSIGNED
+
+	@frappe.whitelist()
+	def driver_return_to_supervisor(self):
+		"""The assigned driver hands the order back (e.g. a replacement order
+		he cannot deliver): his unpaid commission is dropped and the size's
+		supervisor is asked to assign another driver."""
+		if self.status != STATUS_ASSIGNED:
+			frappe.throw(_("الطلب ليس في حالة مُسنَد لسائق"))
+		roles = set(frappe.get_roles())
+		if not roles & {"System Manager", "Container Manager", "Driver Supervisor"}:
+			driver_user = frappe.db.get_value("Employee", self.assigned_driver, "user_id")
+			if not driver_user or driver_user != frappe.session.user:
+				frappe.throw(_("هذا الطلب مُسنَد لسائق آخر"), frappe.PermissionError)
+		previous_driver = self.assigned_driver
+		self._drop_unpaid_commission(previous_driver)
+		self.db_set("assigned_driver", None)
+		self.db_set("assigned_vehicle", None)
+		self.db_set("status", STATUS_AWAITING_DRIVER)
+		self.add_comment("Info", _("أعاد السائق {0} الطلب للمشرف لإسناد سائق آخر").format(
+			hr_utils.get_employee_name(previous_driver) or previous_driver))
+		self.notify_supervisor_new_order(returned_by=previous_driver)
+		return STATUS_AWAITING_DRIVER
 
 	def _drop_unpaid_commission(self, driver):
 		"""Remove the replaced driver's unpaid commission entry for this order

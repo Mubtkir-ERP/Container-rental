@@ -143,8 +143,12 @@ class ContainerUnloadRequest(Document):
 		return {"unload": unload.name, "new_order": self.new_order}
 
 	def _create_replacement_order(self):
-		"""Duplicate the original order for the same client (fresh container,
-		normal flow: the supervisor is notified to assign a driver)."""
+		"""Duplicate the original order for the same client and assign it
+		DIRECTLY to the driver who just confirmed the unload — he is already
+		on site, so the supervisor is skipped and the driver immediately gets
+		the normal assignment WhatsApp (order link, client, size, payment,
+		maps). If he cannot deliver it, he returns the order to the supervisor
+		from his order screen."""
 		record = frappe.get_doc("Rental Record", self.rental_record)
 		source = {}
 		if record.source_doctype == "Container Order" and record.source_name:
@@ -168,8 +172,10 @@ class ContainerUnloadRequest(Document):
 			"mobile_no": source.get("mobile_no") or record.mobile_no,
 		})
 		order.flags.ignore_permissions = True
+		order.flags.skip_supervisor_notification = True
 		order.insert()
-		order.add_comment("Info", _("طلب استبدال للحاوية {0} — عبر طلب التفريغ {1}").format(
+		order._do_assign_driver(self.assigned_driver)
+		order.add_comment("Info", _("طلب استبدال للحاوية {0} — عبر طلب التفريغ {1}، أُسند مباشرة للسائق المؤكِّد").format(
 			self.container, self.name))
 		return order.name
 

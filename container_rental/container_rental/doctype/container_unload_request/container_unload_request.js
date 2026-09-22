@@ -36,9 +36,17 @@ frappe.ui.form.on("Container Unload Request", {
 		frm.disable_save();
 		if (frm.doc.status !== "بانتظار تأكيد السائق") return;
 		frm.page.set_primary_action(__("Confirm Unload"), () => {
-			frm.events.run(frm, "driver_confirm").then(() => {
+			frm.events.run(frm, "driver_confirm").then((r) => {
+				const m = r.message || {};
 				frappe.show_alert({ message: __("Unload confirmed, thank you"), indicator: "green" });
-				frappe.set_route("List", "Container Unload Request");
+				if (m.new_order) {
+					// Replace flow: the new order is already assigned to this
+					// driver — take him straight to it
+					frappe.show_alert({ message: __("A replacement order was assigned to you"), indicator: "blue" });
+					frappe.set_route("Form", "Container Order", m.new_order);
+				} else {
+					frappe.set_route("List", "Container Unload Request");
+				}
 			});
 		});
 		frm.add_custom_button(__("Decline"), () => {

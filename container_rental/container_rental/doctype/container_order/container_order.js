@@ -59,6 +59,20 @@ frappe.ui.form.on("Container Order", {
 		frm.toggle_display(other_sections, false);
 		frm.disable_save();
 		if (frm.doc.status === "مُسنَد لسائق") {
+			// e.g. a replacement order he cannot deliver right now
+			frm.add_custom_button(__("Return to Supervisor"), () => {
+				frappe.confirm(__("Return this order to the supervisor to assign another driver?"), () => {
+					frappe
+						.call({
+							method: "run_doc_method",
+							args: { dt: frm.doctype, dn: frm.docname, method: "driver_return_to_supervisor" },
+						})
+						.then(() => {
+							frappe.show_alert({ message: __("The order was returned to the supervisor"), indicator: "orange" });
+							frappe.set_route("List", "Container Order");
+						});
+				});
+			});
 			frm.page.set_primary_action(__("Confirm Delivery"), () => {
 				if (!frm.doc.container) {
 					frappe.msgprint(__("Enter the container number first"));

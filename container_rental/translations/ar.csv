@@ -365,3 +365,7 @@ Replace request {0} sent to the driver,أُرسل طلب الاستبدال {0} 
 Unload request {0} sent to the delivering driver,أُرسل طلب التفريغ {0} للسائق الموصّل
 Unload request {0} sent to the drivers supervisor,أُرسل طلب التفريغ {0} لمشرف السواقين
 Extension Authorized User,المستخدم المخوّل بالتمديد
+Return to Supervisor,إرجاع للمشرف
+Return this order to the supervisor to assign another driver?,إرجاع الطلب للمشرف ليسنده لسائق آخر؟
+The order was returned to the supervisor,أُعيد الطلب للمشرف
+A replacement order was assigned to you,أُسند لك طلب الحاوية البديلة

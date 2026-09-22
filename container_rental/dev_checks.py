@@ -393,9 +393,27 @@ def unload_flow_check():
 	req2 = frappe.get_doc("Container Unload Request", res2["request"])
 	out2 = req2.driver_confirm()
 	new_order = frappe.get_doc("Container Order", out2["new_order"])
+	commission = frappe.db.exists("Driver Commission Entry",
+		{"delivery_reference_doctype": "Container Order", "delivery_reference": new_order.name,
+		 "driver": req2.assigned_driver})
 	print("replace — new order:", bool(new_order), "| same client:", new_order.client == customer,
 		"| same size:", new_order.container_size == "10 ياردة",
-		"| status:", new_order.status, "| old container freed:", frappe.db.get_value("Container", container2, "status"))
+		"| auto-assigned to confirming driver:", new_order.assigned_driver == req2.assigned_driver,
+		"| status:", new_order.status, "| commission:", bool(commission),
+		"| old container freed:", frappe.db.get_value("Container", container2, "status"))
+	notified = frappe.db.count("Notification Log",
+		{"document_name": new_order.name, "subject": ("like", "%بانتظار إسناد سائق%")})
+	print("supervisor skipped on replace:", notified == 0)
+
+	# the driver can hand the replacement order back to the supervisor
+	new_order.driver_return_to_supervisor()
+	new_order.reload()
+	commission_after = frappe.db.exists("Driver Commission Entry",
+		{"delivery_reference_doctype": "Container Order", "delivery_reference": new_order.name})
+	print("after return — status:", new_order.status, "| driver cleared:", not new_order.assigned_driver,
+		"| commission dropped:", not commission_after,
+		"| supervisor notified:", frappe.db.count("Notification Log",
+			{"document_name": new_order.name, "subject": ("like", "%أعاد السائق%")}) > 0)
 
 	# 5) extension authorized user gate
 	order3, container3, record3 = delivered_order()
