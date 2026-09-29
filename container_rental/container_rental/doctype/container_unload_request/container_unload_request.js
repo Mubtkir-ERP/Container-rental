@@ -34,7 +34,7 @@ frappe.ui.form.on("Container Unload Request", {
 	render_driver_view(frm) {
 		// The driver opens the WhatsApp link and only confirms (or declines)
 		frm.disable_save();
-		if (frm.doc.status !== "بانتظار تأكيد السائق") return;
+		if (frm.doc.status !== "Awaiting Driver Confirmation") return;
 		frm.page.set_primary_action(__("Confirm Unload"), () => {
 			frm.events.run(frm, "driver_confirm").then((r) => {
 				const m = r.message || {};
@@ -60,7 +60,7 @@ frappe.ui.form.on("Container Unload Request", {
 	},
 
 	render_office_buttons(frm) {
-		const active = ["بانتظار تأكيد السائق", "بانتظار إسناد سائق"].includes(frm.doc.status);
+		const active = ["Awaiting Driver Confirmation", "Awaiting Reassignment"].includes(frm.doc.status);
 		if (!active) return;
 		frm.add_custom_button(__("Assign Driver"), () => {
 			const d = new frappe.ui.Dialog({
@@ -72,7 +72,7 @@ frappe.ui.form.on("Container Unload Request", {
 						label: __("Driver"),
 						options: "Employee",
 						reqd: 1,
-						get_query: () => ({ filters: { designation: "سائق", status: "Active" } }),
+						get_query: () => ({ query: "container_rental.container_rental.hr_utils.driver_query" }),
 					},
 				],
 				primary_action_label: __("Assign"),

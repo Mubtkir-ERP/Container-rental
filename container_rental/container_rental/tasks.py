@@ -25,14 +25,14 @@ def mark_overdue_rentals():
 	'تاريخ التوصيل المتوقع منقضٍ ولم تُفرَّغ')."""
 	overdue = frappe.get_all(
 		"Rental Record",
-		filters={"status": "مؤجرة", "due_on": ("<", now_datetime())},
+		filters={"status": "Rented", "due_on": ("<", now_datetime())},
 		fields=["name", "container"],
 	)
 	for row in overdue:
-		frappe.db.set_value("Rental Record", row.name, "status", "متأخرة", update_modified=False)
+		frappe.db.set_value("Rental Record", row.name, "status", "Overdue", update_modified=False)
 		# Don't override damaged/maintenance flags set manually in the meantime
-		if frappe.db.get_value("Container", row.container, "status") == "مؤجرة":
-			frappe.db.set_value("Container", row.container, "status", "متأخرة", update_modified=False)
+		if frappe.db.get_value("Container", row.container, "status") == "Rented":
+			frappe.db.set_value("Container", row.container, "status", "Overdue", update_modified=False)
 		# Ask the supervisor to dispatch a driver right away (not at the next 07:00 run)
 		send_supervisor_request(frappe.get_doc("Rental Record", row.name))
 	if overdue:
@@ -75,13 +75,13 @@ def send_unload_reminders(settings):
 	horizon = add_days(now_datetime(), settings.unload_reminder_after_days or 2)
 	records = frappe.get_all(
 		"Rental Record",
-		filters={"status": "مؤجرة", "due_on": ("between", [now_datetime(), horizon])},
+		filters={"status": "Rented", "due_on": ("between", [now_datetime(), horizon])},
 		fields=["name", "client", "mobile_no", "container", "container_size", "due_on", "address", "last_whatsapp_on"],
 	)
 	# An unload request on the container stops the client's reminder messages
 	requested = set(frappe.get_all(
 		"Container Unload Request",
-		filters={"rental_record": ("in", [r.name for r in records]), "status": ("!=", "ملغي")},
+		filters={"rental_record": ("in", [r.name for r in records]), "status": ("!=", "Cancelled")},
 		pluck="rental_record",
 	)) if records else set()
 	for row in records:
@@ -144,7 +144,7 @@ def send_supervisor_unload_requests(settings):
 	supervisor request (the hourly job normally sends it immediately)."""
 	for name in frappe.get_all(
 		"Rental Record",
-		filters={"status": "متأخرة", "unload_request_sent_on": ("is", "not set")},
+		filters={"status": "Overdue", "unload_request_sent_on": ("is", "not set")},
 		pluck="name",
 	):
 		send_supervisor_request(frappe.get_doc("Rental Record", name))

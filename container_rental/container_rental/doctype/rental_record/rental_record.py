@@ -42,7 +42,7 @@ def create_rental_record(
 		"due_on": due_on,
 		"rental_value": rental_value,
 		"payment_method": payment_method,
-		"status": "مؤجرة",
+		"status": "Rented",
 	})
 	record.flags.ignore_permissions = True
 	record.insert()
@@ -53,7 +53,7 @@ def get_open_record(container):
 	"""Return the name of the open (rented/overdue) rental record for a container."""
 	return frappe.db.get_value(
 		"Rental Record",
-		{"container": container, "status": ("in", ["مؤجرة", "متأخرة"])},
+		{"container": container, "status": ("in", ["Rented", "Overdue"])},
 		order_by="delivered_on desc",
 	)
 

@@ -37,11 +37,11 @@ function render_cards(page) {
 				},
 				{
 					label: __("Available Containers"), value: c.available_containers, cls: "cr-ok",
-					route: () => frappe.set_route("List", "Container", { status: "متاحة" }),
+					route: () => frappe.set_route("List", "Container", { status: "Available" }),
 				},
 				{
 					label: __("Rented Containers"), value: c.rented_containers,
-					route: () => frappe.set_route("List", "Container", { status: "مؤجرة" }),
+					route: () => frappe.set_route("List", "Container", { status: "Rented" }),
 				},
 				{
 					label: __("Overdue Containers"), value: c.overdue_containers, cls: "cr-danger",
@@ -49,7 +49,7 @@ function render_cards(page) {
 				},
 				{
 					label: __("Withdrawn Containers"), value: c.withdrawn_containers,
-					route: () => frappe.set_route("List", "Container", { status: "مسحوبة" }),
+					route: () => frappe.set_route("List", "Container", { status: "Withdrawn" }),
 				},
 				{
 					label: __("Payment Delays"), value: c.payment_delays, cls: "cr-danger",
@@ -57,7 +57,7 @@ function render_cards(page) {
 						frappe.set_route("List", "Container Order", {
 							payment_method: ["in", ["آجل", "Credit", "D.Note"]],
 							payment_received: 0,
-							status: "تم التوصيل",
+							status: "Delivered",
 						}),
 				},
 				{

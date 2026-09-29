@@ -1,9 +1,9 @@
 frappe.ui.form.on("Container Withdrawal", {
 	setup(frm) {
 		frm.set_query("container", () => ({
-			filters: { status: ["in", ["مؤجرة", "متأخرة"]] },
+			filters: { status: ["in", ["Rented", "Overdue"]] },
 		}));
-		frm.set_query("driver", () => ({ filters: { designation: "سائق", status: "Active" } }));
+		frm.set_query("driver", () => ({ query: "container_rental.container_rental.hr_utils.driver_query" }));
 		frm.set_query("supervisor", () => ({ filters: { designation: "مشرف سواقين", status: "Active" } }));
 	},
 

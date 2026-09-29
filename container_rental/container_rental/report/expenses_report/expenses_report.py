@@ -60,13 +60,13 @@ def get_data(filters):
 			as_dict=True,
 		)
 
-	if expense_type in (None, "", "صيانة"):
+	if expense_type in (None, "", "Maintenance"):
 		branch_cond_maint = " AND t.branch = %(branch)s" if filters.get("branch") else ""
 		rows += frappe.db.sql(
 			f"""
 			SELECT
 				m.maintenance_date AS expense_date,
-				'صيانة' AS expense_type,
+				'Maintenance' AS expense_type,
 				m.parent AS reference,
 				'Truck' AS reference_doctype,
 				t.branch,

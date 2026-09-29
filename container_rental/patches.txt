@@ -19,3 +19,7 @@ container_rental.patches.close_delivered_orders
 container_rental.patches.anglicize_select_values
 container_rental.patches.seed_whatsapp_templates_v3
 container_rental.patches.sync_container_workspace #2026-09-20 unload requests
+container_rental.patches.add_sales_invoice_fields
+container_rental.patches.add_customer_fields #2026-09-29 english account type
+container_rental.patches.add_hr_customizations #2026-09-29 driver flag + english values
+container_rental.patches.anglicize_select_values #2026-09-29 all statuses

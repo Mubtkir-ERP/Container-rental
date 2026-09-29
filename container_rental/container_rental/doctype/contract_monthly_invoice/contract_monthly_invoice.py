@@ -30,11 +30,11 @@ class ContractMonthlyInvoice(Document):
 	def sync_payment_status(self):
 		paid = flt(self.paid_amount)
 		if paid <= 0:
-			self.payment_status = "غير مسددة"
+			self.payment_status = "Unpaid"
 		elif paid < flt(self.total_amount):
-			self.payment_status = "مسددة جزئيًا"
+			self.payment_status = "Partly Paid"
 		else:
-			self.payment_status = "مسددة"
+			self.payment_status = "Paid"
 
 	def on_update_after_submit(self):
 		self.sync_payment_status()

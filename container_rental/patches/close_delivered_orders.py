@@ -10,7 +10,7 @@ def execute():
 		"""
 		SELECT DISTINCT o.name FROM `tabContainer Order` o
 		JOIN `tabContainer Delivery` d ON d.`order` = o.name AND d.docstatus = 1
-		WHERE o.status = 'مُسنَد لسائق'
+		WHERE o.status = 'Assigned'
 		"""
 	)
 	for (name,) in stuck:

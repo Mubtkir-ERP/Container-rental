@@ -1,10 +1,10 @@
 frappe.ui.form.on("Container Rental", {
 	setup(frm) {
 		frm.set_query("container", () => ({
-			filters: { size: frm.doc.container_size, status: "متاحة" },
+			filters: { size: frm.doc.container_size, status: "Available" },
 		}));
 		frm.set_query("driver", () => ({
-			filters: { designation: "سائق", status: "Active" },
+			query: "container_rental.container_rental.hr_utils.driver_query",
 		}));
 		frm.set_query("cash_box", () => ({
 			filters: { account_type: "Cash", is_group: 0 },
@@ -30,7 +30,7 @@ frappe.ui.form.on("Container Rental", {
 		if (!frm.doc.container_size) return;
 		// Match the reference screen: warn when no empty container of this size exists
 		frappe.db
-			.count("Container", { filters: { size: frm.doc.container_size, status: "متاحة" } })
+			.count("Container", { filters: { size: frm.doc.container_size, status: "Available" } })
 			.then((count) => {
 				if (!count) frappe.msgprint(__("No available container of this size"));
 			});

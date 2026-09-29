@@ -7,7 +7,7 @@ frappe.query_reports["Monthly Invoices Report"] = {
 			fieldname: "payment_status",
 			label: __("Payment Status"),
 			fieldtype: "Select",
-			options: ["", "غير مسددة", "مسددة جزئيًا", "مسددة"],
+			options: ["", "Unpaid", "Partly Paid", "Paid"],
 		},
 	],
 

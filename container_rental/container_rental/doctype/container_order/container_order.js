@@ -1,14 +1,14 @@
 frappe.ui.form.on("Container Order", {
 	setup(frm) {
 		frm.set_query("container", () => ({
-			filters: { size: frm.doc.container_size, status: "متاحة" },
+			filters: { size: frm.doc.container_size, status: "Available" },
 		}));
 		frm.set_query("contract", () => ({
 			filters: { client: frm.doc.client, docstatus: 1, contract_status: "Active" },
 		}));
 		frm.set_query("container", "additional_containers", (doc, cdt, cdn) => {
 			const row = locals[cdt][cdn];
-			return { filters: { size: row.container_size, status: "متاحة" } };
+			return { filters: { size: row.container_size, status: "Available" } };
 		});
 	},
 
@@ -20,6 +20,13 @@ frappe.ui.form.on("Container Order", {
 				if (r.message && r.message.status !== frm.doc.status) frm.reload_doc();
 			});
 		}
+		// A supervisor can be a driver too (2-in-1): remember his employee so he
+		// can assign an order to himself and confirm its delivery
+		frappe.call({ method: "container_rental.container_rental.hr_utils.get_my_driver_employee" })
+			.then((r) => {
+				frm.my_driver_employee = r.message || null;
+				if (frm.my_driver_employee) frm.trigger("render_status_buttons");
+			});
 		frm.trigger("render_status_buttons");
 		frm.trigger("render_location_button");
 		frm.trigger("render_driver_view");
@@ -58,7 +65,7 @@ frappe.ui.form.on("Container Order", {
 		];
 		frm.toggle_display(other_sections, false);
 		frm.disable_save();
-		if (frm.doc.status === "مُسنَد لسائق") {
+		if (frm.doc.status === "Assigned") {
 			// e.g. a replacement order he cannot deliver right now
 			frm.add_custom_button(__("Return to Supervisor"), () => {
 				frappe.confirm(__("Return this order to the supervisor to assign another driver?"), () => {
@@ -87,7 +94,11 @@ frappe.ui.form.on("Container Order", {
 					method: "run_doc_method",
 					args: {
 						dt: frm.doctype, dn: frm.docname, method: "driver_confirm_delivery",
-						args: { container: frm.doc.container, delivery_note_no: frm.doc.delivery_note_no },
+						args: {
+							container: frm.doc.container,
+							delivery_note_no: frm.doc.delivery_note_no,
+							payment_method: frm.doc.payment_method,
+						},
 					},
 					callback() {
 						frappe.show_alert({ message: __("Delivery confirmed"), indicator: "green" });
@@ -166,7 +177,7 @@ frappe.ui.form.on("Container Order", {
 				})
 				.then(() => frm.reload_doc());
 
-		if (frm.doc.status === "تم التوصيل") {
+		if (frm.doc.status === "Delivered") {
 			frm.add_custom_button(__("Create Sales Invoice"), () => {
 				frappe
 					.call({
@@ -180,10 +191,10 @@ frappe.ui.form.on("Container Order", {
 		}
 
 		if (frm.doc.docstatus === 0 && !frm.is_dirty()) {
-			if (frm.doc.status === "جديد") {
+			if (frm.doc.status === "New") {
 				frm.add_custom_button(__("Confirm Order"), () => call("confirm_order")).addClass("btn-primary");
 			}
-			if (frm.doc.status === "بانتظار تأكيد الحوالة") {
+			if (frm.doc.status === "Awaiting Transfer") {
 				frm.add_custom_button(__("Confirm Transfer Receipt"), () => call("confirm_transfer")).addClass("btn-primary");
 			}
 			const assign_dialog = (title) => {
@@ -196,7 +207,7 @@ frappe.ui.form.on("Container Order", {
 							label: __("Driver"),
 							options: "Employee",
 							reqd: 1,
-							get_query: () => ({ filters: { designation: "سائق", status: "Active" } }),
+							get_query: () => ({ query: "container_rental.container_rental.hr_utils.driver_query" }),
 						},
 						{
 							fieldname: "vehicle",
@@ -213,12 +224,40 @@ frappe.ui.form.on("Container Order", {
 				});
 				d.show();
 			};
-			if (frm.doc.status === "بانتظار تحديد سائق") {
+			if (frm.doc.status === "Awaiting Driver") {
 				frm.add_custom_button(__("Assign Driver"), () =>
 					assign_dialog(__("Assign Driver to Order"))
 				).addClass("btn-primary");
+				if (frm.my_driver_employee) {
+					frm.add_custom_button(__("Assign to Me"), () =>
+						call("assign_driver", { driver: frm.my_driver_employee })
+					);
+				}
 			}
-			if (frm.doc.status === "مُسنَد لسائق") {
+			if (frm.doc.status === "Assigned" && frm.my_driver_employee === frm.doc.assigned_driver) {
+				// Office user who is also the assigned driver: same one-step
+				// confirmation the driver-only screen offers
+				frm.page.set_primary_action(__("Confirm Delivery"), () => {
+					const d = new frappe.ui.Dialog({
+						title: __("Confirm Delivery"),
+						fields: [
+							{ fieldname: "container", fieldtype: "Data", label: __("Container No"), reqd: 1,
+								default: frm.doc.container },
+							{ fieldname: "payment_method", fieldtype: "Link", label: __("Payment Method"),
+								options: "Mode of Payment", default: frm.doc.payment_method },
+							{ fieldname: "delivery_note_no", fieldtype: "Data", label: __("Delivery Note No"),
+								default: frm.doc.delivery_note_no },
+						],
+						primary_action_label: __("Confirm Delivery"),
+						primary_action(values) {
+							d.hide();
+							call("driver_confirm_delivery", values);
+						},
+					});
+					d.show();
+				});
+			}
+			if (frm.doc.status === "Assigned") {
 				// e.g. the first driver's truck broke down on the way
 				frm.add_custom_button(__("Reassign Driver"), () =>
 					assign_dialog(__("Reassign Order to Another Driver"))
@@ -232,17 +271,17 @@ frappe.ui.form.on("Container Order", {
 					});
 				}).addClass("btn-primary");
 			}
-			if (["جديد", "بانتظار تأكيد الحوالة", "بانتظار تحديد سائق", "مُسنَد لسائق"].includes(frm.doc.status)) {
+			if (["New", "Awaiting Transfer", "Awaiting Driver", "Assigned"].includes(frm.doc.status)) {
 				frm.add_custom_button(__("Cancel Order"), () => {
 					frappe.confirm(__("Are you sure you want to cancel the order?"), () => call("cancel_order"));
 				});
 			}
-			if (frm.doc.status === "جديد" || frm.doc.status === "بانتظار تحديد سائق") {
+			if (frm.doc.status === "New" || frm.doc.status === "Awaiting Driver") {
 				frm.add_custom_button(__("Suggest Container"), () => frm.trigger("suggest_container"));
 			}
 		}
 		if (
-			frm.doc.status === "تم التوصيل" &&
+			frm.doc.status === "Delivered" &&
 			["آجل", "Credit", "D.Note"].includes(frm.doc.payment_method) &&
 			!frm.doc.payment_received
 		) {

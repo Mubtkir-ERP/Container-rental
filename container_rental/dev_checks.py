@@ -55,12 +55,12 @@ def e2e():
 
 	client = frappe.get_doc({
 		"doctype": "Customer", "customer_name": f"عميل اختبار E2E {suffix}",
-		"customer_type": "Individual", "mobile_no": "0559999999", "cr_account_type": "نقدي",
+		"customer_type": "Individual", "mobile_no": "0559999999", "cr_account_type": "Cash",
 	}).insert(ignore_permissions=True)
 
 	container = frappe.get_doc({
 		"doctype": "Container", "container_no": f"C-TEST-{suffix}", "size": "10 ياردة",
-		"branch": "الفرع الرئيسي", "status": "متاحة",
+		"branch": "الفرع الرئيسي", "status": "Available",
 	}).insert(ignore_permissions=True)
 	results["barcode_svg"] = container.barcode.startswith("<svg")
 
@@ -72,7 +72,7 @@ def e2e():
 		"delivery_address": "موقع الاختبار",
 	}).insert(ignore_permissions=True)
 
-	# after_insert auto-advances every new order to "بانتظار تحديد سائق"
+	# after_insert auto-advances every new order to "Awaiting Driver"
 	results["after_insert_status"] = order.status
 	driver = frappe.db.get_value("Employee", {"employee_name": "سالم القحطاني"})
 	order.assign_driver(driver)
@@ -145,7 +145,7 @@ def e2e():
 
 def rename_check():
 	"""Verify Container rename keeps container_no + barcode in sync (rolled back)."""
-	frappe.get_doc({"doctype": "Container", "container_no": "C-REN-1", "size": "10 ياردة", "status": "متاحة"}).insert(ignore_permissions=True)
+	frappe.get_doc({"doctype": "Container", "container_no": "C-REN-1", "size": "10 ياردة", "status": "Available"}).insert(ignore_permissions=True)
 	frappe.rename_doc("Container", "C-REN-1", "C-REN-2", force=True)
 	d = frappe.get_doc("Container", "C-REN-2")
 	print("renamed:", d.name, "| field:", d.container_no, "| barcode ok:", d.barcode.startswith("<svg"))
@@ -163,7 +163,7 @@ def payout_check():
 	cash = frappe.db.get_value("Account", {"account_type": "Cash", "is_group": 0})
 	frappe.db.set_value("Container Rental Settings", None, "commission_expense_account", expense)
 	frappe.clear_cache(doctype="Container Rental Settings")
-	entry = frappe.db.get_value("Driver Commission Entry", {"payout_status": "مستحقة", "commission_amount": (">", 0)})
+	entry = frappe.db.get_value("Driver Commission Entry", {"payout_status": "Due", "commission_amount": (">", 0)})
 	amount = frappe.db.get_value("Driver Commission Entry", entry, "commission_amount")
 	n = mark_paid([entry], payout_account=cash)
 	je = frappe.db.get_value("Driver Commission Entry", entry, "journal_entry")
@@ -180,7 +180,7 @@ def link_check():
 	rec = frappe.get_doc("Rental Record", frappe.get_all("Rental Record", filters={"source_doctype": "Container Order"}, limit=1)[0].name)
 	print(whatsapp.render_event("supervisor_unload_request", {"client_name": "x", "container_no": rec.container,
 		"address": "y", "order_link": get_order_link(rec), "google_maps_link": "https://maps.app.goo.gl/x", "due_date": "", "overdue_days": 0}))
-	order = frappe.get_doc("Container Order", frappe.get_all("Container Order", filters={"status": "مُسنَد لسائق"}, limit=1)[0].name)
+	order = frappe.get_doc("Container Order", frappe.get_all("Container Order", filters={"status": "Assigned"}, limit=1)[0].name)
 	ctx = order.get_whatsapp_context(); ctx["driver_name"] = "سواق1"
 	print("---"); print(whatsapp.render_event("driver_assignment", ctx))
 
@@ -188,7 +188,7 @@ def link_check():
 def supervisor_check():
 	from frappe.utils import add_days, now_datetime
 	from container_rental.container_rental import tasks
-	rec = frappe.get_all("Rental Record", filters={"status": "مؤجرة", "source_doctype": "Container Order"}, limit=1)[0].name
+	rec = frappe.get_all("Rental Record", filters={"status": "Rented", "source_doctype": "Container Order"}, limit=1)[0].name
 	frappe.db.set_value("Rental Record", rec, {"due_on": add_days(now_datetime(), -1), "unload_request_sent_on": None}, update_modified=False)
 	frappe.db.set_value("Rental Record", rec, "payment_method", "نقدي", update_modified=False)
 	sup = frappe.db.get_single_value("Container Rental Settings", "default_supervisor")
@@ -221,7 +221,7 @@ def delivery_flow_check():
 		"container_size": "10 ياردة", "rental_days": 10, "rental_value": 750, "payment_method": "نقدي",
 		"rental_start_date": add_days(today(), -5)}).insert(ignore_permissions=True)
 	order.assign_driver(driver)
-	free = frappe.get_all("Container", filters={"status": "متاحة", "size": "10 ياردة"}, limit=1, pluck="name")[0]
+	free = frappe.get_all("Container", filters={"status": "Available", "size": "10 ياردة"}, limit=1, pluck="name")[0]
 	order.driver_confirm_delivery(free)
 	order.reload()
 	rec = frappe.get_doc("Rental Record", {"source_name": order.name})
@@ -229,7 +229,7 @@ def delivery_flow_check():
 		"| end:", order.rental_end_date, "| record due:", rec.due_on)
 	# متأخرة row with NULL due must still appear in the overdue report
 	nodate = frappe.get_doc({"doctype": "Rental Record", "container": free, "container_size": "10 ياردة",
-		"client": customer, "status": "متأخرة", "delivered_on": add_days(today(), -20),
+		"client": customer, "status": "Overdue", "delivered_on": add_days(today(), -20),
 		"source_doctype": "Container Order", "source_name": order.name})
 	nodate.flags.ignore_permissions = True; nodate.insert()
 	from container_rental import api
@@ -247,7 +247,7 @@ def driver_close_check():
 		"container_size": "10 ياردة", "rental_days": 10, "rental_value": 900, "payment_method": "نقدي",
 		"rental_start_date": today()}).insert(ignore_permissions=True)
 	order.assign_driver(driver)
-	free = frappe.get_all("Container", filters={"status": "متاحة", "size": "10 ياردة"}, limit=1, pluck="name")[0]
+	free = frappe.get_all("Container", filters={"status": "Available", "size": "10 ياردة"}, limit=1, pluck="name")[0]
 	# Simulate the driver's run_doc_method path: fresh doc from dict like the client form sends
 	client_doc = frappe.get_doc("Container Order", order.name)
 	try:
@@ -272,7 +272,7 @@ def no_container_close_check():
 		"container_size": "10 ياردة", "rental_days": 10, "rental_value": 400, "payment_method": "نقدي",
 		"rental_start_date": today()}).insert(ignore_permissions=True)
 	order.assign_driver(driver)
-	free = frappe.get_all("Container", filters={"status": "متاحة", "size": "10 ياردة"}, limit=1, pluck="name")[0]
+	free = frappe.get_all("Container", filters={"status": "Available", "size": "10 ياردة"}, limit=1, pluck="name")[0]
 	# office path: a Container Delivery form submitted directly (order.container stays empty)
 	d = frappe.get_doc({"doctype": "Container Delivery", "order": order.name, "container": free,
 		"driver": driver, "delivery_datetime": now_datetime()})
@@ -280,7 +280,7 @@ def no_container_close_check():
 	print("status:", frappe.db.get_value("Container Order", order.name, "status"),
 		"| container backfilled:", frappe.db.get_value("Container Order", order.name, "container"))
 	# stuck-order patch check: force it back then run the patch
-	frappe.db.set_value("Container Order", order.name, "status", "مُسنَد لسائق", update_modified=False)
+	frappe.db.set_value("Container Order", order.name, "status", "Assigned", update_modified=False)
 	from container_rental.patches.close_delivered_orders import execute as fix
 	fix()
 	print("after patch:", frappe.db.get_value("Container Order", order.name, "status"))
@@ -326,7 +326,7 @@ def reassign_invoice_supervisor_check():
 		"| commission entries:", [(e.driver == b, e.commission_amount) for e in entries])
 
 	# 3) driver B delivers → order closes
-	free = frappe.get_all("Container", filters={"status": "متاحة", "size": size}, limit=1, pluck="name")[0]
+	free = frappe.get_all("Container", filters={"status": "Available", "size": size}, limit=1, pluck="name")[0]
 	frappe.get_doc("Container Order", order.name).driver_confirm_delivery(free)
 	print("status after delivery:", frappe.db.get_value("Container Order", order.name, "status"))
 
@@ -354,7 +354,7 @@ def unload_flow_check():
 			"container_size": "10 ياردة", "rental_days": 10, "rental_value": 300, "payment_method": "نقدي",
 			"rental_start_date": today(), "google_maps_link": "https://maps.app.goo.gl/test"}).insert(ignore_permissions=True)
 		order.assign_driver(a)
-		free = frappe.get_all("Container", filters={"status": "متاحة", "size": "10 ياردة"}, limit=1, pluck="name")[0]
+		free = frappe.get_all("Container", filters={"status": "Available", "size": "10 ياردة"}, limit=1, pluck="name")[0]
 		frappe.get_doc("Container Order", order.name).driver_confirm_delivery(free)
 		record = frappe.db.get_value("Rental Record", {"source_name": order.name}, ["name", "driver"], as_dict=True)
 		return order, free, record
@@ -435,4 +435,65 @@ def unload_flow_check():
 	except Exception as e:
 		print("authorized extend failed:", e)
 	frappe.set_user("Administrator")
+	frappe.db.rollback()
+
+def payment_tax_supervisor_check():
+	"""This round's fixes: the driver's payment method reaches the order, the
+	invoice carries the tax template + method, and a supervisor flagged as a
+	driver can take an order himself."""
+	from frappe.utils import today
+	from container_rental.container_rental import hr_utils
+
+	customer = frappe.get_all("Customer", limit=1, pluck="name")[0]
+	driver = frappe.db.get_value("Employee", {"designation": "سائق", "status": "Active"})
+	cash, transfer = "نقدي", "تحويل بنكي"
+
+	order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
+		"container_size": "10 ياردة", "rental_days": 10, "rental_value": 800, "payment_method": cash,
+		"rental_start_date": today()}).insert(ignore_permissions=True)
+	order.assign_driver(driver)
+	free = frappe.get_all("Container", filters={"status": "Available", "size": "10 ياردة"}, limit=1, pluck="name")[0]
+	# the driver switches the method on site
+	frappe.get_doc("Container Order", order.name).driver_confirm_delivery(
+		free, payment_method=transfer)
+	order.reload()
+	print("driver's payment method saved:", order.payment_method == transfer,
+		"| status:", order.status)
+
+	# invoice: tax template + collected method (seed a default template when the
+	# site has none, so the lookup path is actually exercised)
+	company = frappe.defaults.get_user_default("Company") or frappe.db.get_value("Company", {})
+	if not frappe.db.get_value("Sales Taxes and Charges Template", {"is_default": 1, "company": company}):
+		vat = frappe.db.get_value("Account", {"account_type": "Tax", "is_group": 0, "company": company}) \
+			or frappe.db.get_value("Account", {"is_group": 0, "root_type": "Liability", "company": company})
+		tpl = frappe.get_doc({
+			"doctype": "Sales Taxes and Charges Template", "title": "VAT 15% Test",
+			"company": company, "is_default": 1,
+			"taxes": [{"charge_type": "On Net Total", "account_head": vat, "description": "VAT 15%", "rate": 15}],
+		})
+		tpl.flags.ignore_permissions = True
+		tpl.insert()
+	inv_name = frappe.get_doc("Container Order", order.name).make_sales_invoice()
+	inv = frappe.get_doc("Sales Invoice", inv_name)
+	default_tpl = frappe.db.get_value("Sales Taxes and Charges Template", {"is_default": 1, "company": inv.company})
+	print("invoice taxes template:", inv.taxes_and_charges, "| rows:", len(inv.taxes),
+		"| tax total:", inv.total_taxes_and_charges, "| site default:", default_tpl)
+	print("invoice carries method:", inv.get("cr_payment_method") == transfer,
+		"| links order:", inv.get("cr_container_order") == order.name)
+
+	# supervisor who also drives
+	supervisor = frappe.db.get_value("Employee", {"designation": "مشرف سواقين", "status": "Active"})
+	if not supervisor:
+		supervisor = frappe.get_all("Employee", filters={"status": "Active"}, limit=1, pluck="name")[0]
+	print("before flag — is_driver:", hr_utils.is_driver(supervisor))
+	frappe.db.set_value("Employee", supervisor, "cr_is_driver", 1)
+	print("after flag — is_driver:", hr_utils.is_driver(supervisor))
+	order2 = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
+		"container_size": "10 ياردة", "rental_days": 5, "rental_value": 200, "payment_method": cash,
+		"rental_start_date": today()}).insert(ignore_permissions=True)
+	order2.assign_driver(supervisor)  # supervisor assigns the order to himself
+	order2.reload()
+	print("supervisor self-assign:", order2.assigned_driver == supervisor, "| status:", order2.status)
+	names = [r[0] for r in hr_utils.driver_query("Employee", "", "name", 0, 50, None)]
+	print("supervisor in driver picker:", supervisor in names, "| picker size:", len(names))
 	frappe.db.rollback()

@@ -14,7 +14,7 @@ class ContainerRental(Document):
 	def validate(self):
 		# Quick entry shows only (size, container, driver) — fill the rest here
 		if not self.rental_type:
-			self.rental_type = "نقدي"
+			self.rental_type = "Cash"
 		if not self.payment_method:
 			self.payment_method = "نقدي"
 		if not self.period_from:
@@ -42,13 +42,13 @@ class ContainerRental(Document):
 					self.container, info.size, self.container_size
 				)
 			)
-		if info.status != "متاحة":
+		if info.status != "Available":
 			frappe.throw(_("الحاوية {0} غير متاحة (حالتها: {1})").format(self.container, info.status))
 
 	def on_submit(self):
 		# Container goes out immediately (walk-in rental, no order workflow)
 		container = frappe.get_doc("Container", self.container)
-		container.db_set("status", "مؤجرة")
+		container.db_set("status", "Rented")
 		container.db_set("last_delivery_datetime", self.period_from)
 
 		create_rental_record(
@@ -94,12 +94,12 @@ class ContainerRental(Document):
 		)
 		if record_name:
 			record = frappe.get_doc("Rental Record", record_name)
-			if record.status not in ("مؤجرة", "متأخرة"):
+			if record.status not in ("Rented", "Overdue"):
 				frappe.throw(_("لا يمكن إلغاء إيجار تم تفريغ/سحب حاويته"))
 			record.flags.ignore_permissions = True
 			record.delete()
 
-		frappe.db.set_value("Container", self.container, "status", "متاحة")
+		frappe.db.set_value("Container", self.container, "status", "Available")
 
 		for entry in frappe.get_all(
 			"Driver Commission Entry",

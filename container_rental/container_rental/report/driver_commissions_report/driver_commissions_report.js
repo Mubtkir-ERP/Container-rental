@@ -5,7 +5,7 @@ frappe.query_reports["Driver Commissions Report"] = {
 			label: __("Driver"),
 			fieldtype: "Link",
 			options: "Employee",
-			get_query: () => ({ filters: { designation: "سائق" } }),
+			get_query: () => ({ query: "container_rental.container_rental.hr_utils.driver_query" }),
 		},
 		{
 			fieldname: "from_date",
@@ -18,14 +18,14 @@ frappe.query_reports["Driver Commissions Report"] = {
 			fieldname: "payout_status",
 			label: __("Payout Status"),
 			fieldtype: "Select",
-			options: ["", "مستحقة", "مصروفة"],
+			options: ["", "Due", "Paid Out"],
 		},
 	],
 
 	onload(report) {
 		report.page.add_inner_button(__("Pay Listed (Journal Entry)"), () => {
 			const names = (frappe.query_report.data || [])
-				.filter((r) => r.entry && r.payout_status === "مستحقة")
+				.filter((r) => r.entry && r.payout_status === "Due")
 				.map((r) => r.entry);
 			if (!names.length) {
 				frappe.msgprint(__("No due commissions in the current results"));

@@ -147,7 +147,7 @@ def _migrate_truck_children():
 			"""
 			SELECT maintenance_date, odometer_km, cost, next_maintenance_date, next_maintenance_km, notes
 			FROM `tabTruck Maintenance Log`
-			WHERE parent = %s AND maintenance_type = 'تغيير زيت'
+			WHERE parent = %s AND maintenance_type = 'Oil Change'
 			ORDER BY maintenance_date
 			""",
 			truck.name, as_dict=True,

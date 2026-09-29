@@ -4,7 +4,7 @@ frappe.query_reports["General Containers Report"] = {
 			fieldname: "status",
 			label: __("Status"),
 			fieldtype: "Select",
-			options: ["", "متاحة", "مؤجرة", "تالفة", "صيانة", "متأخرة", "مسحوبة"],
+			options: ["", "Available", "Rented", "Damaged", "Maintenance", "Overdue", "Withdrawn"],
 		},
 		{
 			fieldname: "size",

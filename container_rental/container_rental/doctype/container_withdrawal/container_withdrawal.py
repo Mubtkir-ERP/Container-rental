@@ -13,7 +13,7 @@ class ContainerWithdrawal(Document):
 
 	def validate(self):
 		status = frappe.db.get_value("Container", self.container, "status")
-		if status not in ("مؤجرة", "متأخرة"):
+		if status not in ("Rented", "Overdue"):
 			frappe.throw(_("الحاوية {0} ليست مؤجرة أو متأخرة (حالتها: {1})").format(self.container, status))
 		self.rental_record = get_open_record(self.container)
 		if not self.rental_record:
@@ -21,14 +21,14 @@ class ContainerWithdrawal(Document):
 
 	def on_submit(self):
 		withdrawn_on = get_datetime(f"{self.withdrawal_date} {now_datetime().time()}")
-		frappe.db.set_value("Container", self.container, "status", "مسحوبة")
+		frappe.db.set_value("Container", self.container, "status", "Withdrawn")
 
 		record = frappe.get_doc("Rental Record", self.rental_record)
-		record.db_set("status", "مسحوبة")
+		record.db_set("status", "Withdrawn")
 		record.db_set("withdrawn_on", withdrawn_on)
 
 	def on_cancel(self):
 		record = frappe.get_doc("Rental Record", self.rental_record)
-		record.db_set("status", "مؤجرة")
+		record.db_set("status", "Rented")
 		record.db_set("withdrawn_on", None)
-		frappe.db.set_value("Container", self.container, "status", "مؤجرة")
+		frappe.db.set_value("Container", self.container, "status", "Rented")

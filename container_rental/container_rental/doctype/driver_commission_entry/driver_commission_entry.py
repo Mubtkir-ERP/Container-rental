@@ -25,7 +25,7 @@ def create_commission_entry(driver, reference_doctype, reference_name, container
 		"client": client,
 		"delivery_reference_doctype": reference_doctype,
 		"delivery_reference": reference_name,
-		"payout_status": "مستحقة",
+		"payout_status": "Due",
 	})
 	entry.flags.ignore_permissions = True
 	entry.insert()
@@ -54,7 +54,7 @@ def mark_paid(names, payout_account=None, posting_date=None):
 	by_driver = {}
 	for name in names:
 		doc = frappe.get_doc("Driver Commission Entry", name)
-		if doc.payout_status == "مستحقة" and flt(doc.commission_amount) > 0:
+		if doc.payout_status == "Due" and flt(doc.commission_amount) > 0:
 			by_driver.setdefault(doc.driver, []).append(doc)
 
 	count = 0
@@ -76,7 +76,7 @@ def mark_paid(names, payout_account=None, posting_date=None):
 		je.insert()
 		je.submit()
 		for d in docs:
-			d.db_set("payout_status", "مصروفة")
+			d.db_set("payout_status", "Paid Out")
 			d.db_set("paid_on", posting_date)
 			d.db_set("journal_entry", je.name)
 			count += 1

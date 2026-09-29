@@ -171,7 +171,7 @@ def seed_trucks(branches, employees):
 	rows = [
 		{
 			"vehicle_no": "أ ب ج 1234",
-			"vehicle_type": "شاحنة رفع حاويات",
+			"vehicle_type": "Container Lifter",
 			"model_year": 2021,
 			"current_odometer_km": 125000,
 			"documents": [
@@ -184,13 +184,13 @@ def seed_trucks(branches, employees):
 				 "next_change_km": 120000, "next_change_date": add_days(today(), -10)},
 			],
 			"maintenance_log": [
-				{"maintenance_date": add_days(today(), -90), "maintenance_type": "فرامل",
+				{"maintenance_date": add_days(today(), -90), "maintenance_type": "Brakes",
 				 "cost": 900, "odometer_km": 110000},
 			],
 		},
 		{
 			"vehicle_no": "د هـ و 5678",
-			"vehicle_type": "قلاب",
+			"vehicle_type": "Tipper",
 			"model_year": 2019,
 			"current_odometer_km": 98000,
 			"documents": [
@@ -205,7 +205,7 @@ def seed_trucks(branches, employees):
 		},
 		{
 			"vehicle_no": "ز ح ط 9012",
-			"vehicle_type": "شاحنة رفع حاويات",
+			"vehicle_type": "Container Lifter",
 			"model_year": 2023,
 			"current_odometer_km": 40000,
 			"documents": [
@@ -214,7 +214,7 @@ def seed_trucks(branches, employees):
 			],
 			"oil_changes": [],
 			"maintenance_log": [
-				{"maintenance_date": add_days(today(), -35), "maintenance_type": "صيانة دورية",
+				{"maintenance_date": add_days(today(), -35), "maintenance_type": "Periodic Service",
 				 "cost": 1500, "odometer_km": 38000, "next_maintenance_date": add_days(today(), 55)},
 			],
 		},
@@ -255,7 +255,7 @@ def seed_containers(branches, classifications, employees):
 			"classification": classifications[i % 3],
 			"branch": branches[i % 2],
 			"responsible_driver": drivers[i % 3],
-			"status": "متاحة",
+			"status": "Available",
 		}).insert(ignore_permissions=True)
 	return containers
 
@@ -301,7 +301,7 @@ def _driver(name):
 
 
 def seed_orders(clients, containers, employees):
-	supervisor_vehicle = frappe.db.get_value("Truck", {"vehicle_type": "شاحنة رفع حاويات"})
+	supervisor_vehicle = frappe.db.get_value("Truck", {"vehicle_type": "Container Lifter"})
 
 	def new_order(client, order_type, size, container=None, **kwargs):
 		order = frappe.get_doc({
@@ -398,7 +398,7 @@ def seed_active_contract(clients, containers, employees, classifications):
 
 	driver = _driver("سالم القحطاني")
 	supervisor = _driver("خالد المطيري")
-	vehicle = frappe.db.get_value("Truck", {"vehicle_type": "قلاب"})
+	vehicle = frappe.db.get_value("Truck", {"vehicle_type": "Tipper"})
 
 	# 4 early-July deliveries (unloaded mid-July, 2 with municipality fees)
 	early = [containers[0], containers[1], containers[2], containers[12]]
@@ -472,7 +472,7 @@ def seed_walkin_rentals(clients, containers, classifications, employees):
 	def rent(client, container, size, days_ago_from, days_until_due, driver, amount, payment="نقدي"):
 		rental = frappe.get_doc({
 			"doctype": "Container Rental",
-			"rental_type": "نقدي" if payment == "نقدي" else "أجل قصير",
+			"rental_type": "Cash" if payment == "نقدي" else "Short Credit",
 			"client": client,
 			"period_from": add_days(now_datetime(), -days_ago_from),
 			"period_to": add_days(now_datetime(), days_until_due),
@@ -519,14 +519,14 @@ def seed_walkin_rentals(clients, containers, classifications, employees):
 
 def seed_manual_statuses(containers):
 	# Maintenance + damaged (role-gated in the UI; direct set inside the seed)
-	frappe.db.set_value("Container", containers[10], "status", "صيانة")
-	frappe.db.set_value("Container", containers[11], "status", "تالفة")
+	frappe.db.set_value("Container", containers[10], "status", "Maintenance")
+	frappe.db.set_value("Container", containers[11], "status", "Damaged")
 
 
 def mark_one_commission_paid():
-	entry = frappe.db.get_value("Driver Commission Entry", {"payout_status": "مستحقة"})
+	entry = frappe.db.get_value("Driver Commission Entry", {"payout_status": "Due"})
 	if entry:
 		frappe.db.set_value(
 			"Driver Commission Entry", entry,
-			{"payout_status": "مصروفة", "paid_on": today()},
+			{"payout_status": "Paid Out", "paid_on": today()},
 		)

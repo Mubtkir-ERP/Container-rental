@@ -3,7 +3,7 @@
 Clients are ERPNext Customers extended with app custom fields (module
 "Container Rental", created by patches.add_customer_fields):
 - mobile_no             رقم الجوال (واتساب) — الحقل القياسي (جهة الاتصال الرئيسية)، نفس ما يقرأه frappe_whatsapp
-- cr_account_type       نوع الحساب (نقدي / آجل)
+- cr_account_type       نوع الحساب (Cash / Credit — يُعرض بالعربية عبر ملف الترجمة)
 - cr_delivery_locations العناوين / المواقع (child: Client Address)
 - cr_rental_balance     الرصيد الحالي (إجمالي المستحق من التأجير)
 """
@@ -27,7 +27,7 @@ def refresh_balance(customer):
 		"""
 		SELECT COALESCE(SUM(rental_value), 0) FROM `tabContainer Order`
 		WHERE client = %s AND payment_method IN ('آجل', 'Credit', 'D.Note') AND payment_received = 0
-		  AND status = 'تم التوصيل'
+		  AND status = 'Delivered'
 		""",
 		customer,
 	)[0][0]

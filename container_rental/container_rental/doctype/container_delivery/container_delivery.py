@@ -21,7 +21,7 @@ class ContainerDelivery(Document):
 	def resolve_source(self):
 		if self.order:
 			order = frappe.get_doc("Container Order", self.order)
-			if order.status != "مُسنَد لسائق":
+			if order.status != "Assigned":
 				frappe.throw(_("الطلب {0} ليس في حالة مُسنَد لسائق (حالته: {1})").format(order.name, order.status))
 			self.client = order.client
 			self.address = self.address or order.delivery_address
@@ -44,7 +44,7 @@ class ContainerDelivery(Document):
 
 	def validate_container(self):
 		info = frappe.db.get_value("Container", self.container, ["size", "status"], as_dict=True)
-		if info.status != "متاحة":
+		if info.status != "Available":
 			frappe.throw(_("الحاوية {0} غير متاحة (حالتها: {1})").format(self.container, info.status))
 		if self.order:
 			order = frappe.get_doc("Container Order", self.order)
@@ -67,7 +67,7 @@ class ContainerDelivery(Document):
 			self.compute_due()
 
 		container = frappe.get_doc("Container", self.container)
-		container.db_set("status", "مؤجرة")
+		container.db_set("status", "Rented")
 		container.db_set("last_delivery_datetime", self.delivery_datetime)
 
 		rental_value = 0
@@ -121,12 +121,12 @@ class ContainerDelivery(Document):
 		)
 		if record_name:
 			record = frappe.get_doc("Rental Record", record_name)
-			if record.status not in ("مؤجرة", "متأخرة"):
+			if record.status not in ("Rented", "Overdue"):
 				frappe.throw(_("لا يمكن إلغاء توصيل حاوية تم تفريغها/سحبها"))
 			record.flags.ignore_permissions = True
 			record.delete()
 
-		frappe.db.set_value("Container", self.container, "status", "متاحة")
+		frappe.db.set_value("Container", self.container, "status", "Available")
 
 		for entry in frappe.get_all(
 			"Driver Commission Entry",
@@ -140,5 +140,5 @@ class ContainerDelivery(Document):
 
 		if self.order:
 			order = frappe.get_doc("Container Order", self.order)
-			if order.status == "تم التوصيل":
-				order.db_set("status", "مُسنَد لسائق")
+			if order.status == "Delivered":
+				order.db_set("status", "Assigned")

@@ -7,7 +7,7 @@ frappe.query_reports["Expenses Report"] = {
 			fieldname: "expense_type",
 			label: __("Expense Type"),
 			fieldtype: "Select",
-			options: ["", "رسوم بلدية", "صيانة"],
+			options: ["", "رسوم بلدية", "Maintenance"],
 		},
 	],
 };

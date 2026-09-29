@@ -75,11 +75,11 @@
    "allow_in_quick_entry": 1
   },
   {
-   "default": "متاحة",
+   "default": "Available",
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "متاحة\nمؤجرة\nتالفة\nصيانة\nمتأخرة\nمسحوبة",
+   "options": "Available\nRented\nDamaged\nMaintenance\nOverdue\nWithdrawn",
    "read_only": 1,
    "in_list_view": 1,
    "in_standard_filter": 1
@@ -128,7 +128,7 @@
   }
  ],
  "links": [],
- "modified": "2026-08-26 13:39:06.000000",
+ "modified": "2026-09-29 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Container Rental",
  "name": "Container",

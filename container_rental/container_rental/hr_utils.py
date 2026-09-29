@@ -11,9 +11,58 @@ DRIVER_DESIGNATION = "سائق"
 SUPERVISOR_DESIGNATION = "مشرف سواقين"
 
 
+def is_driver(employee):
+	"""A driver is an employee whose designation is سائق OR who is flagged as
+	also driving (cr_is_driver) — supervisors are commonly 2-in-1: they
+	supervise and drive, so they can take an order themselves."""
+	info = frappe.db.get_value("Employee", employee, ["designation", "cr_is_driver"], as_dict=True)
+	if not info:
+		return False
+	return info.designation == DRIVER_DESIGNATION or bool(info.cr_is_driver)
+
+
 def ensure_driver(employee):
-	if frappe.db.get_value("Employee", employee, "designation") != DRIVER_DESIGNATION:
-		frappe.throw(_("الموظف المختار ليس سائقًا (المسمى الوظيفي يجب أن يكون سائق)"))
+	if not is_driver(employee):
+		frappe.throw(_(
+			"الموظف المختار ليس سائقًا — اجعل مسماه الوظيفي (سائق) أو فعّل خيار "
+			"(يعمل كسائق أيضًا) في بطاقة الموظف"
+		))
+
+
+def get_session_employee(user=None):
+	"""Employee linked to the logged-in user, if any."""
+	return frappe.db.get_value("Employee", {"user_id": user or frappe.session.user, "status": "Active"})
+
+
+@frappe.whitelist()
+@frappe.validate_and_sanitize_search_inputs
+def driver_query(doctype, txt, searchfield, start, page_len, filters):
+	"""Link-field query for driver pickers: active employees who drive, by
+	designation or by the (works as a driver too) flag."""
+	like = f"%{txt or ''}%"
+	return frappe.db.sql(
+		"""
+		SELECT name, employee_name, designation
+		FROM `tabEmployee`
+		WHERE status = 'Active'
+		  AND (designation = %(designation)s OR IFNULL(cr_is_driver, 0) = 1)
+		  AND (name LIKE %(txt)s OR employee_name LIKE %(txt)s)
+		ORDER BY employee_name
+		LIMIT %(start)s, %(page_len)s
+		""",
+		{"designation": DRIVER_DESIGNATION, "txt": like, "start": start, "page_len": page_len},
+	)
+
+
+@frappe.whitelist()
+def get_my_driver_employee():
+	"""Employee id of the logged-in user when he drives (a 2-in-1 supervisor
+	included) — lets the desk offer him self-assignment and the delivery
+	confirmation on his own orders."""
+	employee = get_session_employee()
+	if employee and is_driver(employee):
+		return employee
+	return None
 
 
 def get_employee_name(employee):

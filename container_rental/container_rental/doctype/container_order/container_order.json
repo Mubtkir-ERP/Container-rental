@@ -125,11 +125,11 @@
    "permlevel": 1
   },
   {
-   "default": "جديد",
+   "default": "New",
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Order Status",
-   "options": "جديد\nبانتظار تأكيد الحوالة\nبانتظار تحديد سائق\nمُسنَد لسائق\nتم التوصيل\nملغي",
+   "options": "New\nAwaiting Transfer\nAwaiting Driver\nAssigned\nDelivered\nCancelled",
    "read_only": 1,
    "in_list_view": 1,
    "in_standard_filter": 1
@@ -342,7 +342,7 @@
   }
  ],
  "links": [],
- "modified": "2026-09-08 15:40:00.000000",
+ "modified": "2026-09-29 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Container Rental",
  "name": "Container Order",

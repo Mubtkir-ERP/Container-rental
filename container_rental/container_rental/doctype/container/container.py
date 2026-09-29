@@ -3,7 +3,7 @@ from frappe import _
 from frappe.model.document import Document
 
 # Statuses whose manual assignment requires an authorized role (open question 5)
-RESTRICTED_STATUSES = ("تالفة", "صيانة")
+RESTRICTED_STATUSES = ("Damaged", "Maintenance")
 STATUS_AUTHORIZED_ROLES = ("Container Manager", "Driver Supervisor", "System Manager")
 
 
@@ -36,7 +36,7 @@ def change_status(container, new_status):
 		if not set(frappe.get_roles()) & set(STATUS_AUTHORIZED_ROLES):
 			frappe.throw(_("تغيير الحالة إلى/من تالفة أو صيانة يتطلب صلاحية مشرف السواقين أو مدير الحاويات"))
 
-	if new_status == "مؤجرة":
+	if new_status == "Rented":
 		frappe.throw(_("حالة مؤجرة تُضبط تلقائيًا عبر عمليات التوصيل فقط"))
 
 	old_status = doc.status
@@ -50,17 +50,17 @@ def release_to_available(container):
 	"""Move a withdrawn (مسحوبة) container back to متاحة after inspection."""
 	frappe.only_for(("Container Manager", "Driver Supervisor", "System Manager"))
 	doc = frappe.get_doc("Container", container)
-	if doc.status != "مسحوبة":
+	if doc.status != "Withdrawn":
 		frappe.throw(_("هذا الإجراء متاح فقط للحاويات المسحوبة"))
-	doc.db_set("status", "متاحة")
+	doc.db_set("status", "Available")
 	doc.add_comment("Info", _("إعادة الحاوية للمتاح بعد الفحص"))
-	return "متاحة"
+	return "Available"
 
 
 @frappe.whitelist()
 def suggest_container(size, branch=None):
 	"""Return the first available container of the given size (open question 1)."""
-	filters = {"status": "متاحة", "size": size}
+	filters = {"status": "Available", "size": size}
 	if branch:
 		filters["branch"] = branch
 	containers = frappe.get_all("Container", filters=filters, order_by="container_no asc", limit=1, pluck="name")

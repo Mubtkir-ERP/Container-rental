@@ -10,7 +10,7 @@ from container_rental.container_rental.doctype.rental_record.rental_record impor
 class ContainerUnload(Document):
 	def validate(self):
 		info = frappe.db.get_value("Container", self.container, "status")
-		if info not in ("مؤجرة", "متأخرة"):
+		if info not in ("Rented", "Overdue"):
 			frappe.throw(_("الحاوية {0} ليست مؤجرة أو متأخرة (حالتها: {1})").format(self.container, info))
 		self.rental_record = get_open_record(self.container)
 		if not self.rental_record:
@@ -21,11 +21,11 @@ class ContainerUnload(Document):
 		# contract trip was already decremented at delivery time.
 		unloaded_on = get_datetime(f"{self.unload_date} {now_datetime().time()}")
 		container = frappe.get_doc("Container", self.container)
-		container.db_set("status", "متاحة")
+		container.db_set("status", "Available")
 		container.db_set("last_unload_datetime", unloaded_on)
 
 		record = frappe.get_doc("Rental Record", self.rental_record)
-		record.db_set("status", "تم التفريغ")
+		record.db_set("status", "Unloaded")
 		record.db_set("unloaded_on", unloaded_on)
 
 		customer_utils.refresh_balance(record.client)
@@ -46,6 +46,6 @@ class ContainerUnload(Document):
 
 	def on_cancel(self):
 		record = frappe.get_doc("Rental Record", self.rental_record)
-		record.db_set("status", "مؤجرة")
+		record.db_set("status", "Rented")
 		record.db_set("unloaded_on", None)
-		frappe.db.set_value("Container", self.container, "status", "مؤجرة")
+		frappe.db.set_value("Container", self.container, "status", "Rented")

@@ -14,12 +14,12 @@ COD = "Cash"
 # production: the legacy Arabic mode plus the English ones the team created)
 CREDIT_MODES = ("آجل", "Credit", "D.Note")
 
-STATUS_NEW = "جديد"
-STATUS_AWAITING_TRANSFER = "بانتظار تأكيد الحوالة"
-STATUS_AWAITING_DRIVER = "بانتظار تحديد سائق"
-STATUS_ASSIGNED = "مُسنَد لسائق"
-STATUS_DELIVERED = "تم التوصيل"
-STATUS_CANCELLED = "ملغي"
+STATUS_NEW = "New"
+STATUS_AWAITING_TRANSFER = "Awaiting Transfer"
+STATUS_AWAITING_DRIVER = "Awaiting Driver"
+STATUS_ASSIGNED = "Assigned"
+STATUS_DELIVERED = "Delivered"
+STATUS_CANCELLED = "Cancelled"
 
 
 def _require_roles(*roles):
@@ -99,7 +99,7 @@ class ContainerOrder(Document):
 				continue
 			if info.size != size:
 				frappe.throw(_("الحاوية {0} حجمها {1} ولا يطابق الحجم المطلوب {2}").format(container, info.size, size))
-			if self.status in (STATUS_NEW, STATUS_AWAITING_TRANSFER, STATUS_AWAITING_DRIVER) and info.status != "متاحة":
+			if self.status in (STATUS_NEW, STATUS_AWAITING_TRANSFER, STATUS_AWAITING_DRIVER) and info.status != "Available":
 				frappe.throw(_("الحاوية {0} غير متاحة (حالتها: {1})").format(container, info.status))
 
 	def _container_rows(self):
@@ -223,7 +223,7 @@ class ContainerOrder(Document):
 				"delivery_reference_doctype": "Container Order",
 				"delivery_reference": self.name,
 				"driver": driver,
-				"payout_status": ("!=", "مصروفة"),
+				"payout_status": ("!=", "Paid Out"),
 			},
 			pluck="name",
 		):
@@ -276,10 +276,11 @@ class ContainerOrder(Document):
 			self.db_set("status", STATUS_DELIVERED)
 
 	@frappe.whitelist()
-	def driver_confirm_delivery(self, container, delivery_note_no=None):
+	def driver_confirm_delivery(self, container, delivery_note_no=None, payment_method=None):
 		"""The assigned driver confirms the drop-off from his limited view:
-		he types the container number (known only on site) and, for credit
-		orders, the delivery-note book number. Creates + submits the
+		he types the container number (known only on site), the payment method
+		actually used (the client may pay differently than planned) and, for
+		credit orders, the delivery-note book number. Creates + submits the
 		Container Delivery behind the scenes."""
 		if self.status != STATUS_ASSIGNED:
 			frappe.throw(_("الطلب ليس في حالة مُسنَد لسائق"))
@@ -297,12 +298,19 @@ class ContainerOrder(Document):
 		if info.size != self.container_size:
 			frappe.throw(_("حجم الحاوية {0} هو {1} ولا يطابق حجم الطلب {2}").format(
 				container, info.size, self.container_size))
-		if info.status != "متاحة":
+		if info.status != "Available":
 			frappe.throw(_("الحاوية {0} غير متاحة (حالتها: {1})").format(container, info.status))
 
 		self.db_set("container", container_name)
 		if delivery_note_no:
 			self.db_set("delivery_note_no", delivery_note_no)
+		# The driver's screen is read-only, so the method he picked on site
+		# reaches the order only through this call
+		if payment_method and payment_method != self.payment_method:
+			previous = self.payment_method
+			self.db_set("payment_method", payment_method)
+			self.add_comment("Info", _("غيّر السائق طريقة الدفع من {0} إلى {1}").format(
+				previous or "-", payment_method))
 
 		delivery = frappe.get_doc({
 			"doctype": "Container Delivery",
@@ -319,8 +327,11 @@ class ContainerOrder(Document):
 
 	@frappe.whitelist()
 	def make_sales_invoice(self):
-		"""Draft Sales Invoice for a delivered order, carrying its data across
-		(client, rental value, containers count, driver's sales person)."""
+		"""Draft Sales Invoice for a delivered order, carrying its data across:
+		client, rental value, containers count, the driver's sales person, the
+		payment method actually used, and the customer's/company's default tax
+		template (applied here because a server-built invoice does not run the
+		client-side party/company triggers that normally fetch it)."""
 		_require_roles("Customer Service", "Transfer Follow-up", "Container Manager")
 		if self.status != STATUS_DELIVERED:
 			frappe.throw(_("إنشاء الفاتورة متاح بعد اكتمال التوصيل فقط"))
@@ -330,6 +341,8 @@ class ContainerOrder(Document):
 
 		invoice = frappe.new_doc("Sales Invoice")
 		invoice.customer = self.client
+		invoice.company = invoice.company or frappe.defaults.get_user_default("Company")
+		_apply_party_and_tax_defaults(invoice, self.client)
 		invoice.append("items", {
 			"item_code": item_code,
 			"qty": containers_count,
@@ -340,6 +353,12 @@ class ContainerOrder(Document):
 		sales_person, _rate = hr_utils.get_commission_per_delivery(self.assigned_driver) if self.assigned_driver else (None, 0)
 		if sales_person:
 			invoice.append("sales_team", {"sales_person": sales_person, "allocated_percentage": 100})
+		# Traceability + the collection method the driver actually used, so the
+		# accountant sees it and the Payment Entry defaults to the same mode
+		if invoice.meta.has_field("cr_container_order"):
+			invoice.cr_container_order = self.name
+		if invoice.meta.has_field("cr_payment_method") and self.payment_method:
+			invoice.cr_payment_method = self.payment_method
 		invoice.flags.ignore_permissions = True
 		invoice.insert()
 		self.add_comment("Info", _("أُنشئت فاتورة المبيعات {0}").format(invoice.name))
@@ -372,6 +391,41 @@ class ContainerOrder(Document):
 			else "",
 			"delivery_time": self.delivery_time or "",
 		}
+
+
+def _apply_party_and_tax_defaults(invoice, customer):
+	"""Pull the customer's selling defaults (price list, currency, payment terms,
+	tax category) and fill the taxes table from the matching Tax Rule template
+	or, failing that, the company's default Sales Taxes and Charges Template."""
+	from erpnext.accounts.party import get_party_details
+	from erpnext.controllers.accounts_controller import (
+		get_default_taxes_and_charges,
+		get_taxes_and_charges,
+	)
+
+	if not invoice.company:
+		invoice.company = frappe.db.get_value("Global Defaults", None, "default_company") or frappe.db.get_value("Company", {})
+	details = get_party_details(
+		party=customer,
+		party_type="Customer",
+		company=invoice.company,
+		doctype="Sales Invoice",
+		ignore_permissions=True,
+	) or {}
+	for field in ("customer_group", "territory", "currency", "selling_price_list",
+		"payment_terms_template", "tax_category", "debit_to", "taxes_and_charges"):
+		value = details.get(field)
+		if value and invoice.meta.has_field(field) and not invoice.get(field):
+			invoice.set(field, value)
+
+	if invoice.taxes_and_charges:
+		rows = get_taxes_and_charges("Sales Taxes and Charges Template", invoice.taxes_and_charges) or []
+	else:
+		default = get_default_taxes_and_charges("Sales Taxes and Charges Template", company=invoice.company) or {}
+		invoice.taxes_and_charges = default.get("taxes_and_charges")
+		rows = default.get("taxes") or []
+	for row in rows:
+		invoice.append("taxes", row)
 
 
 def _first_existing(doctype, names):

@@ -100,7 +100,7 @@ frappe.pages["overdue-containers"].on_page_load = function (wrapper) {
 	});
 	filters.driver = page.add_field({
 		fieldname: "driver", label: __("Driver"), fieldtype: "Link", options: "Employee",
-		get_query: () => ({ filters: { designation: "سائق" } }), change: () => load(),
+		get_query: () => ({ query: "container_rental.container_rental.hr_utils.driver_query" }), change: () => load(),
 	});
 	filters.delay_range = page.add_field({
 		fieldname: "delay_range", label: __("Overdue Range"), fieldtype: "Select",

@@ -369,3 +369,36 @@ Return to Supervisor,إرجاع للمشرف
 Return this order to the supervisor to assign another driver?,إرجاع الطلب للمشرف ليسنده لسائق آخر؟
 The order was returned to the supervisor,أُعيد الطلب للمشرف
 A replacement order was assigned to you,أُسند لك طلب الحاوية البديلة
+Available,متاحة
+Rented,مؤجرة
+Damaged,تالفة
+Maintenance,صيانة
+Overdue,متأخرة
+Withdrawn,مسحوبة
+New,جديد
+Awaiting Transfer,بانتظار تأكيد الحوالة
+Awaiting Driver,بانتظار تحديد سائق
+Assigned,مُسنَد لسائق
+Delivered,تم التوصيل
+Cancelled,ملغي
+Unloaded,تم التفريغ
+Awaiting Driver Confirmation,بانتظار تأكيد السائق
+Awaiting Reassignment,بانتظار إسناد سائق
+Confirmed,مؤكد
+Due,مستحقة
+Paid Out,مصروفة
+Unpaid,غير مسددة
+Partly Paid,مسددة جزئيًا
+Paid,مسددة
+Tipper,قلاب
+Container Lifter,شاحنة رفع حاويات
+Crane,ونش
+Other,أخرى
+Tyres,إطارات
+Brakes,فرامل
+Battery,بطارية
+Periodic Service,صيانة دورية
+Repair,إصلاح عطل
+Works as a Driver Too,يعمل كسائق أيضًا
+Assign to Me,إسناد لي
+Collected Payment Method,طريقة الدفع المحصّلة

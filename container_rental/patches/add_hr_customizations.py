@@ -14,6 +14,14 @@ from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 CUSTOM_FIELDS = {
 	"Employee": [
 		{
+			"fieldname": "cr_is_driver",
+			"fieldtype": "Check",
+			"label": "Works as a Driver Too",
+			"insert_after": "designation",
+			"module": "Container Rental",
+			"description": "فعّله للمشرف الذي يقود أيضًا، ليظهر في قوائم إسناد السائقين ويستطيع إسناد الطلب لنفسه",
+		},
+		{
 			"fieldname": "cr_documents_tab",
 			"fieldtype": "Tab Break",
 			"label": "Documents",
@@ -46,18 +54,22 @@ DESIGNATIONS = ["سائق", "مشرف سواقين", "موظف خدمة عملا
 CONTAINER_SIZES = ["10 ياردة", "20 ياردة"]
 
 
+SYNCED_PROPERTIES = ("label", "description", "options", "default", "fieldtype")
+
+
 def sync_custom_field_labels(definitions):
-	"""create_custom_fields skips existing fields — push label/description updates."""
+	"""create_custom_fields skips fields that already exist — push the app's
+	current label/description/options so redefinitions (e.g. Select values
+	moved to English) reach sites where the field was created earlier."""
 	for doctype, fields in definitions.items():
 		for field in fields:
 			name = f"{doctype}-{field['fieldname']}"
-			if frappe.db.exists("Custom Field", name):
-				frappe.db.set_value(
-					"Custom Field",
-					name,
-					{"label": field.get("label"), "description": field.get("description")},
-					update_modified=False,
-				)
+			if not frappe.db.exists("Custom Field", name):
+				continue
+			values = {key: field[key] for key in SYNCED_PROPERTIES if key in field}
+			if values:
+				frappe.db.set_value("Custom Field", name, values, update_modified=False)
+	frappe.clear_cache()
 
 
 def execute():

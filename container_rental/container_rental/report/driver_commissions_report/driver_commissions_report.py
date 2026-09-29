@@ -62,8 +62,8 @@ def get_data(filters):
 		by_driver.setdefault(entry.driver_name or entry.driver, []).append(entry)
 
 	for driver_name, rows in by_driver.items():
-		due = sum(r.commission_amount for r in rows if r.payout_status == "مستحقة")
-		paid = sum(r.commission_amount for r in rows if r.payout_status == "مصروفة")
+		due = sum(r.commission_amount for r in rows if r.payout_status == "Due")
+		paid = sum(r.commission_amount for r in rows if r.payout_status == "Paid Out")
 		data.append({
 			"driver_name": driver_name,
 			"deliveries": len(rows),

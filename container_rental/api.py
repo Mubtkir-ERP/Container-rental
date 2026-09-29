@@ -16,14 +16,14 @@ def get_dashboard_counts():
 	counts = {}
 
 	counts["total_containers"] = frappe.db.count("Container")
-	counts["available_containers"] = frappe.db.count("Container", {"status": "متاحة"})
-	counts["rented_containers"] = frappe.db.count("Container", {"status": "مؤجرة"})
-	counts["withdrawn_containers"] = frappe.db.count("Container", {"status": "مسحوبة"})
+	counts["available_containers"] = frappe.db.count("Container", {"status": "Available"})
+	counts["rented_containers"] = frappe.db.count("Container", {"status": "Rented"})
+	counts["withdrawn_containers"] = frappe.db.count("Container", {"status": "Withdrawn"})
 
 	# Overdue = due date passed and not unloaded (rule from the requirements doc)
 	counts["overdue_containers"] = frappe.db.count(
 		"Rental Record",
-		{"status": ("in", ["مؤجرة", "متأخرة"]), "due_on": ("<", now)},
+		{"status": ("in", ["Rented", "Overdue"]), "due_on": ("<", now)},
 	)
 
 	# Payment delays: credit orders delivered, unpaid, past rental end + unpaid monthly invoices
@@ -31,13 +31,13 @@ def get_dashboard_counts():
 		"Container Order",
 		{
 			"payment_method": ("in", ["آجل", "Credit", "D.Note"]),
-			"status": "تم التوصيل",
+			"status": "Delivered",
 			"payment_received": 0,
 			"rental_end_date": ("<", today()),
 		},
 	) + frappe.db.count(
 		"Contract Monthly Invoice",
-		{"docstatus": 1, "payment_status": ("!=", "مسددة")},
+		{"docstatus": 1, "payment_status": ("!=", "Paid")},
 	)
 
 	counts["oil_change_delays"] = len(
@@ -73,7 +73,7 @@ def get_dashboard_counts():
 
 	counts["credit_rentals"] = frappe.db.count(
 		"Container Order",
-		{"payment_method": ("in", ["آجل", "Credit", "D.Note"]), "status": ("not in", ["ملغي", "تم التوصيل"])},
+		{"payment_method": ("in", ["آجل", "Credit", "D.Note"]), "status": ("not in", ["Cancelled", "Delivered"])},
 	) + frappe.db.count(
 		"Container Contract", {"docstatus": 1, "contract_status": "Active"}
 	)
@@ -118,7 +118,7 @@ def get_overdue_data(filters=None):
 	"""Open rentals past due, most-overdue first. Shared by the S11 page and
 	the 'تقرير الحاويات المتأخرة' script report so both show identical data."""
 	filters = filters or {}
-	conditions = ["(r.status = 'متأخرة' OR (r.status = 'مؤجرة' AND r.due_on IS NOT NULL AND r.due_on < %(now)s))"]
+	conditions = ["(r.status = 'Overdue' OR (r.status = 'Rented' AND r.due_on IS NOT NULL AND r.due_on < %(now)s))"]
 	values = {"now": now_datetime()}
 
 	for field in ("classification", "container_size", "branch", "driver"):
@@ -226,7 +226,7 @@ def extend_rental(rental_record, days, rental_value=0, payment_method=None):
 		)
 
 	record = frappe.get_doc("Rental Record", rental_record)
-	if record.status not in ("مؤجرة", "متأخرة"):
+	if record.status not in ("Rented", "Overdue"):
 		frappe.throw(_("لا يمكن تمديد حاوية تم تفريغها أو سحبها"))
 
 	days = frappe.utils.cint(days)
@@ -248,7 +248,7 @@ def extend_rental(rental_record, days, rental_value=0, payment_method=None):
 		"payment_method": payment_method or record.payment_method,
 		"rental_start_date": frappe.utils.getdate(base),
 		"delivery_address": record.address,
-		"status": "تم التوصيل",
+		"status": "Delivered",
 	})
 	order.flags.ignore_permissions = True
 	order.insert()
@@ -257,10 +257,10 @@ def extend_rental(rental_record, days, rental_value=0, payment_method=None):
 
 	# Move the due date forward and clear the overdue flags
 	record.db_set("due_on", new_due, update_modified=False)
-	if record.status == "متأخرة":
-		record.db_set("status", "مؤجرة", update_modified=False)
-	if frappe.db.get_value("Container", record.container, "status") == "متأخرة":
-		frappe.db.set_value("Container", record.container, "status", "مؤجرة", update_modified=False)
+	if record.status == "Overdue":
+		record.db_set("status", "Rented", update_modified=False)
+	if frappe.db.get_value("Container", record.container, "status") == "Overdue":
+		frappe.db.set_value("Container", record.container, "status", "Rented", update_modified=False)
 	record.add_comment("Info", _("تمديد {0} يوم حتى {1} — يُحاسب عبر الطلب {2}").format(
 		days, frappe.format(new_due, {"fieldtype": "Datetime"}), order.name))
 

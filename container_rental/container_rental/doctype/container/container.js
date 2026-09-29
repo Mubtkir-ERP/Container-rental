@@ -1,7 +1,7 @@
 frappe.ui.form.on("Container", {
 	setup(frm) {
 		frm.set_query("responsible_driver", () => ({
-			filters: { designation: "سائق", status: "Active" },
+			query: "container_rental.container_rental.hr_utils.driver_query",
 		}));
 	},
 
@@ -16,7 +16,7 @@ frappe.ui.form.on("Container", {
 						fieldname: "new_status",
 						fieldtype: "Select",
 						label: __("New Status"),
-						options: ["متاحة", "تالفة", "صيانة", "مسحوبة"],
+						options: ["Available", "Damaged", "Maintenance", "Withdrawn"],
 						reqd: 1,
 					},
 				],
@@ -35,7 +35,7 @@ frappe.ui.form.on("Container", {
 			d.show();
 		});
 
-		if (frm.doc.status === "مسحوبة") {
+		if (frm.doc.status === "Withdrawn") {
 			frm.add_custom_button(__("Return to Available After Inspection"), () => {
 				frappe.call({
 					method: "container_rental.container_rental.doctype.container.container.release_to_available",

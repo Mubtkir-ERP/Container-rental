@@ -18,7 +18,7 @@ frappe.query_reports["Overdue Containers Report"] = {
 			label: __("Driver"),
 			fieldtype: "Link",
 			options: "Employee",
-			get_query: () => ({ filters: { designation: "سائق" } }),
+			get_query: () => ({ query: "container_rental.container_rental.hr_utils.driver_query" }),
 		},
 		{
 			fieldname: "delay_range",

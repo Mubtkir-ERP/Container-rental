@@ -12,10 +12,10 @@ from frappe.utils import get_url, now_datetime, today
 
 from container_rental.container_rental import hr_utils, whatsapp
 
-STATUS_WAITING_DRIVER = "بانتظار تأكيد السائق"
-STATUS_NEEDS_REASSIGN = "بانتظار إسناد سائق"
-STATUS_CONFIRMED = "مؤكد"
-STATUS_CANCELLED = "ملغي"
+STATUS_WAITING_DRIVER = "Awaiting Driver Confirmation"
+STATUS_NEEDS_REASSIGN = "Awaiting Reassignment"
+STATUS_CONFIRMED = "Confirmed"
+STATUS_CANCELLED = "Cancelled"
 
 ACTIVE_STATUSES = (STATUS_WAITING_DRIVER, STATUS_NEEDS_REASSIGN)
 
@@ -33,7 +33,7 @@ class ContainerUnloadRequest(Document):
 
 	def pull_rental_context(self):
 		record = frappe.get_doc("Rental Record", self.rental_record)
-		if record.status not in ("مؤجرة", "متأخرة"):
+		if record.status not in ("Rented", "Overdue"):
 			frappe.throw(_("سجل التأجير {0} ليس مفتوحًا (حالته: {1})").format(record.name, record.status))
 		self.container = record.container
 		self.container_size = record.container_size

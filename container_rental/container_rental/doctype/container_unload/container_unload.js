@@ -94,9 +94,9 @@ frappe.ui.form.on("Container Unload", {
 
 	setup(frm) {
 		frm.set_query("container", () => ({
-			filters: { status: ["in", ["مؤجرة", "متأخرة"]] },
+			filters: { status: ["in", ["Rented", "Overdue"]] },
 		}));
-		frm.set_query("driver", () => ({ filters: { designation: "سائق", status: "Active" } }));
+		frm.set_query("driver", () => ({ query: "container_rental.container_rental.hr_utils.driver_query" }));
 		frm.set_query("supervisor", () => ({ filters: { designation: "مشرف سواقين", status: "Active" } }));
 	},
 
@@ -105,7 +105,7 @@ frappe.ui.form.on("Container Unload", {
 		// Show the open rental's client/contract context to the operator
 		frappe.db
 			.get_list("Rental Record", {
-				filters: { container: frm.doc.container, status: ["in", ["مؤجرة", "متأخرة"]] },
+				filters: { container: frm.doc.container, status: ["in", ["Rented", "Overdue"]] },
 				fields: ["name", "client", "delivered_on", "due_on", "contract"],
 				limit: 1,
 			})
