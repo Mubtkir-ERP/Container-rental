@@ -120,17 +120,30 @@ class ContainerUnloadRequest(Document):
 			frappe.throw(_("الطلب ليس بانتظار تأكيد السائق (حالته: {0})").format(self.status))
 		self._check_assigned_driver_identity()
 
-		unload = frappe.get_doc({
-			"doctype": "Container Unload",
-			"container": self.container,
-			"unload_date": today(),
-			"unload_reason": "Specified Period Expired" if self.source == "Period Expired" else "Customer Request",
-			"driver": self.assigned_driver,
-			"send_whatsapp_confirmation": 1,
-			"notes": _("تأكيد السائق عبر طلب التفريغ {0}").format(self.name),
-		})
+		# The request may already carry the draft the operator created — submit
+		# that one instead of opening a second unload for the same container
+		unload = None
+		if self.unload_reference and frappe.db.exists("Container Unload", self.unload_reference):
+			existing = frappe.get_doc("Container Unload", self.unload_reference)
+			if existing.docstatus == 0:
+				unload = existing
+			elif existing.docstatus == 1:
+				frappe.throw(_("تم تسجيل تفريغ هذه الحاوية بالفعل ({0})").format(existing.name))
+		if unload is None:
+			unload = frappe.get_doc({
+				"doctype": "Container Unload",
+				"container": self.container,
+				"unload_date": today(),
+				"unload_reason": "Specified Period Expired" if self.source == "Period Expired" else "Customer Request",
+				"send_whatsapp_confirmation": 1,
+			})
+			unload.flags.skip_driver_request = True
+			unload.flags.ignore_permissions = True
+			unload.insert()
+		unload.db_set("driver", self.assigned_driver)
+		unload.driver = self.assigned_driver
+		unload.add_comment("Info", _("تأكيد السائق عبر طلب التفريغ {0}").format(self.name))
 		unload.flags.ignore_permissions = True
-		unload.insert()
 		unload.submit()
 		self.db_set("unload_reference", unload.name)
 
@@ -224,19 +237,25 @@ def get_active_request(rental_record):
 	)
 
 
-def create_unload_request(rental_record, request_type="Unload", source="Customer Request"):
-	"""Create (or return the already-active) driver-first unload request."""
+def create_unload_request(rental_record, request_type="Unload", source="Customer Request", unload_doc=None):
+	"""Create (or return the already-active) driver-first unload request.
+	`unload_doc` links a draft Container Unload the operator already made, so
+	the driver's confirmation submits that document instead of a new one."""
 	existing = frappe.db.get_value(
 		"Container Unload Request",
 		{"rental_record": rental_record, "status": ("in", ACTIVE_STATUSES)},
 	)
 	if existing:
-		return frappe.get_doc("Container Unload Request", existing)
+		request = frappe.get_doc("Container Unload Request", existing)
+		if unload_doc is not None and not request.unload_reference:
+			request.db_set("unload_reference", unload_doc.name)
+		return request
 	request = frappe.get_doc({
 		"doctype": "Container Unload Request",
 		"rental_record": rental_record,
 		"request_type": request_type,
 		"source": source,
+		"unload_reference": unload_doc.name if unload_doc is not None else None,
 	})
 	request.flags.ignore_permissions = True
 	request.insert()

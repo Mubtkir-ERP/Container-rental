@@ -15,6 +15,8 @@
   "unload_reason",
   "crew_section",
   "driver",
+  "driver_name",
+  "request_status",
   "column_break_crew",
   "supervisor",
   "fees_section",
@@ -87,7 +89,8 @@
    "fieldname": "driver",
    "fieldtype": "Link",
    "label": "Driver",
-   "options": "Employee"
+   "options": "Employee",
+   "in_standard_filter": 1
   },
   {
    "fieldname": "column_break_crew",
@@ -129,11 +132,28 @@
    "fieldname": "notes",
    "fieldtype": "Small Text",
    "label": "Notes"
+  },
+  {
+   "fieldname": "driver_name",
+   "fieldtype": "Data",
+   "label": "Driver Name",
+   "fetch_from": "driver.employee_name",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "request_status",
+   "fieldtype": "Data",
+   "label": "Driver Request Status",
+   "read_only": 1,
+   "no_copy": 1,
+   "in_list_view": 1,
+   "description": "حالة طلب التفريغ المرسل للسائق"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-09-08 15:40:00.000000",
+ "modified": "2026-09-30 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Container Rental",
  "name": "Container Unload",

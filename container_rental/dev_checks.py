@@ -497,3 +497,76 @@ def payment_tax_supervisor_check():
 	names = [r[0] for r in hr_utils.driver_query("Employee", "", "name", 0, 50, None)]
 	print("supervisor in driver picker:", supervisor in names, "| picker size:", len(names))
 	frappe.db.rollback()
+
+def supervisor_confirm_check():
+	"""A supervisor flagged as a driver assigns an order to himself and then
+	confirms the delivery from his own screen — the order must close."""
+	from frappe.utils import today
+	from container_rental.container_rental import hr_utils
+
+	customer = frappe.get_all("Customer", limit=1, pluck="name")[0]
+	supervisor = frappe.db.get_value("Employee", {"designation": "مشرف سواقين", "status": "Active"}) \
+		or frappe.get_all("Employee", filters={"status": "Active"}, limit=1, pluck="name")[0]
+	frappe.db.set_value("Employee", supervisor, "cr_is_driver", 1)
+	user = frappe.db.get_value("Employee", supervisor, "user_id")
+	print("supervisor:", supervisor, "| user:", user, "| roles:", sorted(set(frappe.get_roles(user)) & {
+		"Driver", "Driver Supervisor", "Container Manager", "System Manager", "Customer Service"}) if user else None)
+
+	order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
+		"container_size": "10 ياردة", "rental_days": 7, "rental_value": 500, "payment_method": "نقدي",
+		"rental_start_date": today()}).insert(ignore_permissions=True)
+	order.assign_driver(supervisor)
+	free = frappe.get_all("Container", filters={"status": "Available", "size": "10 ياردة"}, limit=1, pluck="name")[0]
+
+	if user:
+		frappe.set_user(user)
+	try:
+		fresh = frappe.get_doc("Container Order", order.name)
+		dn = fresh.driver_confirm_delivery(free, payment_method="نقدي")
+		print("confirm returned delivery:", dn,
+			"| order status:", frappe.db.get_value("Container Order", order.name, "status"),
+			"| container:", frappe.db.get_value("Container", free, "status"))
+	except Exception as exc:
+		print("confirm FAILED:", type(exc).__name__, exc)
+	finally:
+		frappe.set_user("Administrator")
+	print("my driver employee (as supervisor):", hr_utils.get_my_driver_employee() if not user else "n/a")
+	frappe.db.rollback()
+
+def unload_from_screen_check():
+	"""Creating a Container Unload draft must ask the delivering driver first:
+	the request carries his name, the list shows it, and his confirmation
+	submits that same draft (no duplicate unload)."""
+	from frappe.utils import today
+	from container_rental.container_rental import hr_utils
+
+	customer = frappe.get_all("Customer", limit=1, pluck="name")[0]
+	driver = frappe.db.get_value("Employee", {"designation": "سائق", "status": "Active"})
+	order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
+		"container_size": "10 ياردة", "rental_days": 10, "rental_value": 600, "payment_method": "نقدي",
+		"rental_start_date": today()}).insert(ignore_permissions=True)
+	order.assign_driver(driver)
+	free = frappe.get_all("Container", filters={"status": "Available", "size": "10 ياردة"}, limit=1, pluck="name")[0]
+	frappe.get_doc("Container Order", order.name).driver_confirm_delivery(free)
+
+	before = frappe.db.count("Container Unload")
+	unload = frappe.get_doc({"doctype": "Container Unload", "container": free,
+		"unload_date": today(), "unload_reason": "Customer Request"})
+	unload.flags.ignore_permissions = True
+	unload.insert()
+	unload.reload()
+	req = frappe.db.get_value("Container Unload Request", {"unload_reference": unload.name},
+		["name", "status", "assigned_driver"], as_dict=True)
+	print("draft unload → request:", bool(req), "| to delivering driver:", req and req.assigned_driver == driver,
+		"| unload.driver:", unload.driver == driver, "| driver_name:", unload.driver_name,
+		"| request_status on unload:", unload.request_status)
+
+	request = frappe.get_doc("Container Unload Request", req.name)
+	request.driver_confirm()
+	unload.reload()
+	print("after driver confirm — same unload submitted:", unload.docstatus == 1,
+		"| no duplicate unload:", frappe.db.count("Container Unload") == before + 1,
+		"| container:", frappe.db.get_value("Container", free, "status"),
+		"| request:", frappe.db.get_value("Container Unload Request", req.name, "status"),
+		"| unload.request_status:", frappe.db.get_value("Container Unload", unload.name, "request_status"))
+	frappe.db.rollback()

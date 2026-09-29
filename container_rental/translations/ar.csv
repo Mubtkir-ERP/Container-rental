@@ -402,3 +402,7 @@ Repair,إصلاح عطل
 Works as a Driver Too,يعمل كسائق أيضًا
 Assign to Me,إسناد لي
 Collected Payment Method,طريقة الدفع المحصّلة
+Driver Name,اسم السائق
+Driver Request Status,حالة طلب السائق
+Unload request {0} sent to the driver — status: {1},أُرسل طلب التفريغ {0} للسائق — الحالة: {1}
+Open Driver Request,فتح طلب السائق

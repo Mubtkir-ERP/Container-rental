@@ -50,6 +50,30 @@ frappe.ui.form.on("Container Unload", {
 	refresh(frm) {
 		frm.trigger("render_extend_button");
 		frm.trigger("render_replace_button");
+		frm.trigger("render_request_state");
+	},
+
+	render_request_state(frm) {
+		// Saving an unload asks the delivering driver to confirm it — show who
+		// it went to and offer to resend / reassign from here
+		if (frm.is_new() || frm.doc.docstatus !== 0) return;
+		frappe.db
+			.get_list("Container Unload Request", {
+				filters: { unload_reference: frm.doc.name },
+				fields: ["name", "status", "assigned_driver"],
+				limit: 1,
+			})
+			.then((rows) => {
+				if (!rows.length) return;
+				const r = rows[0];
+				frm.dashboard.set_headline(
+					__("Unload request {0} sent to the driver — status: {1}", [r.name, __(r.status)]),
+					r.status === "Awaiting Reassignment" ? "orange" : "blue"
+				);
+				frm.add_custom_button(__("Open Driver Request"), () =>
+					frappe.set_route("Form", "Container Unload Request", r.name)
+				);
+			});
 	},
 
 	render_extend_button(frm) {
