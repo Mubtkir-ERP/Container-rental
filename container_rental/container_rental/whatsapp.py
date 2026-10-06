@@ -83,7 +83,7 @@ DEFAULT_TEMPLATES = {
 			"رابط الطلب: {{ order_link }}\n"
 			"العميل: {{ client_name }} — {{ client_mobile }}\n"
 			"حجم الحاوية: {{ container_size }}\n"
-			"{% if address %}العنوان: {{ address }}\n{% endif %}"
+			"العنوان: {{ delivery_address }}\n"
 			"{% if google_maps_link %}الموقع على الخريطة: {{ google_maps_link }}\n{% endif %}"
 			"{% if delivery_date %}موعد التوصيل المطلوب: {{ delivery_date }} {{ delivery_time }}\n{% endif %}"
 			"يرجى إسناد الطلب لسائق."
