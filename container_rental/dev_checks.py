@@ -570,3 +570,33 @@ def unload_from_screen_check():
 		"| request:", frappe.db.get_value("Container Unload Request", req.name, "status"),
 		"| unload.request_status:", frappe.db.get_value("Container Unload", unload.name, "request_status"))
 	frappe.db.rollback()
+
+def template_address_check():
+	"""The admin-edited supervisor template uses {{ delivery_address }} while the
+	code sends "address" — rendering must fill either spelling, and fall back to
+	the customer's saved location when the order has no address typed."""
+	from frappe.utils import today
+	from container_rental.container_rental import whatsapp
+
+	customer = frappe.get_all("Customer", limit=1, pluck="name")[0]
+	cust = frappe.get_doc("Customer", customer)
+	if not cust.get("cr_delivery_locations"):
+		cust.append("cr_delivery_locations", {"address_title": "الفرع", "address": "حي الورود - شارع 20", "is_default": 1})
+		cust.flags.ignore_permissions = True
+		cust.save()
+
+	# order WITHOUT a typed address (the real production shape) + with one
+	for typed in (None, "حي النخيل - مستودع 5"):
+		order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
+			"container_size": "10 ياردة", "rental_days": 5, "rental_value": 300, "payment_method": "نقدي",
+			"rental_start_date": today(), "delivery_address": typed,
+			"google_maps_link": "https://maps.app.goo.gl/x"}).insert(ignore_permissions=True)
+		ctx = whatsapp.expand_aliases(order.get_whatsapp_context())
+		body = frappe.render_template(
+			"Location: {{ delivery_address }} | Addr: {{ address }} | Map: {{ map_link }} | Cust: {{ customer_name }}", ctx)
+		print(("typed  " if typed else "no addr"), "→", body)
+
+	# the real stored template, rendered through the adapter
+	rendered = whatsapp.render_event("supervisor_new_order", order.get_whatsapp_context())
+	print("stored template has address line:", "حي النخيل" in (rendered or "") or "الورود" in (rendered or ""))
+	frappe.db.rollback()

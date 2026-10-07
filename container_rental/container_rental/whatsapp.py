@@ -83,7 +83,7 @@ DEFAULT_TEMPLATES = {
 			"رابط الطلب: {{ order_link }}\n"
 			"العميل: {{ client_name }} — {{ client_mobile }}\n"
 			"حجم الحاوية: {{ container_size }}\n"
-			"العنوان: {{ delivery_address }}\n"
+			"{% if address %}العنوان: {{ address }}\n{% endif %}"
 			"{% if google_maps_link %}الموقع على الخريطة: {{ google_maps_link }}\n{% endif %}"
 			"{% if delivery_date %}موعد التوصيل المطلوب: {{ delivery_date }} {{ delivery_time }}\n{% endif %}"
 			"يرجى إسناد الطلب لسائق."
@@ -141,6 +141,37 @@ DEFAULT_TEMPLATES = {
 DEFAULT_COUNTRY_CODE = "966"
 
 
+# Templates are edited by admins, who reasonably write {{ delivery_address }}
+# where the code sends "address" (and the same for the client/map keys). Every
+# spelling of the same value is filled in before rendering so a hand-edited
+# template never comes out with a blank line.
+CONTEXT_ALIASES = {
+	"address": ("delivery_address", "client_address", "location", "customer_address"),
+	"google_maps_link": ("map_link", "location_link", "maps_link", "google_map_link"),
+	"client_name": ("customer_name",),
+	"client_mobile": ("customer_mobile", "mobile_no", "client_phone"),
+	"container_no": ("container", "container_number"),
+	"order_link": ("order_url",),
+	"order_no": ("order_number",),
+	"request_link": ("request_url",),
+}
+
+
+def expand_aliases(context):
+	"""Fill every known alias of a value the caller provided (and back-fill the
+	canonical key when only an alias was given)."""
+	out = dict(context or {})
+	for canonical, aliases in CONTEXT_ALIASES.items():
+		names = (canonical,) + aliases
+		value = next((out[n] for n in names if out.get(n) not in (None, "")), None)
+		if value in (None, ""):
+			continue
+		for name in names:
+			if not out.get(name):
+				out[name] = value
+	return out
+
+
 def is_meta_configured():
 	"""True when frappe_whatsapp's Meta Cloud API credentials are filled."""
 	try:
@@ -181,6 +212,7 @@ def render_event(template_key, context):
 
 	Looked up by template_name (the doc name carries a language suffix).
 	Falls back to the built-in bodies when frappe_whatsapp is not installed."""
+	context = expand_aliases(context)
 	body = None
 	if "frappe_whatsapp" in frappe.get_installed_apps():
 		body = frappe.db.get_value("WhatsApp Templates", {"template_name": template_key}, "template")

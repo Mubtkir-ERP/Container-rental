@@ -19,6 +19,20 @@ def get_name_and_mobile(customer):
 	return frappe.db.get_value("Customer", customer, ["customer_name", "mobile_no"])
 
 
+def get_default_address(customer):
+	"""The customer's default saved delivery location (Client Address child)."""
+	if not customer:
+		return None
+	rows = frappe.get_all(
+		"Client Address",
+		filters={"parent": customer, "parenttype": "Customer"},
+		fields=["address", "is_default"],
+		order_by="is_default desc, idx asc",
+		limit=1,
+	)
+	return rows[0].address if rows else None
+
+
 def refresh_balance(customer):
 	"""Recompute the customer's outstanding rental balance (document 2.4:
 	'الرصيد الحالي = إجمالي المستحق على العميل'). Called by transaction

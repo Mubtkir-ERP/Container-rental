@@ -3,7 +3,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import add_days, get_url, getdate, now_datetime
 
-from container_rental.container_rental import hr_utils, whatsapp
+from container_rental.container_rental import customer_utils, hr_utils, whatsapp
 
 # Order-type / payment values are stored in English (per the team's data
 # convention on the production site); Arabic is display-only via ar.csv.
@@ -368,6 +368,9 @@ class ContainerOrder(Document):
 		client_name = frappe.db.get_value("Customer", self.client, "customer_name")
 		mobile = self.mobile_no or frappe.db.get_value("Customer", self.client, "mobile_no") or ""
 		maps = self.google_maps_link or ""
+		# Orders are often saved with only a map link — fall back to the
+		# customer's saved location so the address line is never blank
+		address = self.delivery_address or customer_utils.get_default_address(self.client) or ""
 		return {
 			"order_no": self.name,
 			"order_link": get_url(f"/app/container-order/{self.name}"),
@@ -381,7 +384,7 @@ class ContainerOrder(Document):
 			"location_link": maps,
 			"container_no": self.container or "",
 			"container_size": self.container_size,
-			"address": self.delivery_address or "",
+			"address": address,
 			"google_maps_link": self.google_maps_link or "",
 			"payment_method": self.payment_method or "",
 			"rental_days": self.rental_days or "",
