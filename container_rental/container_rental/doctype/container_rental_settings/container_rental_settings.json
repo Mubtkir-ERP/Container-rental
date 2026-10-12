@@ -12,6 +12,7 @@
   "default_whatsapp_instance",
   "default_commission_percent",
   "commission_expense_account",
+  "maintenance_expense_account",
   "alerts_section",
   "expiry_alert_days",
   "unload_reminder_after_days",
@@ -109,11 +110,18 @@
    "label": "Extension Authorized User",
    "options": "User",
    "description": "تمديد مدة التأجير يكون بإذن هذا المستخدم فقط (مثال: راكان). اتركه فارغًا للسماح لأدوار خدمة العملاء والمشرفين"
+  },
+  {
+   "fieldname": "maintenance_expense_account",
+   "fieldtype": "Link",
+   "label": "Vehicle Expense Account",
+   "options": "Account",
+   "description": "حساب مصروف صيانة وغيار زيت السيارات — يُستخدم في سندات الصرف"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-09-20 10:05:00.000000",
+ "modified": "2026-10-12 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Container Rental",
  "name": "Container Rental Settings",

@@ -179,7 +179,7 @@ class ContainerOrder(Document):
 			create_commission_entry,
 		)
 		create_commission_entry(driver, "Container Order", self.name, self.container, self.client,
-			base_amount=self.rental_value)
+			base_amount=self.rental_value, container_size=self.container_size)
 		context = self.get_whatsapp_context()
 		context["driver_name"] = hr_utils.get_employee_name(driver)
 		whatsapp.send_event("driver_assignment", driver_mobile, context, reference_doc=self,

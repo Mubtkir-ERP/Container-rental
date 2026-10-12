@@ -98,7 +98,7 @@ class ContainerDelivery(Document):
 			size = frappe.db.get_value("Container", self.container, "size")
 			trip_price = next((item.price for item in contract.items if item.container_size == size), 0)
 			create_commission_entry(self.driver, "Container Delivery", self.name, self.container,
-				self.client, base_amount=trip_price)
+				self.client, base_amount=trip_price, container_size=size)
 
 		if self.order:
 			order = frappe.get_doc("Container Order", self.order)

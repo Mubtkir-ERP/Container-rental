@@ -7,7 +7,13 @@
  "field_order": [
   "size_name",
   "whatsapp_instance",
-  "supervisor"
+  "supervisor",
+  "commission_section",
+  "commission_type",
+  "commission_percent",
+  "commission_amount",
+  "column_break_commission",
+  "commission_expense_account"
  ],
  "fields": [
   {
@@ -31,10 +37,47 @@
    "label": "Drivers Supervisor (User)",
    "options": "User",
    "description": "مشرف السواقين لهذا الحجم — تصل له إشعارات الطلبات الجديدة وطلبات التفريغ لهذا الحجم. إن تُرك فارغًا يُستخدم المشرف الافتراضي من الإعدادات"
+  },
+  {
+   "fieldname": "commission_section",
+   "fieldtype": "Section Break",
+   "label": "Driver Commission"
+  },
+  {
+   "fieldname": "commission_type",
+   "fieldtype": "Select",
+   "label": "Commission Type",
+   "options": "\nPercentage\nFixed Amount",
+   "description": "اتركه فارغًا لاستخدام النسبة الافتراضية من إعدادات النظام"
+  },
+  {
+   "fieldname": "commission_percent",
+   "fieldtype": "Percent",
+   "label": "Commission Percent",
+   "depends_on": "eval:doc.commission_type=='Percentage'",
+   "description": "نسبة من قيمة الطلب"
+  },
+  {
+   "fieldname": "commission_amount",
+   "fieldtype": "Currency",
+   "label": "Commission Amount",
+   "depends_on": "eval:doc.commission_type=='Fixed Amount'",
+   "description": "مبلغ ثابت لكل توصيلة بهذا الحجم"
+  },
+  {
+   "fieldname": "column_break_commission",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "commission_expense_account",
+   "fieldtype": "Link",
+   "label": "Commission Expense Account",
+   "options": "Account",
+   "description": "حساب مصروف عمولات هذا الحجم — يُستخدم في قيد الصرف. إن تُرك فارغًا يُستخدم حساب الإعدادات"
   }
  ],
  "links": [],
- "modified": "2026-09-08 15:00:00.000000",
+ "modified": "2026-10-12 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Container Rental",
  "name": "Container Size",

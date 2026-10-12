@@ -122,6 +122,39 @@ def get_supervisor_contact(container_size=None):
 	return user, full_name, mobile
 
 
+def resolve_commission(employee, container_size=None, base_amount=0):
+	"""Commission for one delivery as (sales_person, amount, basis, expense_account).
+
+	The rate is defined per container size (Container Size.commission_type:
+	Percentage of the order value, or a Fixed Amount per delivery), because
+	a 20-yard trip is not worth the same as a 12-yard one. Sizes with nothing
+	configured fall back to the driver's Sales Person rate and then to the
+	default percent in Container Rental Settings."""
+	flt = frappe.utils.flt
+	sales_person = get_sales_person(employee)
+	size = frappe.db.get_value(
+		"Container Size", container_size,
+		["commission_type", "commission_percent", "commission_amount", "commission_expense_account"],
+		as_dict=True,
+	) if container_size else None
+	expense_account = (size or {}).get("commission_expense_account") or frappe.db.get_single_value(
+		"Container Rental Settings", "commission_expense_account"
+	)
+
+	if size and size.commission_type == "Fixed Amount" and flt(size.commission_amount):
+		amount = flt(size.commission_amount)
+		return sales_person, amount, _("مبلغ ثابت للحجم {0}").format(container_size), expense_account
+
+	if size and size.commission_type == "Percentage" and flt(size.commission_percent):
+		percent = flt(size.commission_percent)
+		return (sales_person, flt(base_amount) * percent / 100,
+			_("{0}% من قيمة الطلب (حجم {1})").format(percent, container_size), expense_account)
+
+	_sp, percent = get_commission_percent(employee)
+	return (sales_person, flt(base_amount) * flt(percent) / 100,
+		_("{0}% من قيمة الطلب").format(percent), expense_account)
+
+
 def get_commission_percent(employee):
 	"""Commission % of the order value: Sales Person.commission_rate, else the
 	default from Container Rental Settings (4%)."""

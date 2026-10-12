@@ -8,18 +8,23 @@ class DriverCommissionEntry(Document):
 	pass
 
 
-def create_commission_entry(driver, reference_doctype, reference_name, container=None, client=None, base_amount=0):
-	"""Driver commission = base amount × commission % (Sales Person.commission_rate
-	or the settings default). Frozen on the entry when it is created."""
+def create_commission_entry(driver, reference_doctype, reference_name, container=None, client=None,
+	base_amount=0, container_size=None):
+	"""Driver commission per the container size's rule (a percentage of the
+	order value or a fixed amount per delivery), falling back to the default
+	percent. Frozen on the entry — with its basis and expense account — when
+	it is created, so later rate changes never rewrite history."""
 	from container_rental.container_rental import hr_utils
-	from frappe.utils import flt
 
-	sales_person, percent = hr_utils.get_commission_percent(driver)
+	sales_person, amount, basis, expense_account = hr_utils.resolve_commission(
+		driver, container_size, base_amount)
 	entry = frappe.get_doc({
 		"doctype": "Driver Commission Entry",
 		"driver": driver,
 		"sales_person": sales_person,
-		"commission_amount": flt(base_amount) * flt(percent) / 100,
+		"commission_amount": amount,
+		"commission_basis": basis,
+		"expense_account": expense_account,
 		"entry_date": today(),
 		"container": container,
 		"client": client,
@@ -43,23 +48,27 @@ def mark_paid(names, payout_account=None, posting_date=None):
 		frappe.throw(_("صرف العمولات يتطلب صلاحية مدير الحاويات"), frappe.PermissionError)
 	if isinstance(names, str):
 		names = frappe.parse_json(names)
-	expense_account = frappe.db.get_single_value("Container Rental Settings", "commission_expense_account")
-	if not expense_account:
-		frappe.throw(_("حدد حساب مصروف العمولات في إعدادات النظام أولًا"))
+	default_account = frappe.db.get_single_value("Container Rental Settings", "commission_expense_account")
 	if not payout_account:
 		frappe.throw(_("اختر حساب الصرف (صندوق السائق أو البنك)"))
 
-	company = frappe.db.get_value("Account", expense_account, "company")
 	posting_date = posting_date or _today()
+	# Each size can book its commissions to its own expense account, so entries
+	# are grouped by (driver, account) — one Journal Entry per combination
 	by_driver = {}
 	for name in names:
 		doc = frappe.get_doc("Driver Commission Entry", name)
-		if doc.payout_status == "Due" and flt(doc.commission_amount) > 0:
-			by_driver.setdefault(doc.driver, []).append(doc)
+		if doc.payout_status != "Due" or flt(doc.commission_amount) <= 0:
+			continue
+		account = doc.expense_account or default_account
+		if not account:
+			frappe.throw(_("حدد حساب مصروف العمولات في حجم الحاوية أو في إعدادات النظام أولًا"))
+		by_driver.setdefault((doc.driver, account), []).append(doc)
 
 	count = 0
-	for driver, docs in by_driver.items():
+	for (driver, expense_account), docs in by_driver.items():
 		total = sum(flt(d.commission_amount) for d in docs)
+		company = frappe.db.get_value("Account", expense_account, "company")
 		driver_name = frappe.db.get_value("Employee", driver, "employee_name")
 		je = frappe.get_doc({
 			"doctype": "Journal Entry",

@@ -249,6 +249,16 @@ def create_unload_request(rental_record, request_type="Unload", source="Customer
 		request = frappe.get_doc("Container Unload Request", existing)
 		if unload_doc is not None and not request.unload_reference:
 			request.db_set("unload_reference", unload_doc.name)
+		# Saving an unload already opened a plain request; pressing Replace
+		# afterwards must upgrade THAT request, otherwise the driver's
+		# confirmation would never create the replacement order
+		if request_type == "Replace" and request.request_type != "Replace":
+			request.db_set("request_type", "Replace")
+			request.db_set("source", source)
+			request.add_comment("Info", _("حُوّل الطلب إلى تفريغ واستبدال"))
+			request.reload()
+			if request.assigned_driver and request.status == STATUS_WAITING_DRIVER:
+				request.notify_driver()
 		return request
 	request = frappe.get_doc({
 		"doctype": "Container Unload Request",

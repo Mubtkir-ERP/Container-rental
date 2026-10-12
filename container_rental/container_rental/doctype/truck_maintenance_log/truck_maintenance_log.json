@@ -10,7 +10,13 @@
   "odometer_km",
   "next_maintenance_date",
   "next_maintenance_km",
-  "notes"
+  "notes",
+  "payment_entry_section",
+  "expense_account",
+  "journal_entry",
+  "column_break_payment",
+  "paid_on",
+  "make_payment"
  ],
  "fields": [
   {
@@ -55,11 +61,47 @@
    "fieldname": "notes",
    "fieldtype": "Small Text",
    "label": "Notes"
+  },
+  {
+   "fieldname": "payment_entry_section",
+   "fieldtype": "Section Break",
+   "label": "Expense Voucher"
+  },
+  {
+   "fieldname": "expense_account",
+   "fieldtype": "Link",
+   "label": "Expense Account",
+   "options": "Account",
+   "description": "حساب المصروف — إن تُرك فارغًا يُستخدم حساب مصروف الصيانة من الإعدادات"
+  },
+  {
+   "fieldname": "journal_entry",
+   "fieldtype": "Link",
+   "label": "Expense Voucher",
+   "options": "Journal Entry",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "column_break_payment",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "paid_on",
+   "fieldtype": "Date",
+   "label": "Paid On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "make_payment",
+   "fieldtype": "Button",
+   "label": "Create Expense Voucher",
+   "depends_on": "eval:!doc.journal_entry"
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2026-09-29 10:00:00.000000",
+ "modified": "2026-10-12 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Container Rental",
  "name": "Truck Maintenance Log",

@@ -600,3 +600,93 @@ def template_address_check():
 	rendered = whatsapp.render_event("supervisor_new_order", order.get_whatsapp_context())
 	print("stored template has address line:", "حي النخيل" in (rendered or "") or "الورود" in (rendered or ""))
 	frappe.db.rollback()
+
+def replace_after_unload_check():
+	"""Production path: operator saves a Container Unload (which already asks
+	the driver), then presses Replace Container. The driver's confirmation must
+	still create the replacement order and assign it to him."""
+	from frappe.utils import today
+	from container_rental import api
+
+	customer = frappe.get_all("Customer", limit=1, pluck="name")[0]
+	driver = frappe.db.get_value("Employee", {"designation": "سائق", "status": "Active"})
+	order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
+		"container_size": "10 ياردة", "rental_days": 10, "rental_value": 700, "payment_method": "نقدي",
+		"rental_start_date": today()}).insert(ignore_permissions=True)
+	order.assign_driver(driver)
+	free = frappe.get_all("Container", filters={"status": "Available", "size": "10 ياردة"}, limit=1, pluck="name")[0]
+	frappe.get_doc("Container Order", order.name).driver_confirm_delivery(free)
+	record = frappe.db.get_value("Rental Record", {"source_name": order.name})
+
+	# 1) operator saves the unload → request goes out as a plain unload
+	unload = frappe.get_doc({"doctype": "Container Unload", "container": free,
+		"unload_date": today(), "unload_reason": "Customer Request"})
+	unload.flags.ignore_permissions = True
+	unload.insert()
+	req_name = frappe.db.get_value("Container Unload Request", {"unload_reference": unload.name})
+	print("after save — request type:", frappe.db.get_value("Container Unload Request", req_name, "request_type"))
+
+	# 2) operator presses Replace Container on the same unload
+	res = api.send_unload_request(record, request_type="Replace")
+	print("replace reuses same request:", res["request"] == req_name,
+		"| type now:", frappe.db.get_value("Container Unload Request", req_name, "request_type"))
+
+	# 3) driver confirms → unload submitted + replacement order assigned to him
+	out = frappe.get_doc("Container Unload Request", req_name).driver_confirm()
+	new_order = frappe.get_doc("Container Order", out["new_order"]) if out.get("new_order") else None
+	print("replacement order created:", bool(new_order),
+		"| assigned to same driver:", bool(new_order) and new_order.assigned_driver == driver,
+		"| status:", new_order.status if new_order else "-",
+		"| container freed:", frappe.db.get_value("Container", free, "status"))
+	frappe.db.rollback()
+
+def commission_rule_check():
+	"""Commission is configured per container size: a percentage of the order
+	value or a fixed amount per delivery, each with its own expense account."""
+	from frappe.utils import today
+	from container_rental.container_rental import hr_utils
+	from container_rental.container_rental.doctype.driver_commission_entry.driver_commission_entry import mark_paid
+
+	size = "10 ياردة"
+	customer = frappe.get_all("Customer", limit=1, pluck="name")[0]
+	driver = frappe.db.get_value("Employee", {"designation": "سائق", "status": "Active"})
+	expense = frappe.db.get_value("Account", {"account_name": "Commission on Sales", "is_group": 0})
+	cash = frappe.db.get_value("Account", {"account_type": "Cash", "is_group": 0})
+	frappe.db.set_value("Container Rental Settings", None, "commission_expense_account", expense)
+	frappe.clear_cache(doctype="Container Rental Settings")
+
+	def place(value=1000):
+		order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
+			"container_size": size, "rental_days": 5, "rental_value": value, "payment_method": "نقدي",
+			"rental_start_date": today()}).insert(ignore_permissions=True)
+		order.assign_driver(driver)
+		return frappe.db.get_value("Driver Commission Entry",
+			{"delivery_reference": order.name}, ["commission_amount", "commission_basis", "expense_account"], as_dict=True)
+
+	# a) nothing configured on the size → settings default percent (4%)
+	frappe.db.set_value("Container Size", size, {"commission_type": None, "commission_percent": 0,
+		"commission_amount": 0, "commission_expense_account": None})
+	e = place()
+	print("fallback percent:", e.commission_amount, "|", e.commission_basis, "| acct:", e.expense_account == expense)
+
+	# b) percentage on the size
+	frappe.db.set_value("Container Size", size, {"commission_type": "Percentage", "commission_percent": 7})
+	e = place()
+	print("size percentage :", e.commission_amount, "|", e.commission_basis)
+
+	# c) fixed amount on the size + its own expense account
+	other = frappe.db.get_value("Account", {"is_group": 0, "root_type": "Expense",
+		"name": ("!=", expense)}) or expense
+	frappe.db.set_value("Container Size", size, {"commission_type": "Fixed Amount",
+		"commission_amount": 35, "commission_expense_account": other})
+	e = place(9999)
+	print("size fixed      :", e.commission_amount, "|", e.commission_basis, "| own acct:", e.expense_account == other)
+
+	# payout uses the entry's own account
+	entry = frappe.db.get_value("Driver Commission Entry",
+		{"expense_account": other, "payout_status": "Due"})
+	mark_paid([entry], payout_account=cash)
+	je = frappe.db.get_value("Driver Commission Entry", entry, "journal_entry")
+	accounts = [(a.account, a.debit, a.credit) for a in frappe.get_doc("Journal Entry", je).accounts]
+	print("payout JE uses size account:", any(a[0] == other and a[1] for a in accounts), "|", accounts)
+	frappe.db.rollback()
