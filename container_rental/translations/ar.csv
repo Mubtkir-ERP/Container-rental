@@ -417,3 +417,19 @@ Vehicle Expense Account,حساب مصروف السيارات
 Expense Voucher,سند الصرف
 Create Expense Voucher,إنشاء سند صرف
 Paid On,تاريخ الصرف
+Item,البند
+Paid From Account,حساب الصرف
+Create Voucher,إنشاء السند
+Create Vouchers,إنشاء السندات
+Leave empty to use the vehicle expense account from settings,اتركه فارغًا لاستخدام حساب مصروف السيارات من الإعدادات
+Expense voucher {0} created,أُنشئ سند الصرف {0}
+"Save the truck first, then create the voucher",احفظ بطاقة الشاحنة أولًا ثم أنشئ السند
+Enter the item cost first,أدخل تكلفة البند أولًا
+Pay Unpaid Expenses,صرف المصاريف غير المسددة
+No unpaid expenses on this truck,لا توجد مصاريف غير مسددة لهذه الشاحنة
+Unpaid Items,البنود غير المسددة
+Pay,صرف
+Total unpaid,إجمالي غير المسدد
+Select at least one item,اختر بندًا واحدًا على الأقل
+{0} expense vouchers created,أُنشئ {0} سند صرف
+Creating vouchers...,جارٍ إنشاء السندات...

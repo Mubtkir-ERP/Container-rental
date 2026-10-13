@@ -690,3 +690,47 @@ def commission_rule_check():
 	accounts = [(a.account, a.debit, a.credit) for a in frappe.get_doc("Journal Entry", je).accounts]
 	print("payout JE uses size account:", any(a[0] == other and a[1] for a in accounts), "|", accounts)
 	frappe.db.rollback()
+
+def truck_expense_voucher_check():
+	"""Maintenance / oil-change rows are paid with a submitted Journal Entry
+	(Dr vehicle expense / Cr cash), linked back on the row and never twice."""
+	from frappe.utils import today
+	from container_rental.container_rental.doctype.truck import truck as truck_api
+
+	expense = frappe.db.get_value("Account", {"is_group": 0, "root_type": "Expense"})
+	cash = frappe.db.get_value("Account", {"account_type": "Cash", "is_group": 0})
+	frappe.db.set_value("Container Rental Settings", None, "maintenance_expense_account", expense)
+	frappe.clear_cache(doctype="Container Rental Settings")
+
+	name = frappe.db.get_value("Truck", {})
+	doc = frappe.get_doc("Truck", name) if name else frappe.get_doc({
+		"doctype": "Truck", "vehicle_no": "TRK-TEST-1"}).insert(ignore_permissions=True)
+	doc.append("maintenance_log", {"maintenance_date": today(), "maintenance_type": "Brakes", "cost": 450})
+	doc.append("oil_changes", {"change_date": today(), "cost": 120, "odometer_km": 90000})
+	doc.flags.ignore_permissions = True
+	doc.save()
+	doc.reload()
+	m_row = doc.maintenance_log[-1]
+	o_row = doc.oil_changes[-1]
+
+	unpaid = truck_api.get_unpaid_expense_rows(doc.name)
+	print("unpaid rows found:", len(unpaid), "| labels:", [u["label"] for u in unpaid][:4])
+
+	je = truck_api.make_expense_voucher(doc.name, "maintenance_log", m_row.name, payout_account=cash)
+	jed = frappe.get_doc("Journal Entry", je)
+	print("maintenance voucher:", je, "| submitted:", jed.docstatus == 1,
+		"| accounts:", [(a.account, a.debit, a.credit) for a in jed.accounts])
+	doc.reload()
+	row = next(r for r in doc.maintenance_log if r.name == m_row.name)
+	print("row linked:", row.journal_entry == je, "| paid_on:", bool(row.paid_on))
+
+	try:
+		truck_api.make_expense_voucher(doc.name, "maintenance_log", m_row.name, payout_account=cash)
+		print("double pay blocked: FAIL")
+	except frappe.ValidationError:
+		print("double pay blocked: True")
+
+	je2 = truck_api.make_expense_voucher(doc.name, "oil_changes", o_row.name, payout_account=cash,
+		expense_account=expense)
+	print("oil voucher:", bool(je2), "| remaining unpaid:", len(truck_api.get_unpaid_expense_rows(doc.name)))
+	frappe.db.rollback()

@@ -400,7 +400,6 @@ def _apply_party_and_tax_defaults(invoice, customer):
 	"""Pull the customer's selling defaults (price list, currency, payment terms,
 	tax category) and fill the taxes table from the matching Tax Rule template
 	or, failing that, the company's default Sales Taxes and Charges Template."""
-	from erpnext.accounts.party import get_party_details
 	from erpnext.controllers.accounts_controller import (
 		get_default_taxes_and_charges,
 		get_taxes_and_charges,
@@ -408,13 +407,8 @@ def _apply_party_and_tax_defaults(invoice, customer):
 
 	if not invoice.company:
 		invoice.company = frappe.db.get_value("Global Defaults", None, "default_company") or frappe.db.get_value("Company", {})
-	details = get_party_details(
-		party=customer,
-		party_type="Customer",
-		company=invoice.company,
-		doctype="Sales Invoice",
-		ignore_permissions=True,
-	) or {}
+
+	details = _get_party_details(customer, invoice.company)
 	for field in ("customer_group", "territory", "currency", "selling_price_list",
 		"payment_terms_template", "tax_category", "debit_to", "taxes_and_charges"):
 		value = details.get(field)
@@ -429,6 +423,37 @@ def _apply_party_and_tax_defaults(invoice, customer):
 		rows = default.get("taxes") or []
 	for row in rows:
 		invoice.append("taxes", row)
+
+
+def _get_party_details(customer, company):
+	"""Selling defaults for the customer. ERPNext changes this helper's
+	signature between versions (15.122 dropped `ignore_permissions`), so only
+	the arguments it actually accepts are passed, and a failure here degrades
+	to an empty dict rather than blocking the invoice — the tax template is
+	applied either way."""
+	import inspect
+
+	from erpnext.accounts.party import get_party_details
+
+	kwargs = {
+		"party": customer,
+		"party_type": "Customer",
+		"company": company,
+		"doctype": "Sales Invoice",
+		"ignore_permissions": True,
+	}
+	try:
+		accepted = set(inspect.signature(get_party_details).parameters)
+		if accepted and "kwargs" not in accepted:
+			kwargs = {key: value for key, value in kwargs.items() if key in accepted}
+	except (TypeError, ValueError):
+		kwargs.pop("ignore_permissions", None)
+	try:
+		return get_party_details(**kwargs) or {}
+	except Exception:
+		frappe.log_error(title="Container Rental: get_party_details failed")
+		frappe.clear_last_message()
+		return {}
 
 
 def _first_existing(doctype, names):
