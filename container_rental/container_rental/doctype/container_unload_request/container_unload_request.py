@@ -237,10 +237,14 @@ def get_active_request(rental_record):
 	)
 
 
-def create_unload_request(rental_record, request_type="Unload", source="Customer Request", unload_doc=None):
+def create_unload_request(rental_record, request_type="Unload", source="Customer Request",
+	unload_doc=None, renotify=False):
 	"""Create (or return the already-active) driver-first unload request.
 	`unload_doc` links a draft Container Unload the operator already made, so
-	the driver's confirmation submits that document instead of a new one."""
+	the driver's confirmation submits that document instead of a new one. The
+	type comes from that document, so the driver receives exactly one message
+	saying whether this is a plain unload or an unload-and-replace; `renotify`
+	re-sends it only when the operator deliberately changed the type."""
 	existing = frappe.db.get_value(
 		"Container Unload Request",
 		{"rental_record": rental_record, "status": ("in", ACTIVE_STATUSES)},
@@ -249,15 +253,12 @@ def create_unload_request(rental_record, request_type="Unload", source="Customer
 		request = frappe.get_doc("Container Unload Request", existing)
 		if unload_doc is not None and not request.unload_reference:
 			request.db_set("unload_reference", unload_doc.name)
-		# Saving an unload already opened a plain request; pressing Replace
-		# afterwards must upgrade THAT request, otherwise the driver's
-		# confirmation would never create the replacement order
-		if request_type == "Replace" and request.request_type != "Replace":
-			request.db_set("request_type", "Replace")
+		if request_type != request.request_type:
+			request.db_set("request_type", request_type)
 			request.db_set("source", source)
-			request.add_comment("Info", _("حُوّل الطلب إلى تفريغ واستبدال"))
+			request.add_comment("Info", _("تغيّر نوع الطلب إلى: {0}").format(_(request_type)))
 			request.reload()
-			if request.assigned_driver and request.status == STATUS_WAITING_DRIVER:
+			if renotify and request.assigned_driver and request.status == STATUS_WAITING_DRIVER:
 				request.notify_driver()
 		return request
 	request = frappe.get_doc({

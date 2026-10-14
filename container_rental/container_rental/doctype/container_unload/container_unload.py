@@ -8,6 +8,8 @@ from container_rental.container_rental.doctype.rental_record.rental_record impor
 
 
 class ContainerUnload(Document):
+	REPLACE_TYPE = "Unload and Replace"
+
 	def validate(self):
 		info = frappe.db.get_value("Container", self.container, "status")
 		if info not in ("Rented", "Overdue"):
@@ -24,23 +26,45 @@ class ContainerUnload(Document):
 		self.driver_name = frappe.db.get_value("Employee", self.driver, "employee_name") if self.driver else None
 
 	def after_insert(self):
-		"""Recording an unload asks the delivering driver to do it: he gets the
-		WhatsApp request and confirms from the link, which submits THIS
-		document. Office staff can still submit it directly instead."""
+		"""Recording an unload asks the delivering driver to do it: he gets ONE
+		WhatsApp request — plain unload or unload-and-replace, per the type
+		chosen on this document — and confirms from the link, which submits
+		THIS document (and opens the replacement order when the type says so).
+		Office staff can still submit it directly instead."""
+		if self.docstatus != 0 or self.flags.skip_driver_request:
+			return
+		self._open_driver_request()
+
+	def on_update(self):
+		"""The operator may correct the type before the driver acts: switch the
+		open request and send him the corrected instruction — still one message
+		per decision, never two for the same one."""
+		if self.docstatus != 0 or self.flags.skip_driver_request:
+			return
+		previous = (self.get_doc_before_save() or {}).get("unload_type") if self.get_doc_before_save() else None
+		if previous and previous != self.unload_type:
+			self._open_driver_request(retype=True)
+
+	def _open_driver_request(self, retype=False):
 		from container_rental.container_rental.doctype.container_unload_request.container_unload_request import (
 			create_unload_request,
 		)
 
-		if self.docstatus != 0 or self.flags.skip_driver_request:
-			return
 		request = create_unload_request(
 			self.rental_record,
-			source="Period Expired" if self.unload_reason == "Specified Period Expired" else "Customer Request",
+			request_type="Replace" if self.unload_type == self.REPLACE_TYPE else "Unload",
+			source=self._request_source(),
 			unload_doc=self,
+			renotify=retype,
 		)
 		self.db_set("request_status", request.status)
 		if request.assigned_driver and not self.driver:
 			self.db_set("driver", request.assigned_driver)
+
+	def _request_source(self):
+		if self.unload_type == self.REPLACE_TYPE:
+			return "Replacement"
+		return "Period Expired" if self.unload_reason == "Specified Period Expired" else "Customer Request"
 
 	def on_submit(self):
 		# Document rule (S5): container becomes available, rental closes,

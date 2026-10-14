@@ -49,31 +49,7 @@ window.container_rental_can_extend = window.container_rental_can_extend || funct
 frappe.ui.form.on("Container Unload", {
 	refresh(frm) {
 		frm.trigger("render_extend_button");
-		frm.trigger("render_replace_button");
 		frm.trigger("render_request_state");
-	},
-
-	render_request_state(frm) {
-		// Saving an unload asks the delivering driver to confirm it — show who
-		// it went to and offer to resend / reassign from here
-		if (frm.is_new() || frm.doc.docstatus !== 0) return;
-		frappe.db
-			.get_list("Container Unload Request", {
-				filters: { unload_reference: frm.doc.name },
-				fields: ["name", "status", "assigned_driver"],
-				limit: 1,
-			})
-			.then((rows) => {
-				if (!rows.length) return;
-				const r = rows[0];
-				frm.dashboard.set_headline(
-					__("Unload request {0} sent to the driver — status: {1}", [r.name, __(r.status)]),
-					r.status === "Awaiting Reassignment" ? "orange" : "blue"
-				);
-				frm.add_custom_button(__("Open Driver Request"), () =>
-					frappe.set_route("Form", "Container Unload Request", r.name)
-				);
-			});
 	},
 
 	render_extend_button(frm) {
@@ -90,30 +66,31 @@ frappe.ui.form.on("Container Unload", {
 		}
 	},
 
-	render_replace_button(frm) {
-		frm.remove_custom_button(__("Replace Container"));
-		if (frm.doc.docstatus !== 0 || !frm.doc.rental_record) return;
-		// The client wants a fresh container: unload request to the same
-		// driver + a duplicate order on his confirmation
-		frm.add_custom_button(__("Replace Container"), () => {
-			frappe.confirm(
-				__("Send a replace request? The delivering driver gets a WhatsApp to remove this container, and on his confirmation a new order is created for the client."),
-				() => {
-					frappe.call({
-						method: "container_rental.api.send_unload_request",
-						args: { rental_record: frm.doc.rental_record, request_type: "Replace" },
-						callback(r) {
-							const m = r.message || {};
-							frappe.show_alert({
-								message: __("Replace request {0} sent to the driver", [m.request]),
-								indicator: "green",
-							});
-							if (m.request) frappe.set_route("Form", "Container Unload Request", m.request);
-						},
-					});
-				}
-			);
-		});
+	render_request_state(frm) {
+		// Saving an unload sends the driver ONE request, worded per the chosen
+		// unload type — show which one went out and let the operator open it
+		if (frm.is_new() || frm.doc.docstatus !== 0) return;
+		frappe.db
+			.get_list("Container Unload Request", {
+				filters: { unload_reference: frm.doc.name },
+				fields: ["name", "status", "request_type", "assigned_driver"],
+				limit: 1,
+			})
+			.then((rows) => {
+				if (!rows.length) return;
+				const r = rows[0];
+				frm.dashboard.set_headline(
+					__("{0} request {1} sent to the driver — status: {2}", [
+						__(r.request_type === "Replace" ? "Unload and Replace" : "Unload"),
+						r.name,
+						__(r.status),
+					]),
+					r.status === "Awaiting Reassignment" ? "orange" : "blue"
+				);
+				frm.add_custom_button(__("Open Driver Request"), () =>
+					frappe.set_route("Form", "Container Unload Request", r.name)
+				);
+			});
 	},
 
 	setup(frm) {

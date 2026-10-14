@@ -433,3 +433,6 @@ Total unpaid,إجمالي غير المسدد
 Select at least one item,اختر بندًا واحدًا على الأقل
 {0} expense vouchers created,أُنشئ {0} سند صرف
 Creating vouchers...,جارٍ إنشاء السندات...
+Unload Type,نوع التفريغ
+Unload and Replace,تفريغ واستبدال
+{0} request {1} sent to the driver — status: {2},طلب {0} رقم {1} أُرسل للسائق — الحالة: {2}

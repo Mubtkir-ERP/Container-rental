@@ -734,3 +734,105 @@ def truck_expense_voucher_check():
 		expense_account=expense)
 	print("oil voucher:", bool(je2), "| remaining unpaid:", len(truck_api.get_unpaid_expense_rows(doc.name)))
 	frappe.db.rollback()
+
+def unload_type_flow_check():
+	"""One message per unload: the type is chosen on the document itself.
+	A) Unload → one request, driver confirms, closed.
+	B) Unload and Replace → one request worded as a replacement, driver
+	   confirms → the unload closes AND a new order is assigned to him; his
+	   delivery confirmation on that order marks it Delivered."""
+	from frappe.utils import today
+
+	customer = frappe.get_all("Customer", limit=1, pluck="name")[0]
+	driver = frappe.db.get_value("Employee", {"designation": "سائق", "status": "Active"})
+
+	def rented_container(value=500):
+		order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
+			"container_size": "10 ياردة", "rental_days": 10, "rental_value": value, "payment_method": "نقدي",
+			"rental_start_date": today()}).insert(ignore_permissions=True)
+		order.assign_driver(driver)
+		free = frappe.get_all("Container", filters={"status": "Available", "size": "10 ياردة"},
+			limit=1, pluck="name")[0]
+		frappe.get_doc("Container Order", order.name).driver_confirm_delivery(free)
+		return free
+
+	def messages_for(request_name):
+		return frappe.db.count("WhatsApp Message",
+			{"reference_doctype": "Container Unload Request", "reference_name": request_name})
+
+	# ── A) plain unload
+	c1 = rented_container()
+	u1 = frappe.get_doc({"doctype": "Container Unload", "container": c1, "unload_date": today(),
+		"unload_reason": "Customer Request", "unload_type": "Unload"})
+	u1.flags.ignore_permissions = True
+	u1.insert()
+	r1 = frappe.db.get_value("Container Unload Request", {"unload_reference": u1.name},
+		["name", "request_type"], as_dict=True)
+	print("A: type:", r1.request_type, "| messages:", messages_for(r1.name))
+	out1 = frappe.get_doc("Container Unload Request", r1.name).driver_confirm()
+	u1.reload()
+	print("A: unload submitted:", u1.docstatus == 1, "| new order:", out1.get("new_order"),
+		"| container:", frappe.db.get_value("Container", c1, "status"))
+
+	# ── B) unload and replace
+	c2 = rented_container(650)
+	u2 = frappe.get_doc({"doctype": "Container Unload", "container": c2, "unload_date": today(),
+		"unload_reason": "Customer Request", "unload_type": "Unload and Replace"})
+	u2.flags.ignore_permissions = True
+	u2.insert()
+	r2 = frappe.db.get_value("Container Unload Request", {"unload_reference": u2.name},
+		["name", "request_type"], as_dict=True)
+	print("B: type:", r2.request_type, "| messages:", messages_for(r2.name))
+	out2 = frappe.get_doc("Container Unload Request", r2.name).driver_confirm()
+	new_order = frappe.get_doc("Container Order", out2["new_order"])
+	print("B: new order:", new_order.name, "| assigned to same driver:",
+		new_order.assigned_driver == driver, "| status:", new_order.status,
+		"| old container:", frappe.db.get_value("Container", c2, "status"))
+
+	# driver delivers the replacement → order must become Delivered
+	free = frappe.get_all("Container", filters={"status": "Available", "size": "10 ياردة"},
+		limit=1, pluck="name")[0]
+	frappe.get_doc("Container Order", new_order.name).driver_confirm_delivery(free)
+	print("B: replacement delivered:", frappe.db.get_value("Container Order", new_order.name, "status"),
+		"| total messages on request:", messages_for(r2.name))
+	frappe.db.rollback()
+
+def unload_message_count_check():
+	"""Count the actual WhatsApp sends per unload: exactly one request message
+	for either type, plus the assignment message when a replacement order is
+	created (and the client's thank-you on unload)."""
+	from frappe.utils import today
+	from container_rental.container_rental import whatsapp
+
+	sent = []
+	real = whatsapp.send_event
+	whatsapp.send_event = lambda key, mobile, ctx, **kw: sent.append(key)
+	try:
+		customer = frappe.get_all("Customer", limit=1, pluck="name")[0]
+		driver = frappe.db.get_value("Employee", {"designation": "سائق", "status": "Active"})
+
+		def rented():
+			order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
+				"container_size": "10 ياردة", "rental_days": 10, "rental_value": 400,
+				"payment_method": "نقدي", "rental_start_date": today()}).insert(ignore_permissions=True)
+			order.assign_driver(driver)
+			free = frappe.get_all("Container", filters={"status": "Available", "size": "10 ياردة"},
+				limit=1, pluck="name")[0]
+			frappe.get_doc("Container Order", order.name).driver_confirm_delivery(free)
+			return free
+
+		for unload_type in ("Unload", "Unload and Replace"):
+			container = rented()
+			sent.clear()
+			u = frappe.get_doc({"doctype": "Container Unload", "container": container,
+				"unload_date": today(), "unload_reason": "Customer Request", "unload_type": unload_type})
+			u.flags.ignore_permissions = True
+			u.insert()
+			print(f"{unload_type:18} on save  →", sent or ["(none)"])
+			req = frappe.db.get_value("Container Unload Request", {"unload_reference": u.name})
+			sent.clear()
+			frappe.get_doc("Container Unload Request", req).driver_confirm()
+			print(f"{unload_type:18} on confirm →", sent or ["(none)"])
+	finally:
+		whatsapp.send_event = real
+		frappe.db.rollback()
