@@ -187,7 +187,10 @@ def resolve_instance(instance=None):
 	any connected instance. None when the site has no instances."""
 	if "frappe_whatsapp" not in frappe.get_installed_apps() or not frappe.db.table_exists("Whatsapp Instance"):
 		return None
-	if instance and frappe.db.exists("Whatsapp Instance", instance):
+	if instance:
+		# An explicitly chosen sender must never silently fall back to a different number.
+		if not frappe.db.exists("Whatsapp Instance", instance):
+			raise ValueError(f"Configured WhatsApp Instance does not exist: {instance}")
 		return instance
 	default = frappe.db.get_single_value("Container Rental Settings", "default_whatsapp_instance")
 	if default and frappe.db.exists("Whatsapp Instance", default):
@@ -270,38 +273,37 @@ def _send_event(template_key, mobile_no, context, reference_doc, instance=None):
 
 
 def _send_via_evolution(instance, mobile_no, body, reference_doc=None):
-	"""POST the text through the Evolution API of a Whatsapp Instance and log
-	it as a WhatsApp Message (message_id set so frappe_whatsapp does not
-	re-send it through Meta)."""
-	import requests
+	"""Send using frappe_whatsapp's unified Evolution API and central credentials.
+
+	A stable operation key stops retries after a timeout from sending twice.
+	Uncertain results must be reconciled with Evolution before any new send.
+	"""
+	from frappe_whatsapp.utils.evolution import send_text as evolution_send_text
+	from frappe_whatsapp.utils.delivery_guard import delivery_key
 
 	inst = frappe.get_doc("Whatsapp Instance", instance)
-	server = frappe.get_doc("Evolution Server", inst.evolution_server)
-	api_key = inst.get_password("api_key", raise_exception=False) or server.get_password("api_key", raise_exception=False)
-	base_url = (server.base_url or "").rstrip("/")
 	to = normalize_number(mobile_no)
-	response = requests.post(
-		f"{base_url}/message/sendText/{inst.instance_name}",
-		headers={"Content-Type": "application/json", "apikey": api_key},
-		json={"number": to, "text": body},
-		timeout=30,
+	operation_key = delivery_key(
+		"container-rental", "whatsapp-text", inst.instance_name,
+		to, reference_doc.doctype if reference_doc else "",
+		reference_doc.name if reference_doc else "", body,
 	)
-	data = {}
-	try:
-		data = response.json()
-	except Exception:
-		pass
-	if response.status_code not in (200, 201):
-		frappe.throw(f"Evolution API error {response.status_code}: {response.text[:300]}")
-	message_id = data.get("key", {}).get("id") or data.get("message", {}).get("key", {}).get("id") or "evolution"
+	message_id = evolution_send_text(
+		number=to,
+		text=body,
+		instance_name=inst.instance_name,
+		operation_key=operation_key,
+	)
+	# Keep the existing audit trail only after the send helper returns successfully.
+	# The unified sender already protects against duplicate network sends.
 	log = frappe.get_doc({
 		"doctype": "WhatsApp Message",
 		"type": "Outgoing",
-		"message_type": "Template",  # with message_id set → stored without a Meta send
+		"message_type": "Template",
 		"content_type": "text",
 		"to": to,
 		"message": body,
-		"message_id": message_id,
+		"message_id": message_id or "evolution",
 		"status": "Sent",
 		"reference_doctype": reference_doc.doctype if reference_doc else None,
 		"reference_name": reference_doc.name if reference_doc else None,
