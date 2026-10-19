@@ -37,6 +37,7 @@
   "last_whatsapp_message",
   "last_whatsapp_on",
   "column_break_whatsapp",
+  "reminder_sent_on",
   "unload_request_sent_on"
  ],
  "fields": [
@@ -242,11 +243,19 @@
    "fieldtype": "Datetime",
    "label": "Last Unload Request Sent On",
    "read_only": 1
+  },
+  {
+   "fieldname": "reminder_sent_on",
+   "fieldtype": "Datetime",
+   "label": "Due Reminder Sent On",
+   "read_only": 1,
+   "no_copy": 1,
+   "description": "تذكير العميل قبل الاستحقاق — يُرسل مرة واحدة فقط"
   }
  ],
  "in_create": 1,
  "links": [],
- "modified": "2026-09-29 10:00:00.000000",
+ "modified": "2026-10-19 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Container Rental",
  "name": "Rental Record",

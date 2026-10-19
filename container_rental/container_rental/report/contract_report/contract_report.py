@@ -17,9 +17,7 @@ def get_columns():
 		{"fieldname": "start_date", "label": _("تاريخ بداية العقد"), "fieldtype": "Date", "width": 110},
 		{"fieldname": "end_date", "label": _("تاريخ انتهاء العقد"), "fieldtype": "Date", "width": 110},
 		{"fieldname": "contract_value", "label": _("إجمالي التعاقد"), "fieldtype": "Currency", "width": 120},
-		{"fieldname": "paid_amount", "label": _("المدفوع"), "fieldtype": "Currency", "width": 110},
-		{"fieldname": "tax_on_paid", "label": _("الضرائب على المدفوع"), "fieldtype": "Currency", "width": 120},
-		{"fieldname": "outstanding", "label": _("المتبقي (عليه)"), "fieldtype": "Currency", "width": 110},
+		{"fieldname": "payment_method", "label": _("طريقة الدفع"), "fieldtype": "Data", "width": 110},
 		{"fieldname": "total_trips", "label": _("عدد الرحلات"), "fieldtype": "Int", "width": 100},
 		{"fieldname": "remaining_trips", "label": _("الرحلات المتبقية"), "fieldtype": "Int", "width": 110},
 		{"fieldname": "last_container", "label": _("رقم آخر حاوية"), "fieldtype": "Link", "options": "Container", "width": 120},
@@ -54,8 +52,7 @@ def get_data(filters):
 		SELECT
 			c.name AS contract_no, cl.customer_name AS client_name, cl.mobile_no AS mobile_no,
 			DATEDIFF(c.end_date, c.start_date) AS duration_days,
-			c.start_date, c.end_date, c.contract_value,
-			c.paid_amount, c.tax_on_paid, c.outstanding,
+			c.start_date, c.end_date, c.contract_value, c.payment_method,
 			c.total_trips, c.remaining_trips, c.last_container,
 			c.owner AS owner_user, c.contract_status
 		FROM `tabContainer Contract` c

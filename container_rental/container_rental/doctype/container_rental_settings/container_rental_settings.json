@@ -9,7 +9,6 @@
   "column_break_rental",
   "default_supervisor",
   "extension_authorized_user",
-  "default_whatsapp_instance",
   "default_commission_percent",
   "commission_expense_account",
   "maintenance_expense_account",
@@ -91,13 +90,6 @@
    "description": "نسبة من قيمة الطلب — تُحتسب عند إسناد الطلب للسائق (ما لم تُحدد نسبة على Sales Person)"
   },
   {
-   "fieldname": "default_whatsapp_instance",
-   "fieldtype": "Link",
-   "label": "Default WhatsApp Instance",
-   "options": "Whatsapp Instance",
-   "description": "الرقم المرسِل الافتراضي لرسائل العملاء والمشرف (يُستخدم ما لم يُحدد رقم لحجم الحاوية)"
-  },
-  {
    "fieldname": "commission_expense_account",
    "fieldtype": "Link",
    "label": "Commission Expense Account",
@@ -121,7 +113,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-10-12 10:00:00.000000",
+ "modified": "2026-10-19 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Container Rental",
  "name": "Container Rental Settings",

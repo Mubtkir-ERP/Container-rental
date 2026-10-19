@@ -30,8 +30,10 @@ scheduler_events = {
 		"0 * * * *": [
 			"container_rental.container_rental.tasks.mark_overdue_rentals",
 		],
-		# WhatsApp reminders + employee/truck document expiry alerts
-		"0 7 * * *": [
+		# WhatsApp reminders + employee/truck document expiry alerts.
+		# 22:00 site time (Asia/Riyadh) — clients should not be messaged early
+		# in the morning.
+		"0 22 * * *": [
 			"container_rental.container_rental.tasks.daily_alerts",
 		],
 		# Monthly contract invoices from actual deliveries of the previous month

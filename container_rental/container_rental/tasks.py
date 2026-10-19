@@ -1,4 +1,4 @@
-"""Scheduled jobs: overdue flagging (hourly), daily alerts (07:00) and
+"""Scheduled jobs: overdue flagging (hourly), daily alerts (22:00) and
 monthly contract invoicing (1st of month). All jobs are idempotent and safe to
 re-run manually via `bench execute`."""
 
@@ -33,7 +33,7 @@ def mark_overdue_rentals():
 		# Don't override damaged/maintenance flags set manually in the meantime
 		if frappe.db.get_value("Container", row.container, "status") == "Rented":
 			frappe.db.set_value("Container", row.container, "status", "Overdue", update_modified=False)
-		# Ask the supervisor to dispatch a driver right away (not at the next 07:00 run)
+		# Ask the supervisor to dispatch a driver right away (not at the next daily run)
 		send_supervisor_request(frappe.get_doc("Rental Record", row.name))
 	if overdue:
 		frappe.db.commit()
@@ -59,7 +59,7 @@ def send_supervisor_request(record):
 	return True
 
 
-# ─── Daily: WhatsApp reminders + document expiry alerts ─────────────────────
+# ─── Daily at 22:00: WhatsApp reminders + document expiry alerts ────────────
 
 def daily_alerts():
 	settings = frappe.get_cached_doc("Container Rental Settings")
@@ -70,28 +70,33 @@ def daily_alerts():
 
 
 def send_unload_reminders(settings):
-	"""WhatsApp event 3: remind the client N days BEFORE the rental due date
-	(the period is counted from the actual delivery day)."""
-	horizon = add_days(now_datetime(), settings.unload_reminder_after_days or 2)
+	"""WhatsApp event 3: remind the client exactly N days before the rental is
+	due — once. Matching on the DATE (not a datetime window) keeps the reminder
+	on the intended day whatever time of day the container was delivered, and
+	the reminder_sent_on stamp stops the daily job repeating it."""
+	days_before = settings.unload_reminder_after_days or 2
+	target_day = add_days(today(), days_before)
 	records = frappe.get_all(
 		"Rental Record",
-		filters={"status": "Rented", "due_on": ("between", [now_datetime(), horizon])},
-		fields=["name", "client", "mobile_no", "container", "container_size", "due_on", "address", "last_whatsapp_on"],
+		filters={"status": "Rented", "reminder_sent_on": ("is", "not set")},
+		or_filters=None,
+		fields=["name", "client", "mobile_no", "container", "container_size", "due_on", "address"],
 	)
+	records = [r for r in records if r.due_on and getdate(r.due_on) == getdate(target_day)]
+	if not records:
+		return
+
 	# An unload request on the container stops the client's reminder messages
 	requested = set(frappe.get_all(
 		"Container Unload Request",
 		filters={"rental_record": ("in", [r.name for r in records]), "status": ("!=", "Cancelled")},
 		pluck="rental_record",
-	)) if records else set()
+	))
 	for row in records:
 		if row.name in requested:
 			continue
-		if row.last_whatsapp_on and get_datetime(row.last_whatsapp_on) > add_days(now_datetime(), -1):
-			continue  # already messaged in the last 24h
 		record = frappe.get_doc("Rental Record", row.name)
 		client_name = frappe.db.get_value("Customer", row.client, "customer_name")
-		overdue_days = max(0, date_diff(today(), getdate(row.due_on))) if row.due_on else 0
 		whatsapp.send_event(
 			"unload_reminder",
 			row.mobile_no,
@@ -100,13 +105,15 @@ def send_unload_reminders(settings):
 				"container_no": row.container,
 				"container_size": row.container_size,
 				"due_date": frappe.format(row.due_on, {"fieldtype": "Datetime"}) if row.due_on else "",
-				"overdue_days": overdue_days,
+				"overdue_days": 0,
+				"days_left": days_before,
 				"address": row.address or "",
 				"unload_date": "",
 				"confirmation": 0,
 			},
 			reference_doc=record,
 		)
+		record.db_set("reminder_sent_on", now_datetime(), update_modified=False)
 
 
 def send_contract_expiry_alerts(settings):

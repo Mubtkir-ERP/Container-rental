@@ -1,15 +1,36 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import flt, getdate, today
+from frappe.utils import add_days, add_months, flt, getdate, today
 
 
 class ContainerContract(Document):
 	def validate(self):
+		self.compute_end_date()
 		self.compute_items()
 		self.compute_trips()
-		self.compute_payments()
+		self.compute_vat()
 		self.set_contract_status()
+
+	def compute_end_date(self):
+		"""The user types a duration; the end date follows from the start."""
+		if not (self.start_date and self.contract_duration):
+			return
+		start = getdate(self.start_date)
+		unit = self.duration_unit or "Months"
+		months = {"Months": 1, "Years": 12}.get(unit)
+		self.end_date = add_days(start, int(self.contract_duration)) if months is None \
+			else add_months(start, int(self.contract_duration) * months)
+
+	def compute_vat(self):
+		"""Shown on the contract for the client's benefit only — the real tax
+		is posted by the Sales Invoice, so nothing here reaches the accounts."""
+		if not self.apply_vat:
+			self.vat_amount = 0
+			self.total_with_vat = 0
+			return
+		self.vat_amount = flt(self.contract_value) * flt(self.vat_percent or 15) / 100
+		self.total_with_vat = flt(self.contract_value) + flt(self.vat_amount)
 
 	def compute_items(self):
 		for item in self.items:
@@ -21,25 +42,11 @@ class ContainerContract(Document):
 		self.consumed_trips = int(self.consumed_trips or 0)
 		self.remaining_trips = self.total_trips - self.consumed_trips
 
-	def compute_payments(self):
-		self.paid_amount = sum(flt(p.amount) for p in (self.payments or []))
-		self.tax_on_paid = sum(flt(p.tax_amount) for p in (self.payments or []))
-		self.outstanding = flt(self.contract_value) - flt(self.paid_amount)
-
 	def set_contract_status(self):
 		if self.end_date and getdate(self.end_date) < getdate(today()):
 			self.contract_status = "Expire"
 		else:
 			self.contract_status = "Active"
-
-	def on_update_after_submit(self):
-		# Payments table is editable after submit; keep totals + client balance fresh
-		self.compute_payments()
-		self.db_set("paid_amount", self.paid_amount)
-		self.db_set("tax_on_paid", self.tax_on_paid)
-		self.db_set("outstanding", self.outstanding)
-		from container_rental.container_rental import customer_utils
-		customer_utils.refresh_balance(self.client)
 
 	def on_submit(self):
 		from container_rental.container_rental import customer_utils

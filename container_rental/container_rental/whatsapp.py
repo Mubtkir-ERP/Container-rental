@@ -182,27 +182,42 @@ def is_meta_configured():
 	return bool(settings.url and settings.version and settings.phone_id and token)
 
 
+def instances_available():
+	return ("frappe_whatsapp" in frappe.get_installed_apps()
+		and frappe.db.table_exists("Whatsapp Instance"))
+
+
 def resolve_instance(instance=None):
-	"""Sending Whatsapp Instance (Evolution API): explicit → settings default →
-	any connected instance. None when the site has no instances."""
-	if "frappe_whatsapp" not in frappe.get_installed_apps() or not frappe.db.table_exists("Whatsapp Instance"):
+	"""Sending Whatsapp Instance (Evolution API) for messages that belong to no
+	particular container — contract and invoice notices. An explicit instance
+	wins; otherwise the site's single instance is used. With several instances
+	and no container size to choose by, nothing is sent: picking one at random
+	is what made clients receive messages from the wrong number."""
+	if not instances_available():
 		return None
-	if instance:
-		# An explicitly chosen sender must never silently fall back to a different number.
-		if not frappe.db.exists("Whatsapp Instance", instance):
-			raise ValueError(f"Configured WhatsApp Instance does not exist: {instance}")
+	if instance and frappe.db.exists("Whatsapp Instance", instance):
 		return instance
-	default = frappe.db.get_single_value("Container Rental Settings", "default_whatsapp_instance")
-	if default and frappe.db.exists("Whatsapp Instance", default):
-		return default
-	return frappe.db.get_value("Whatsapp Instance", {"connection_status": "Connected"})
+	connected = frappe.get_all("Whatsapp Instance", filters={"connection_status": "Connected"}, pluck="name")
+	if len(connected) == 1:
+		return connected[0]
+	return None
 
 
 def instance_for_size(container_size):
-	"""Sending instance tied to a container size (big / small truck number)."""
-	if not container_size or not frappe.db.table_exists("Container Size"):
+	"""Sending instance tied to a container size (big / small truck number).
+	Returns None when the size has no number, or names one that no longer
+	exists — the caller must not silently fall back to another number."""
+	if not container_size or not instances_available() or not frappe.db.table_exists("Container Size"):
 		return None
-	return frappe.db.get_value("Container Size", container_size, "whatsapp_instance")
+	instance = frappe.db.get_value("Container Size", container_size, "whatsapp_instance")
+	if instance and frappe.db.exists("Whatsapp Instance", instance):
+		return instance
+	if instance:
+		frappe.log_error(
+			message=f"Container Size {container_size} points at missing Whatsapp Instance {instance}",
+			title="Container Rental: WhatsApp instance missing",
+		)
+	return None
 
 
 def is_configured(instance=None):
@@ -247,9 +262,23 @@ def _send_event(template_key, mobile_no, context, reference_doc, instance=None):
 	if not body or not mobile_no:
 		return
 
-	# Every message related to a container goes out from the number of that
-	# container's size (client, supervisor and driver alike) unless forced.
-	sender = resolve_instance(instance or instance_for_size(context.get("container_size")))
+	# Every message about a container leaves from the number of that container's
+	# size — client, supervisor and driver alike — and from no other. A size
+	# whose number is missing or unlinked blocks the send (logged) rather than
+	# borrowing a different number, which is how the two lines got mixed up.
+	size = context.get("container_size")
+	if instance and frappe.db.exists("Whatsapp Instance", instance):
+		sender = instance
+	elif size:
+		sender = instance_for_size(size)
+		if not sender:
+			frappe.log_error(
+				message=f"No WhatsApp number set for container size {size}; '{template_key}' not sent to {mobile_no}",
+				title="Container Rental: WhatsApp number not configured",
+			)
+			return
+	else:
+		sender = resolve_instance(instance)
 	if sender:
 		_send_via_evolution(sender, mobile_no, body, reference_doc)
 		_stamp_rental_record(reference_doc, template_key)
@@ -273,37 +302,38 @@ def _send_event(template_key, mobile_no, context, reference_doc, instance=None):
 
 
 def _send_via_evolution(instance, mobile_no, body, reference_doc=None):
-	"""Send using frappe_whatsapp's unified Evolution API and central credentials.
-
-	A stable operation key stops retries after a timeout from sending twice.
-	Uncertain results must be reconciled with Evolution before any new send.
-	"""
-	from frappe_whatsapp.utils.evolution import send_text as evolution_send_text
-	from frappe_whatsapp.utils.delivery_guard import delivery_key
+	"""POST the text through the Evolution API of a Whatsapp Instance and log
+	it as a WhatsApp Message (message_id set so frappe_whatsapp does not
+	re-send it through Meta)."""
+	import requests
 
 	inst = frappe.get_doc("Whatsapp Instance", instance)
+	server = frappe.get_doc("Evolution Server", inst.evolution_server)
+	api_key = inst.get_password("api_key", raise_exception=False) or server.get_password("api_key", raise_exception=False)
+	base_url = (server.base_url or "").rstrip("/")
 	to = normalize_number(mobile_no)
-	operation_key = delivery_key(
-		"container-rental", "whatsapp-text", inst.instance_name,
-		to, reference_doc.doctype if reference_doc else "",
-		reference_doc.name if reference_doc else "", body,
+	response = requests.post(
+		f"{base_url}/message/sendText/{inst.instance_name}",
+		headers={"Content-Type": "application/json", "apikey": api_key},
+		json={"number": to, "text": body},
+		timeout=30,
 	)
-	message_id = evolution_send_text(
-		number=to,
-		text=body,
-		instance_name=inst.instance_name,
-		operation_key=operation_key,
-	)
-	# Keep the existing audit trail only after the send helper returns successfully.
-	# The unified sender already protects against duplicate network sends.
+	data = {}
+	try:
+		data = response.json()
+	except Exception:
+		pass
+	if response.status_code not in (200, 201):
+		frappe.throw(f"Evolution API error {response.status_code}: {response.text[:300]}")
+	message_id = data.get("key", {}).get("id") or data.get("message", {}).get("key", {}).get("id") or "evolution"
 	log = frappe.get_doc({
 		"doctype": "WhatsApp Message",
 		"type": "Outgoing",
-		"message_type": "Template",
+		"message_type": "Template",  # with message_id set → stored without a Meta send
 		"content_type": "text",
 		"to": to,
 		"message": body,
-		"message_id": message_id or "evolution",
+		"message_id": message_id,
 		"status": "Sent",
 		"reference_doctype": reference_doc.doctype if reference_doc else None,
 		"reference_name": reference_doc.name if reference_doc else None,

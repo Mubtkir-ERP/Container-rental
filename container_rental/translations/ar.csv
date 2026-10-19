@@ -436,3 +436,14 @@ Creating vouchers...,جارٍ إنشاء السندات...
 Unload Type,نوع التفريغ
 Unload and Replace,تفريغ واستبدال
 {0} request {1} sent to the driver — status: {2},طلب {0} رقم {1} أُرسل للسائق — الحالة: {2}
+Contract Duration,مدة العقد
+Duration Unit,وحدة المدة
+Months,أشهر
+Days,أيام
+Years,سنوات
+Payment Terms,شروط السداد
+Calculate VAT on Value,حساب الضريبة على القيمة
+VAT %,نسبة الضريبة %
+VAT Amount,قيمة الضريبة
+Total With VAT,الإجمالي شامل الضريبة
+Due Reminder Sent On,تاريخ إرسال تذكير الاستحقاق

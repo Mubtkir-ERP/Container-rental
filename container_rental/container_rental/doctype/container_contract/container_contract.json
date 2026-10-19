@@ -12,24 +12,27 @@
   "column_break_header",
   "contract_status",
   "start_date",
+  "contract_duration",
+  "duration_unit",
   "end_date",
   "trip_duration_days",
   "items_section",
   "items",
+  "payment_section",
+  "payment_method",
+  "column_break_payment",
+  "payment_terms",
   "totals_section",
   "contract_value",
+  "apply_vat",
+  "vat_percent",
+  "vat_amount",
+  "total_with_vat",
   "total_trips",
   "consumed_trips",
   "column_break_totals",
   "remaining_trips",
   "last_container",
-  "payments_section",
-  "payments",
-  "payment_totals_section",
-  "paid_amount",
-  "tax_on_paid",
-  "column_break_payment_totals",
-  "outstanding",
   "notes_section",
   "notes",
   "expiry_alert_sent_on"
@@ -85,7 +88,9 @@
    "fieldtype": "Date",
    "label": "Contract Period To",
    "reqd": 1,
-   "in_list_view": 1
+   "in_list_view": 1,
+   "read_only_depends_on": "eval:doc.contract_duration > 0",
+   "description": "يُحسب تلقائيًا عند إدخال المدة، أو أدخله يدويًا"
   },
   {
    "fieldname": "trip_duration_days",
@@ -148,45 +153,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "payments_section",
-   "fieldtype": "Section Break",
-   "label": "Payments"
-  },
-  {
-   "allow_on_submit": 1,
-   "fieldname": "payments",
-   "fieldtype": "Table",
-   "label": "Contract Payments",
-   "options": "Contract Payment"
-  },
-  {
-   "fieldname": "payment_totals_section",
-   "fieldtype": "Section Break",
-   "label": "Payment"
-  },
-  {
-   "fieldname": "paid_amount",
-   "fieldtype": "Currency",
-   "label": "Paid Amount",
-   "read_only": 1
-  },
-  {
-   "fieldname": "tax_on_paid",
-   "fieldtype": "Currency",
-   "label": "Tax on Paid",
-   "read_only": 1
-  },
-  {
-   "fieldname": "column_break_payment_totals",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "outstanding",
-   "fieldtype": "Currency",
-   "label": "Outstanding",
-   "read_only": 1
-  },
-  {
    "fieldname": "notes_section",
    "fieldtype": "Section Break",
    "label": ""
@@ -203,11 +169,72 @@
    "hidden": 1,
    "read_only": 1,
    "no_copy": 1
+  },
+  {
+   "fieldname": "contract_duration",
+   "fieldtype": "Int",
+   "label": "Contract Duration",
+   "description": "المدة — يُحسب تاريخ النهاية تلقائيًا من تاريخ البداية"
+  },
+  {
+   "fieldname": "duration_unit",
+   "fieldtype": "Select",
+   "label": "Duration Unit",
+   "options": "Months\nDays\nYears",
+   "default": "Months"
+  },
+  {
+   "fieldname": "payment_section",
+   "fieldtype": "Section Break",
+   "label": "Payment"
+  },
+  {
+   "fieldname": "payment_method",
+   "fieldtype": "Data",
+   "label": "Payment Method",
+   "description": "يُكتب يدويًا (تحويل، شيك، نقدي...)"
+  },
+  {
+   "fieldname": "column_break_payment",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payment_terms",
+   "fieldtype": "Small Text",
+   "label": "Payment Terms",
+   "description": "شروط السداد كما اتُّفق عليها مع العميل"
+  },
+  {
+   "fieldname": "apply_vat",
+   "fieldtype": "Check",
+   "label": "Calculate VAT on Value",
+   "description": "للعرض في العقد فقط — لا يؤثر على القيود المحاسبية أو الفواتير"
+  },
+  {
+   "fieldname": "vat_percent",
+   "fieldtype": "Percent",
+   "label": "VAT %",
+   "default": "15",
+   "depends_on": "apply_vat"
+  },
+  {
+   "fieldname": "vat_amount",
+   "fieldtype": "Currency",
+   "label": "VAT Amount",
+   "read_only": 1,
+   "depends_on": "apply_vat"
+  },
+  {
+   "fieldname": "total_with_vat",
+   "fieldtype": "Currency",
+   "label": "Total With VAT",
+   "read_only": 1,
+   "depends_on": "apply_vat"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-09-08 15:40:00.000000",
+ "modified": "2026-10-19 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Container Rental",
  "name": "Container Contract",

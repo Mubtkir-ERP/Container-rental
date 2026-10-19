@@ -836,3 +836,118 @@ def unload_message_count_check():
 	finally:
 		whatsapp.send_event = real
 		frappe.db.rollback()
+
+def reminder_once_check():
+	"""The client reminder must land on the exact day (N days before due,
+	whatever time the container went out) and never repeat."""
+	from frappe.utils import add_days, today
+	from container_rental.container_rental import tasks, whatsapp
+
+	sent = []
+	real = whatsapp.send_event
+	whatsapp.send_event = lambda key, mobile, ctx, **kw: sent.append((key, ctx.get("container_no")))
+	try:
+		settings = frappe.get_cached_doc("Container Rental Settings")
+		days = settings.unload_reminder_after_days or 2
+		customer = frappe.get_all("Customer", limit=1, pluck="name")[0]
+		driver = frappe.db.get_value("Employee", {"designation": "سائق", "status": "Active"})
+
+		def rented(due_in_days):
+			order = frappe.get_doc({"doctype": "Container Order", "client": customer,
+				"order_type": "Cash", "container_size": "10 ياردة", "rental_days": due_in_days,
+				"rental_value": 300, "payment_method": "نقدي",
+				"rental_start_date": today()}).insert(ignore_permissions=True)
+			order.assign_driver(driver)
+			free = frappe.get_all("Container", filters={"status": "Available", "size": "10 ياردة"},
+				limit=1, pluck="name")[0]
+			frappe.get_doc("Container Order", order.name).driver_confirm_delivery(free)
+			rec = frappe.db.get_value("Rental Record", {"source_name": order.name})
+			# a late-evening due time is what made the old window job slip a day
+			frappe.db.set_value("Rental Record", rec,
+				"due_on", f"{add_days(today(), due_in_days)} 23:50:00", update_modified=False)
+			return rec, free
+
+		rec, container = rented(days)
+		sent.clear()
+		tasks.send_unload_reminders(settings)
+		first = [k for k, c in sent if c == container]
+		stamped = frappe.db.get_value("Rental Record", rec, "reminder_sent_on")
+		sent.clear()
+		tasks.send_unload_reminders(settings)
+		tasks.send_unload_reminders(settings)
+		repeats = [k for k, c in sent if c == container]
+		print("reminder on target day:", first, "| stamped:", bool(stamped), "| repeats:", repeats or "none")
+
+		rec2, container2 = rented(days + 1)
+		sent.clear()
+		tasks.send_unload_reminders(settings)
+		print("rental due a day later skipped:",
+			not frappe.db.get_value("Rental Record", rec2, "reminder_sent_on"))
+	finally:
+		whatsapp.send_event = real
+		frappe.db.rollback()
+
+
+def whatsapp_number_check():
+	"""Every container message must leave from its size's number — never from
+	another size's number or a site default."""
+	from container_rental.container_rental import whatsapp
+
+	sizes = frappe.get_all("Container Size", fields=["name", "whatsapp_instance"])
+	print("sizes:", [(s.name, s.whatsapp_instance) for s in sizes])
+	print("settings field removed:", not frappe.get_meta("Container Rental Settings").has_field("default_whatsapp_instance"))
+
+    # a size pointing at a missing instance must resolve to nothing
+	size = sizes[0].name
+	frappe.db.set_value("Container Size", size, "whatsapp_instance", "does-not-exist")
+	print("missing instance → no sender:", whatsapp.instance_for_size(size) is None)
+
+	sent = []
+	real = whatsapp._send_via_evolution
+	whatsapp._send_via_evolution = lambda inst, mobile, body, ref=None: sent.append(inst)
+	try:
+		whatsapp._send_event("order_confirmation", "0559999999",
+			{"container_size": size, "client_name": "x"}, None)
+		print("blocked instead of borrowing a number:", sent == [])
+	finally:
+		whatsapp._send_via_evolution = real
+		frappe.db.rollback()
+
+def contract_fields_check():
+	"""Contract: duration drives the end date, payment method / terms are free
+	text, VAT is shown but never posted, and the payments table is gone."""
+	from frappe.utils import add_months, today
+	meta = frappe.get_meta("Container Contract")
+	print("payments table removed:", not meta.has_field("payments"),
+		"| paid/outstanding gone:", not meta.has_field("paid_amount") and not meta.has_field("outstanding"))
+	print("new fields:", [f for f in ("contract_duration", "duration_unit", "payment_method",
+		"payment_terms", "apply_vat", "vat_percent", "vat_amount", "total_with_vat") if meta.has_field(f)])
+
+	customer = frappe.get_all("Customer", limit=1, pluck="name")[0]
+	c = frappe.get_doc({"doctype": "Container Contract", "client": customer,
+		"start_date": today(), "contract_duration": 6, "duration_unit": "Months",
+		"end_date": today(), "trip_duration_days": 5,
+		"payment_method": "تحويل بنكي على دفعتين", "payment_terms": "50% مقدمًا والباقي بعد شهرين",
+		"apply_vat": 1, "vat_percent": 15,
+		"items": [{"container_size": "10 ياردة", "trips_count": 10, "price": 200}]})
+	c.flags.ignore_permissions = True
+	c.insert()
+	print("end date from duration:", str(c.end_date) == str(add_months(today(), 6)), "→", c.end_date)
+	print("value:", c.contract_value, "| vat:", c.vat_amount, "| with vat:", c.total_with_vat)
+	print("free text kept:", c.payment_method, "|", c.payment_terms)
+
+	c.apply_vat = 0
+	c.save()
+	print("vat off → amount:", c.vat_amount, c.total_with_vat)
+
+	# the VAT shown here must not reach any ledger
+	c.apply_vat = 1
+	c.save()
+	c.submit()
+	gl = frappe.db.count("GL Entry", {"voucher_type": "Container Contract", "voucher_no": c.name}) \
+		if frappe.db.table_exists("GL Entry") else 0
+	print("no accounting impact:", gl == 0)
+
+	from container_rental.container_rental import customer_utils
+	print("client balance still computes:", customer_utils.refresh_balance(customer) is not None)
+	frappe.db.rollback()

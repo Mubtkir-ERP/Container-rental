@@ -54,14 +54,17 @@ def refresh_balance(customer):
 		customer,
 	)[0][0]
 
-	contract_outstanding = frappe.db.sql(
+	# Contracts are billed through their monthly invoices, which carry their own
+	# payment status — the contract document itself no longer tracks payments
+	unpaid_contract_invoices = frappe.db.sql(
 		"""
-		SELECT COALESCE(SUM(outstanding), 0) FROM `tabContainer Contract`
-		WHERE client = %s AND docstatus = 1
+		SELECT COALESCE(SUM(total_amount - COALESCE(paid_amount, 0)), 0)
+		FROM `tabContract Monthly Invoice`
+		WHERE client = %s AND docstatus = 1 AND payment_status != 'Paid'
 		""",
 		customer,
 	)[0][0]
 
-	balance = (unpaid_orders or 0) + (unpaid_rentals or 0) + (contract_outstanding or 0)
+	balance = (unpaid_orders or 0) + (unpaid_rentals or 0) + (unpaid_contract_invoices or 0)
 	frappe.db.set_value("Customer", customer, "cr_rental_balance", balance, update_modified=False)
 	return balance
