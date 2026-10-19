@@ -951,3 +951,59 @@ def contract_fields_check():
 	from container_rental.container_rental import customer_utils
 	print("client balance still computes:", customer_utils.refresh_balance(customer) is not None)
 	frappe.db.rollback()
+
+def evolution_sender_check():
+	"""The unified frappe_whatsapp sender (with its duplicate-send guard) is
+	used when available; older builds fall back to the direct call."""
+	import sys, types
+	from container_rental.container_rental import whatsapp
+
+	existing = frappe.get_all("Whatsapp Instance", limit=1, pluck="name") if frappe.db.table_exists("Whatsapp Instance") else []
+	inst = existing[0] if existing else None
+	if not inst:
+		server = frappe.get_doc({"doctype": "Evolution Server", "server_label": "test",
+			"base_url": "https://example.test", "api_key": "x"})
+		server.flags.ignore_permissions = True
+		server.insert()
+		doc = frappe.get_doc({"doctype": "Whatsapp Instance", "instance_name": "test-inst",
+			"evolution_server": server.name, "connection_status": "Connected"})
+		doc.flags.ignore_permissions = True
+		doc.insert()
+		inst = doc.name
+
+	# a) unified sender present → used, with an operation key
+	calls = {}
+	ev = types.ModuleType("frappe_whatsapp.utils.evolution")
+
+	def fake_send(number, text, instance_name, operation_key):
+		calls["unified"] = {"to": number, "instance": instance_name, "key": bool(operation_key)}
+		return "MSG-1"
+
+	ev.send_text = fake_send
+	dg = types.ModuleType("frappe_whatsapp.utils.delivery_guard")
+	dg.delivery_key = lambda *parts: "key-" + str(len(parts))
+	sys.modules["frappe_whatsapp.utils.evolution"] = ev
+	sys.modules["frappe_whatsapp.utils.delivery_guard"] = dg
+	try:
+		whatsapp._send_via_evolution(inst, "0559999999", "hello", None)
+		logged = frappe.db.get_value("WhatsApp Message", {"message": "hello"}, "message_id")
+		print("unified sender used:", calls.get("unified"), "| logged id:", logged)
+	finally:
+		sys.modules.pop("frappe_whatsapp.utils.evolution", None)
+		sys.modules.pop("frappe_whatsapp.utils.delivery_guard", None)
+
+	# b) older build → direct call fallback
+	posted = {}
+	real_post = whatsapp._post_to_evolution
+	def fake_post(i, to, body):
+		posted["direct"] = to
+		return "MSG-2"
+
+	whatsapp._post_to_evolution = fake_post
+	try:
+		whatsapp._send_via_evolution(inst, "0559999999", "fallback", None)
+		print("fallback used when helper missing:", posted.get("direct") is not None,
+			"| logged id:", frappe.db.get_value("WhatsApp Message", {"message": "fallback"}, "message_id"))
+	finally:
+		whatsapp._post_to_evolution = real_post
+		frappe.db.rollback()

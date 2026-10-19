@@ -195,8 +195,15 @@ def resolve_instance(instance=None):
 	is what made clients receive messages from the wrong number."""
 	if not instances_available():
 		return None
-	if instance and frappe.db.exists("Whatsapp Instance", instance):
-		return instance
+	if instance:
+		# A sender someone configured must never be swapped for another number
+		if frappe.db.exists("Whatsapp Instance", instance):
+			return instance
+		frappe.log_error(
+			message=f"Configured WhatsApp Instance does not exist: {instance}",
+			title="Container Rental: WhatsApp instance missing",
+		)
+		return None
 	connected = frappe.get_all("Whatsapp Instance", filters={"connection_status": "Connected"}, pluck="name")
 	if len(connected) == 1:
 		return connected[0]
@@ -302,16 +309,55 @@ def _send_event(template_key, mobile_no, context, reference_doc, instance=None):
 
 
 def _send_via_evolution(instance, mobile_no, body, reference_doc=None):
-	"""POST the text through the Evolution API of a Whatsapp Instance and log
-	it as a WhatsApp Message (message_id set so frappe_whatsapp does not
-	re-send it through Meta)."""
+	"""Send through frappe_whatsapp's unified Evolution sender: its stable
+	operation key stops a retry after a timeout from delivering the same
+	message twice. Builds of frappe_whatsapp that predate that helper fall
+	back to a direct Evolution call. The WhatsApp Message audit row is written
+	only once the send has actually succeeded."""
+	inst = frappe.get_doc("Whatsapp Instance", instance)
+	to = normalize_number(mobile_no)
+	try:
+		from frappe_whatsapp.utils.delivery_guard import delivery_key
+		from frappe_whatsapp.utils.evolution import send_text as evolution_send_text
+	except ImportError:
+		message_id = _post_to_evolution(inst, to, body)
+	else:
+		operation_key = delivery_key(
+			"container-rental", "whatsapp-text", inst.instance_name,
+			to, reference_doc.doctype if reference_doc else "",
+			reference_doc.name if reference_doc else "", body,
+		)
+		message_id = evolution_send_text(
+			number=to,
+			text=body,
+			instance_name=inst.instance_name,
+			operation_key=operation_key,
+		)
+
+	log = frappe.get_doc({
+		"doctype": "WhatsApp Message",
+		"type": "Outgoing",
+		"message_type": "Template",  # with message_id set → stored without a Meta send
+		"content_type": "text",
+		"to": to,
+		"message": body,
+		"message_id": message_id or "evolution",
+		"status": "Sent",
+		"reference_doctype": reference_doc.doctype if reference_doc else None,
+		"reference_name": reference_doc.name if reference_doc else None,
+	})
+	log.flags.ignore_permissions = True
+	log.insert()
+
+
+def _post_to_evolution(inst, to, body):
+	"""Direct Evolution API call, used only where frappe_whatsapp has no
+	unified sender — it carries no duplicate-send guard."""
 	import requests
 
-	inst = frappe.get_doc("Whatsapp Instance", instance)
 	server = frappe.get_doc("Evolution Server", inst.evolution_server)
 	api_key = inst.get_password("api_key", raise_exception=False) or server.get_password("api_key", raise_exception=False)
 	base_url = (server.base_url or "").rstrip("/")
-	to = normalize_number(mobile_no)
 	response = requests.post(
 		f"{base_url}/message/sendText/{inst.instance_name}",
 		headers={"Content-Type": "application/json", "apikey": api_key},
@@ -325,21 +371,7 @@ def _send_via_evolution(instance, mobile_no, body, reference_doc=None):
 		pass
 	if response.status_code not in (200, 201):
 		frappe.throw(f"Evolution API error {response.status_code}: {response.text[:300]}")
-	message_id = data.get("key", {}).get("id") or data.get("message", {}).get("key", {}).get("id") or "evolution"
-	log = frappe.get_doc({
-		"doctype": "WhatsApp Message",
-		"type": "Outgoing",
-		"message_type": "Template",  # with message_id set → stored without a Meta send
-		"content_type": "text",
-		"to": to,
-		"message": body,
-		"message_id": message_id,
-		"status": "Sent",
-		"reference_doctype": reference_doc.doctype if reference_doc else None,
-		"reference_name": reference_doc.name if reference_doc else None,
-	})
-	log.flags.ignore_permissions = True
-	log.insert()
+	return data.get("key", {}).get("id") or data.get("message", {}).get("key", {}).get("id") or "evolution"
 
 
 def send_text(mobile_no, body, reference_doc=None, instance=None):
