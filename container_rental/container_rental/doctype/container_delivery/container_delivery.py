@@ -72,9 +72,10 @@ class ContainerDelivery(Document):
 
 		rental_value = 0
 		payment_method = None
+		order_mobile = None
 		if self.order:
-			rental_value, payment_method = frappe.db.get_value(
-				"Container Order", self.order, ["rental_value", "payment_method"]
+			rental_value, payment_method, order_mobile = frappe.db.get_value(
+				"Container Order", self.order, ["rental_value", "payment_method", "mobile_no"]
 			)
 
 		create_rental_record(
@@ -89,6 +90,7 @@ class ContainerDelivery(Document):
 			address=self.address,
 			rental_value=rental_value,
 			payment_method=payment_method,
+			mobile_no=order_mobile,
 		)
 
 		if self.contract:

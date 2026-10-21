@@ -71,7 +71,9 @@
    "fieldname": "mobile_no",
    "fieldtype": "Data",
    "label": "Mobile No",
-   "permlevel": 1
+   "permlevel": 1,
+   "fetch_if_empty": 1,
+   "description": "يُجلب من بطاقة العميل، ويمكن تعديله هنا — الرسائل تُرسل للرقم المكتوب في الطلب"
   },
   {
    "fieldname": "column_break_client",
@@ -342,7 +344,7 @@
   }
  ],
  "links": [],
- "modified": "2026-09-29 10:00:00.000000",
+ "modified": "2026-10-21 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Container Rental",
  "name": "Container Order",

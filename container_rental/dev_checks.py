@@ -1007,3 +1007,92 @@ def evolution_sender_check():
 	finally:
 		whatsapp._post_to_evolution = real_post
 		frappe.db.rollback()
+
+def number_trace_check():
+	"""Follow an order of each size end to end and assert every message left
+	from that size's own number — and exactly once per event."""
+	from frappe.utils import today
+	from container_rental.container_rental import whatsapp
+
+	# two sizes, two distinct instances, two distinct supervisors
+	sizes = frappe.get_all("Container Size", limit=2, pluck="name")
+	small, big = sizes[0], sizes[1]
+	server = frappe.db.get_value("Evolution Server", {}) or frappe.get_doc({
+		"doctype": "Evolution Server", "server_label": "trace",
+		"base_url": "https://example.test", "api_key": "x"}).insert(ignore_permissions=True).name
+	insts = {}
+	for size, label in ((small, "inst-small"), (big, "inst-big")):
+		if not frappe.db.exists("Whatsapp Instance", label):
+			frappe.get_doc({"doctype": "Whatsapp Instance", "instance_name": label,
+				"evolution_server": server, "connection_status": "Connected"}).insert(ignore_permissions=True)
+		frappe.db.set_value("Container Size", size, "whatsapp_instance", label)
+		insts[size] = label
+	frappe.clear_cache(doctype="Container Size")
+
+	sent = []
+	real = whatsapp._send_via_evolution
+	whatsapp._send_via_evolution = lambda inst, mobile, body, ref=None: sent.append(
+		{"inst": inst, "to": mobile, "head": body.split("\n")[0][:28]})
+	try:
+		customer = frappe.get_all("Customer", limit=1, pluck="name")[0]
+		driver = frappe.db.get_value("Employee", {"designation": "سائق", "status": "Active"})
+		for size in (small, big):
+			sent.clear()
+			order = frappe.get_doc({"doctype": "Container Order", "client": customer,
+				"order_type": "Cash", "container_size": size, "rental_days": 5,
+				"rental_value": 400, "payment_method": "نقدي", "rental_start_date": today(),
+				"mobile_no": "0551112233"}).insert(ignore_permissions=True)   # typed on the order
+			order.assign_driver(driver)
+			free = frappe.get_all("Container", filters={"status": "Available", "size": size},
+				limit=1, pluck="name")
+			if free:
+				frappe.get_doc("Container Order", order.name).driver_confirm_delivery(free[0])
+			wrong = [m for m in sent if m["inst"] != insts[size]]
+			print(f"{size:12} steps={len(sent)} | all from {insts[size]}: {not wrong}"
+				+ (f" | WRONG: {wrong}" if wrong else ""))
+			rec = frappe.db.get_value("Rental Record", {"source_name": order.name}, "mobile_no")
+			print(f"{size:12} order mobile used downstream: {rec == '0551112233'} ({rec})")
+	finally:
+		whatsapp._send_via_evolution = real
+		frappe.db.rollback()
+
+def no_double_send_check():
+	import io
+
+	"""The audit row must be log-only: WhatsApp Message's own before_insert
+	would otherwise send the text a second time, from the session user's
+	instance instead of the container size's."""
+	import sys, types
+	from container_rental.container_rental import whatsapp
+
+	server = frappe.db.get_value("Evolution Server", {"name": ("is", "set")}) or frappe.get_doc({
+		"doctype": "Evolution Server", "server_label": "dbl",
+		"base_url": "https://example.test", "api_key": "x"}).insert(ignore_permissions=True).name
+	if not frappe.db.exists("Whatsapp Instance", "inst-dbl"):
+		frappe.get_doc({"doctype": "Whatsapp Instance", "instance_name": "inst-dbl",
+			"evolution_server": server, "connection_status": "Connected"}).insert(ignore_permissions=True)
+
+	ev = types.ModuleType("frappe_whatsapp.utils.evolution")
+	ev.send_text = lambda number, text, instance_name, operation_key: "MSG-X"
+	dg = types.ModuleType("frappe_whatsapp.utils.delivery_guard")
+	dg.delivery_key = lambda *parts: "k"
+	sys.modules["frappe_whatsapp.utils.evolution"] = ev
+	sys.modules["frappe_whatsapp.utils.delivery_guard"] = dg
+	try:
+		whatsapp._send_via_evolution("inst-dbl", "0559999999", "trace-body", None)
+		meta = frappe.get_meta("WhatsApp Message")
+		fields = ["name", "message_id"] + [f for f in ("channel", "send_from_instance") if meta.has_field(f)]
+		rows = frappe.get_all("WhatsApp Message", filters={"message": "trace-body"}, fields=fields)
+		print("rows logged:", len(rows), "| id:", rows[0].message_id)
+		if meta.has_field("send_from_instance"):
+			print("channel:", rows[0].channel, "| instance recorded:", rows[0].send_from_instance)
+		else:
+			print("routing columns absent on this frappe_whatsapp build (production has them)")
+		src = io.open("/home/frappe/bench-2/apps/container_rental/container_rental/container_rental/whatsapp.py",
+			encoding="utf-8").read()
+		print("log-only flag set in sender:", "log.flags.skip_meta_send = True" in src,
+			"| instance passed:", '"send_from_instance": instance' in src)
+	finally:
+		sys.modules.pop("frappe_whatsapp.utils.evolution", None)
+		sys.modules.pop("frappe_whatsapp.utils.delivery_guard", None)
+		frappe.db.rollback()

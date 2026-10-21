@@ -18,12 +18,15 @@ def create_rental_record(
 	address=None,
 	rental_value=0,
 	payment_method=None,
+	mobile_no=None,
 ):
 	"""Create the internal per-container rental ledger row (controllers only)."""
 	container_doc = frappe.db.get_value(
 		"Container", container, ["size", "classification", "branch"], as_dict=True
 	)
-	mobile_no = frappe.db.get_value("Customer", client, "mobile_no")
+	# The order may carry a number typed for this delivery — it wins over the
+	# customer card, and every later message for this rental uses it
+	mobile_no = mobile_no or frappe.db.get_value("Customer", client, "mobile_no")
 
 	record = frappe.get_doc({
 		"doctype": "Rental Record",

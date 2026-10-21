@@ -337,8 +337,12 @@ def _send_via_evolution(instance, mobile_no, body, reference_doc=None):
 	log = frappe.get_doc({
 		"doctype": "WhatsApp Message",
 		"type": "Outgoing",
-		"message_type": "Template",  # with message_id set → stored without a Meta send
+		"message_type": "Template",
 		"content_type": "text",
+		"channel": "Evolution",
+		# Record the number this actually went out from, so the audit trail
+		# shows the container size's line and not a default
+		"send_from_instance": instance,
 		"to": to,
 		"message": body,
 		"message_id": message_id or "evolution",
@@ -346,6 +350,10 @@ def _send_via_evolution(instance, mobile_no, body, reference_doc=None):
 		"reference_doctype": reference_doc.doctype if reference_doc else None,
 		"reference_name": reference_doc.name if reference_doc else None,
 	})
+	# The message is already delivered — without this flag WhatsApp Message's
+	# own before_insert sends it a SECOND time, from whichever instance is
+	# linked to the session user rather than the container's size.
+	log.flags.skip_meta_send = True
 	log.flags.ignore_permissions = True
 	log.insert()
 
