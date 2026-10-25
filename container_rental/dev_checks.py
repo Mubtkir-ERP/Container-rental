@@ -1008,53 +1008,57 @@ def evolution_sender_check():
 		whatsapp._post_to_evolution = real_post
 		frappe.db.rollback()
 
-def number_trace_check():
-	"""Follow an order of each size end to end and assert every message left
-	from that size's own number — and exactly once per event."""
+def representative_routing_check():
+	"""Client-facing messages go to the representative's number when the order
+	says so, and to the client's own otherwise — through the whole lifecycle."""
 	from frappe.utils import today
-	from container_rental.container_rental import whatsapp
-
-	# two sizes, two distinct instances, two distinct supervisors
-	sizes = frappe.get_all("Container Size", limit=2, pluck="name")
-	small, big = sizes[0], sizes[1]
-	server = frappe.db.get_value("Evolution Server", {}) or frappe.get_doc({
-		"doctype": "Evolution Server", "server_label": "trace",
-		"base_url": "https://example.test", "api_key": "x"}).insert(ignore_permissions=True).name
-	insts = {}
-	for size, label in ((small, "inst-small"), (big, "inst-big")):
-		if not frappe.db.exists("Whatsapp Instance", label):
-			frappe.get_doc({"doctype": "Whatsapp Instance", "instance_name": label,
-				"evolution_server": server, "connection_status": "Connected"}).insert(ignore_permissions=True)
-		frappe.db.set_value("Container Size", size, "whatsapp_instance", label)
-		insts[size] = label
-	frappe.clear_cache(doctype="Container Size")
+	from container_rental.container_rental import tasks, whatsapp
 
 	sent = []
-	real = whatsapp._send_via_evolution
-	whatsapp._send_via_evolution = lambda inst, mobile, body, ref=None: sent.append(
-		{"inst": inst, "to": mobile, "head": body.split("\n")[0][:28]})
+	real = whatsapp.send_event
+	whatsapp.send_event = lambda key, mobile, ctx, **kw: sent.append((key, mobile))
 	try:
 		customer = frappe.get_all("Customer", limit=1, pluck="name")[0]
+		client_mobile = frappe.db.get_value("Customer", customer, "mobile_no")
 		driver = frappe.db.get_value("Employee", {"designation": "سائق", "status": "Active"})
-		for size in (small, big):
-			sent.clear()
+		rep = "0590001111"
+
+		def run(use_rep):
 			order = frappe.get_doc({"doctype": "Container Order", "client": customer,
-				"order_type": "Cash", "container_size": size, "rental_days": 5,
-				"rental_value": 400, "payment_method": "نقدي", "rental_start_date": today(),
-				"mobile_no": "0551112233"}).insert(ignore_permissions=True)   # typed on the order
+				"order_type": "Cash", "container_size": "10 ياردة", "rental_days": 3,
+				"rental_value": 250, "payment_method": "نقدي", "rental_start_date": today(),
+				"use_representative": 1 if use_rep else 0,
+				"representative_mobile": rep if use_rep else None}).insert(ignore_permissions=True)
+			order.reload()
 			order.assign_driver(driver)
-			free = frappe.get_all("Container", filters={"status": "Available", "size": size},
-				limit=1, pluck="name")
-			if free:
-				frappe.get_doc("Container Order", order.name).driver_confirm_delivery(free[0])
-			wrong = [m for m in sent if m["inst"] != insts[size]]
-			print(f"{size:12} steps={len(sent)} | all from {insts[size]}: {not wrong}"
-				+ (f" | WRONG: {wrong}" if wrong else ""))
+			free = frappe.get_all("Container", filters={"status": "Available", "size": "10 ياردة"},
+				limit=1, pluck="name")[0]
+			sent.clear()
+			frappe.get_doc("Container Order", order.name).driver_confirm_delivery(free)
+			confirm_to = [m for k, m in sent if k == "order_confirmation"]
 			rec = frappe.db.get_value("Rental Record", {"source_name": order.name}, "mobile_no")
-			print(f"{size:12} order mobile used downstream: {rec == '0551112233'} ({rec})")
+			return order, confirm_to, rec
+
+		o1, to1, rec1 = run(False)
+		print("client number kept from the card:", o1.mobile_no == client_mobile,
+			"| confirmation to:", to1, "| rental stores:", rec1)
+
+		o2, to2, rec2 = run(True)
+		print("representative used:", to2 == [rep], "| rental stores:", rec2 == rep,
+			"| client field untouched:", o2.mobile_no == client_mobile)
+
+		# the reminder for that rental also follows the representative
+		settings = frappe.get_cached_doc("Container Rental Settings")
+		days = settings.unload_reminder_after_days or 2
+		frappe.db.set_value("Rental Record", frappe.db.get_value("Rental Record", {"source_name": o2.name}),
+			"due_on", f"{frappe.utils.add_days(today(), days)} 09:00:00", update_modified=False)
+		sent.clear()
+		tasks.send_unload_reminders(settings)
+		print("reminder to:", [m for k, m in sent if k == "unload_reminder"])
 	finally:
-		whatsapp._send_via_evolution = real
+		whatsapp.send_event = real
 		frappe.db.rollback()
+
 
 def no_double_send_check():
 	import io

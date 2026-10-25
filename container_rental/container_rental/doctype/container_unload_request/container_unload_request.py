@@ -168,7 +168,8 @@ class ContainerUnloadRequest(Document):
 			source = frappe.db.get_value(
 				"Container Order", record.source_name,
 				["order_type", "payment_method", "rental_value", "rental_days",
-				 "delivery_address", "google_maps_link", "mobile_no"],
+				 "delivery_address", "google_maps_link", "mobile_no",
+				 "use_representative", "representative_mobile"],
 				as_dict=True,
 			) or {}
 		order = frappe.get_doc({
@@ -183,6 +184,9 @@ class ContainerUnloadRequest(Document):
 			"delivery_address": source.get("delivery_address") or record.address,
 			"google_maps_link": source.get("google_maps_link") or self.google_maps_link,
 			"mobile_no": source.get("mobile_no") or record.mobile_no,
+			# the replacement keeps the original order's messaging choice
+			"use_representative": source.get("use_representative") or 0,
+			"representative_mobile": source.get("representative_mobile"),
 		})
 		order.flags.ignore_permissions = True
 		order.flags.skip_supervisor_notification = True

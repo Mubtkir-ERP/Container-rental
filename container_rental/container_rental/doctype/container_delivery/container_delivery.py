@@ -72,11 +72,13 @@ class ContainerDelivery(Document):
 
 		rental_value = 0
 		payment_method = None
-		order_mobile = None
+		notify_mobile = None
 		if self.order:
-			rental_value, payment_method, order_mobile = frappe.db.get_value(
-				"Container Order", self.order, ["rental_value", "payment_method", "mobile_no"]
+			rental_value, payment_method = frappe.db.get_value(
+				"Container Order", self.order, ["rental_value", "payment_method"]
 			)
+			# Later reminders for this rental go wherever the order says
+			notify_mobile = frappe.get_doc("Container Order", self.order).get_notify_mobile()
 
 		create_rental_record(
 			container=self.container,
@@ -90,7 +92,7 @@ class ContainerDelivery(Document):
 			address=self.address,
 			rental_value=rental_value,
 			payment_method=payment_method,
-			mobile_no=order_mobile,
+			mobile_no=notify_mobile,
 		)
 
 		if self.contract:
@@ -114,7 +116,7 @@ class ContainerDelivery(Document):
 			context = order.get_whatsapp_context()
 			context["container_no"] = self.container
 			context["delivery_date"] = frappe.format(start, {"fieldtype": "Date"})
-			whatsapp.send_event("order_confirmation", order.mobile_no, context, reference_doc=order)
+			whatsapp.send_event("order_confirmation", order.get_notify_mobile(), context, reference_doc=order)
 
 	def on_cancel(self):
 		record_name = frappe.db.get_value(

@@ -127,7 +127,7 @@ class ContainerOrder(Document):
 		self._transition([STATUS_NEW], target)
 		whatsapp.send_event(
 			"order_confirmation",
-			self.mobile_no,
+			self.get_notify_mobile(),
 			self.get_whatsapp_context(),
 			reference_doc=self,
 		)
@@ -364,9 +364,16 @@ class ContainerOrder(Document):
 		self.add_comment("Info", _("أُنشئت فاتورة المبيعات {0}").format(invoice.name))
 		return invoice.name
 
+	def get_notify_mobile(self):
+		"""Where this order's client-facing messages go: the representative's
+		number when the order says so, otherwise the client's own."""
+		if self.use_representative and self.representative_mobile:
+			return self.representative_mobile
+		return self.mobile_no or frappe.db.get_value("Customer", self.client, "mobile_no") or ""
+
 	def get_whatsapp_context(self):
 		client_name = frappe.db.get_value("Customer", self.client, "customer_name")
-		mobile = self.mobile_no or frappe.db.get_value("Customer", self.client, "mobile_no") or ""
+		mobile = self.get_notify_mobile()
 		maps = self.google_maps_link or ""
 		# Orders are often saved with only a map link — fall back to the
 		# customer's saved location so the address line is never blank

@@ -16,6 +16,8 @@
   "client_section",
   "client",
   "mobile_no",
+  "use_representative",
+  "representative_mobile",
   "column_break_client",
   "delivery_address",
   "order_section",
@@ -71,9 +73,7 @@
    "fieldname": "mobile_no",
    "fieldtype": "Data",
    "label": "Mobile No",
-   "permlevel": 1,
-   "fetch_if_empty": 1,
-   "description": "يُجلب من بطاقة العميل، ويمكن تعديله هنا — الرسائل تُرسل للرقم المكتوب في الطلب"
+   "permlevel": 1
   },
   {
    "fieldname": "column_break_client",
@@ -341,10 +341,25 @@
    "no_copy": 1,
    "default": "0",
    "description": "أكبر من 1 يعني أن الطلب أُعيد إسناده لسائق آخر"
+  },
+  {
+   "fieldname": "use_representative",
+   "fieldtype": "Check",
+   "label": "Send Messages to the Representative",
+   "permlevel": 1,
+   "description": "عند تفعيله تُرسل رسائل هذا الطلب لرقم المندوب بدل رقم العميل"
+  },
+  {
+   "fieldname": "representative_mobile",
+   "fieldtype": "Data",
+   "label": "Representative Mobile",
+   "permlevel": 1,
+   "depends_on": "use_representative",
+   "mandatory_depends_on": "use_representative"
   }
  ],
  "links": [],
- "modified": "2026-10-21 10:00:00.000000",
+ "modified": "2026-10-25 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Container Rental",
  "name": "Container Order",
