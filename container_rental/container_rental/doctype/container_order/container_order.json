@@ -98,6 +98,7 @@
    "options": "Long Credit\nCash\nShort Credit",
    "in_list_view": 1,
    "in_standard_filter": 1,
+   "hidden": 1,
    "permlevel": 1
   },
   {
