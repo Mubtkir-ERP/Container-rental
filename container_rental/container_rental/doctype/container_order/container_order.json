@@ -83,8 +83,7 @@
    "fieldname": "delivery_address",
    "fieldtype": "Small Text",
    "label": "Address / Delivery Location",
-   "permlevel": 1,
-   "reqd": 1
+   "permlevel": 1
   },
   {
    "fieldname": "order_section",
@@ -96,9 +95,9 @@
    "fieldtype": "Select",
    "label": "Order Type",
    "options": "Long Credit\nCash\nShort Credit",
+   "reqd": 1,
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "hidden": 1,
    "permlevel": 1
   },
   {
@@ -160,21 +159,18 @@
    "fieldtype": "Int",
    "label": "Rental Duration (Days)",
    "description": "محددة (10 أيام غالبًا) لعملاء النقدي/التحويل، أو مفتوحة لعملاء الأجل الطويل",
-   "permlevel": 1,
-   "reqd": 1
+   "permlevel": 1
   },
   {
    "fieldname": "rental_value",
    "fieldtype": "Currency",
-   "label": "Rental Value",
-   "reqd": 1
+   "label": "Rental Value"
   },
   {
    "fieldname": "payment_method",
    "fieldtype": "Link",
    "label": "Payment Method",
-   "options": "Mode of Payment",
-   "reqd": 1
+   "options": "Mode of Payment"
   },
   {
    "fieldname": "column_break_rental",
@@ -319,8 +315,7 @@
    "fieldtype": "Data",
    "label": "Google Maps Link",
    "options": "URL",
-   "description": "رابط موقع التسليم على خرائط قوقل",
-   "reqd": 1
+   "description": "رابط موقع التسليم على خرائط قوقل"
   },
   {
    "fieldname": "delivery_note_no",

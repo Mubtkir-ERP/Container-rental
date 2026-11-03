@@ -172,6 +172,47 @@ def expand_aliases(context):
 	return out
 
 
+# Operations asked for a marker at the head of every notification so a driver
+# or supervisor can tell the three jobs apart at a glance in his chat list.
+# It is applied when the message is rendered, not stored in the template body,
+# so it survives admins editing the templates in the desk.
+NEW_ORDER_EMOJI = "\U0001F195"       # 🆕 new order
+SKIP_CHANGE_EMOJI = "\U0001F504"     # 🔄 container replacement
+SKIP_REMOVE_EMOJI = "\U0001F5D1\uFE0F"  # 🗑️ container removal
+
+EVENT_EMOJI = {
+	"supervisor_new_order": NEW_ORDER_EMOJI,
+	"driver_assignment": NEW_ORDER_EMOJI,
+	"unload_done": SKIP_REMOVE_EMOJI,
+	"supervisor_unload_request": SKIP_REMOVE_EMOJI,
+	"unload_reminder": SKIP_REMOVE_EMOJI,
+}
+# The unload request carries both jobs — its wording already switches on the
+# replacement flag, and so does its marker.
+REQUEST_EMOJI = {False: SKIP_REMOVE_EMOJI, True: SKIP_CHANGE_EMOJI}
+
+
+def event_emoji(template_key, context):
+	if template_key in ("unload_driver_request", "unload_reassign_request"):
+		return REQUEST_EMOJI[bool((context or {}).get("replacement"))]
+	return EVENT_EMOJI.get(template_key)
+
+
+def _starts_with_emoji(body, emoji):
+	"""True when the body already opens with this marker — admins may type it
+	into the template themselves, with or without the variation selector."""
+	head = body.lstrip().lstrip("\uFE0F")
+	base = emoji.rstrip("\uFE0F")
+	return head.startswith(base)
+
+
+def add_emoji(body, template_key, context):
+	emoji = event_emoji(template_key, context)
+	if not body or not emoji or _starts_with_emoji(body, emoji):
+		return body
+	return f"{emoji} {body.lstrip()}"
+
+
 def is_meta_configured():
 	"""True when frappe_whatsapp's Meta Cloud API credentials are filled."""
 	try:
@@ -246,7 +287,7 @@ def render_event(template_key, context):
 		if not default:
 			return None
 		body = default["body"]
-	return frappe.render_template(body, context or {})
+	return add_emoji(frappe.render_template(body, context or {}), template_key, context)
 
 
 def send_event(template_key, mobile_no, context, reference_doc=None, instance=None):

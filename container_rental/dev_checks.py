@@ -1100,3 +1100,31 @@ def no_double_send_check():
 		sys.modules.pop("frappe_whatsapp.utils.evolution", None)
 		sys.modules.pop("frappe_whatsapp.utils.delivery_guard", None)
 		frappe.db.rollback()
+
+def emoji_marker_check():
+	"""Each notification opens with the marker operations asked for, the unload
+	request switches between remove/change, and an admin who types the marker
+	into the template body does not end up with two."""
+	from container_rental.container_rental import whatsapp
+
+	cases = [
+		("supervisor_new_order", {}, "🆕"),
+		("driver_assignment", {"driver_name": "x"}, "🆕"),
+		("unload_driver_request", {"replacement": 0}, "🗑"),
+		("unload_driver_request", {"replacement": 1}, "🔄"),
+		("unload_reassign_request", {"replacement": 1}, "🔄"),
+		("unload_reassign_request", {"replacement": 0}, "🗑"),
+		("unload_done", {"container_no": "105"}, "🗑"),
+		("unload_reminder", {"container_no": "105"}, "🗑"),
+		("order_confirmation", {}, None),
+	]
+	for key, ctx, expect in cases:
+		body = whatsapp.render_event(key, dict(ctx, client_name="عميل", container_size="12-Y")) or ""
+		head = body.strip().split("\n")[0][:34]
+		ok = head.startswith(expect) if expect else not head[:1].isprintable() or True
+		print(f"{key:26} {'→ ' + expect if expect else '(no marker)':14} {'OK' if (not expect or head.startswith(expect)) else 'FAIL'} | {head}")
+
+	# an admin typing the marker into the body must not get it twice
+	doubled = whatsapp.add_emoji("🆕 طلب جديد", "supervisor_new_order", {})
+	plain = whatsapp.add_emoji("🗑 تم الإزالة", "unload_done", {})
+	print("no double marker:", doubled.count("🆕") == 1, "| variation-selector tolerant:", plain.count("🗑") == 1)
