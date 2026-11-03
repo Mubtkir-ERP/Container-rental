@@ -69,6 +69,7 @@ def e2e():
 		"order_type": "Short Credit", "container_size": "10 ياردة",
 		"container": container.name, "rental_days": 10, "rental_value": 350,
 		"payment_method": "تحويل بنكي", "rental_start_date": frappe.utils.today(),
+		"google_maps_link": "https://maps.app.goo.gl/test",
 		"delivery_address": "موقع الاختبار",
 	}).insert(ignore_permissions=True)
 
@@ -206,7 +207,8 @@ def new_order_supervisor_check():
 	customer = frappe.get_all("Customer", limit=1, pluck="name")[0]
 	order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
 		"container_size": "10 ياردة", "rental_days": 10, "rental_value": 500, "payment_method": "نقدي",
-		"rental_start_date": frappe.utils.today(), "delivery_address": "حي النخيل"}).insert(ignore_permissions=True)
+		"rental_start_date": frappe.utils.today(),
+		"google_maps_link": "https://maps.app.goo.gl/test", "delivery_address": "حي النخيل"}).insert(ignore_permissions=True)
 	print("status:", order.status, "| supervisor notifications +", frappe.db.count("Notification Log", {"for_user": sup}) - before)
 	from container_rental.container_rental import whatsapp
 	print(whatsapp.render_event("supervisor_new_order", dict(order.get_whatsapp_context(), driver_name="المشرف")))
@@ -245,7 +247,8 @@ def driver_close_check():
 	driver = frappe.db.get_value("Employee", {"designation": "سائق", "status": "Active"})
 	order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
 		"container_size": "10 ياردة", "rental_days": 10, "rental_value": 900, "payment_method": "نقدي",
-		"rental_start_date": today()}).insert(ignore_permissions=True)
+		"rental_start_date": today(), "delivery_address": "موقع الاختبار",
+			"google_maps_link": "https://maps.app.goo.gl/test"}).insert(ignore_permissions=True)
 	order.assign_driver(driver)
 	free = frappe.get_all("Container", filters={"status": "Available", "size": "10 ياردة"}, limit=1, pluck="name")[0]
 	# Simulate the driver's run_doc_method path: fresh doc from dict like the client form sends
@@ -270,7 +273,8 @@ def no_container_close_check():
 	# order WITHOUT a container number (the real new-scenario shape)
 	order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
 		"container_size": "10 ياردة", "rental_days": 10, "rental_value": 400, "payment_method": "نقدي",
-		"rental_start_date": today()}).insert(ignore_permissions=True)
+		"rental_start_date": today(), "delivery_address": "موقع الاختبار",
+			"google_maps_link": "https://maps.app.goo.gl/test"}).insert(ignore_permissions=True)
 	order.assign_driver(driver)
 	free = frappe.get_all("Container", filters={"status": "Available", "size": "10 ياردة"}, limit=1, pluck="name")[0]
 	# office path: a Container Delivery form submitted directly (order.container stays empty)
@@ -313,7 +317,8 @@ def reassign_invoice_supervisor_check():
 	# 2) assign then re-assign
 	order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
 		"container_size": size, "rental_days": 10, "rental_value": 1000, "payment_method": "نقدي",
-		"rental_start_date": today()}).insert(ignore_permissions=True)
+		"rental_start_date": today(), "delivery_address": "موقع الاختبار",
+			"google_maps_link": "https://maps.app.goo.gl/test"}).insert(ignore_permissions=True)
 	order.assign_driver(a)
 	order.reload()
 	print("after 1st assign — driver:", order.assigned_driver == a, "| count:", order.assignment_count)
@@ -352,7 +357,8 @@ def unload_flow_check():
 	def delivered_order():
 		order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
 			"container_size": "10 ياردة", "rental_days": 10, "rental_value": 300, "payment_method": "نقدي",
-			"rental_start_date": today(), "google_maps_link": "https://maps.app.goo.gl/test"}).insert(ignore_permissions=True)
+			"rental_start_date": today(), "delivery_address": "موقع الاختبار",
+			"google_maps_link": "https://maps.app.goo.gl/test", "google_maps_link": "https://maps.app.goo.gl/test"}).insert(ignore_permissions=True)
 		order.assign_driver(a)
 		free = frappe.get_all("Container", filters={"status": "Available", "size": "10 ياردة"}, limit=1, pluck="name")[0]
 		frappe.get_doc("Container Order", order.name).driver_confirm_delivery(free)
@@ -450,7 +456,8 @@ def payment_tax_supervisor_check():
 
 	order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
 		"container_size": "10 ياردة", "rental_days": 10, "rental_value": 800, "payment_method": cash,
-		"rental_start_date": today()}).insert(ignore_permissions=True)
+		"rental_start_date": today(), "delivery_address": "موقع الاختبار",
+			"google_maps_link": "https://maps.app.goo.gl/test"}).insert(ignore_permissions=True)
 	order.assign_driver(driver)
 	free = frappe.get_all("Container", filters={"status": "Available", "size": "10 ياردة"}, limit=1, pluck="name")[0]
 	# the driver switches the method on site
@@ -490,7 +497,8 @@ def payment_tax_supervisor_check():
 	print("after flag — is_driver:", hr_utils.is_driver(supervisor))
 	order2 = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
 		"container_size": "10 ياردة", "rental_days": 5, "rental_value": 200, "payment_method": cash,
-		"rental_start_date": today()}).insert(ignore_permissions=True)
+		"rental_start_date": today(), "delivery_address": "موقع الاختبار",
+			"google_maps_link": "https://maps.app.goo.gl/test"}).insert(ignore_permissions=True)
 	order2.assign_driver(supervisor)  # supervisor assigns the order to himself
 	order2.reload()
 	print("supervisor self-assign:", order2.assigned_driver == supervisor, "| status:", order2.status)
@@ -514,7 +522,8 @@ def supervisor_confirm_check():
 
 	order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
 		"container_size": "10 ياردة", "rental_days": 7, "rental_value": 500, "payment_method": "نقدي",
-		"rental_start_date": today()}).insert(ignore_permissions=True)
+		"rental_start_date": today(), "delivery_address": "موقع الاختبار",
+			"google_maps_link": "https://maps.app.goo.gl/test"}).insert(ignore_permissions=True)
 	order.assign_driver(supervisor)
 	free = frappe.get_all("Container", filters={"status": "Available", "size": "10 ياردة"}, limit=1, pluck="name")[0]
 
@@ -544,7 +553,8 @@ def unload_from_screen_check():
 	driver = frappe.db.get_value("Employee", {"designation": "سائق", "status": "Active"})
 	order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
 		"container_size": "10 ياردة", "rental_days": 10, "rental_value": 600, "payment_method": "نقدي",
-		"rental_start_date": today()}).insert(ignore_permissions=True)
+		"rental_start_date": today(), "delivery_address": "موقع الاختبار",
+			"google_maps_link": "https://maps.app.goo.gl/test"}).insert(ignore_permissions=True)
 	order.assign_driver(driver)
 	free = frappe.get_all("Container", filters={"status": "Available", "size": "10 ياردة"}, limit=1, pluck="name")[0]
 	frappe.get_doc("Container Order", order.name).driver_confirm_delivery(free)
@@ -612,7 +622,8 @@ def replace_after_unload_check():
 	driver = frappe.db.get_value("Employee", {"designation": "سائق", "status": "Active"})
 	order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
 		"container_size": "10 ياردة", "rental_days": 10, "rental_value": 700, "payment_method": "نقدي",
-		"rental_start_date": today()}).insert(ignore_permissions=True)
+		"rental_start_date": today(), "delivery_address": "موقع الاختبار",
+			"google_maps_link": "https://maps.app.goo.gl/test"}).insert(ignore_permissions=True)
 	order.assign_driver(driver)
 	free = frappe.get_all("Container", filters={"status": "Available", "size": "10 ياردة"}, limit=1, pluck="name")[0]
 	frappe.get_doc("Container Order", order.name).driver_confirm_delivery(free)
@@ -658,7 +669,8 @@ def commission_rule_check():
 	def place(value=1000):
 		order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
 			"container_size": size, "rental_days": 5, "rental_value": value, "payment_method": "نقدي",
-			"rental_start_date": today()}).insert(ignore_permissions=True)
+			"rental_start_date": today(), "delivery_address": "موقع الاختبار",
+			"google_maps_link": "https://maps.app.goo.gl/test"}).insert(ignore_permissions=True)
 		order.assign_driver(driver)
 		return frappe.db.get_value("Driver Commission Entry",
 			{"delivery_reference": order.name}, ["commission_amount", "commission_basis", "expense_account"], as_dict=True)
@@ -749,7 +761,8 @@ def unload_type_flow_check():
 	def rented_container(value=500):
 		order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
 			"container_size": "10 ياردة", "rental_days": 10, "rental_value": value, "payment_method": "نقدي",
-			"rental_start_date": today()}).insert(ignore_permissions=True)
+			"rental_start_date": today(), "delivery_address": "موقع الاختبار",
+			"google_maps_link": "https://maps.app.goo.gl/test"}).insert(ignore_permissions=True)
 		order.assign_driver(driver)
 		free = frappe.get_all("Container", filters={"status": "Available", "size": "10 ياردة"},
 			limit=1, pluck="name")[0]
@@ -814,7 +827,8 @@ def unload_message_count_check():
 		def rented():
 			order = frappe.get_doc({"doctype": "Container Order", "client": customer, "order_type": "Cash",
 				"container_size": "10 ياردة", "rental_days": 10, "rental_value": 400,
-				"payment_method": "نقدي", "rental_start_date": today()}).insert(ignore_permissions=True)
+				"payment_method": "نقدي", "rental_start_date": today(), "delivery_address": "موقع الاختبار",
+			"google_maps_link": "https://maps.app.goo.gl/test"}).insert(ignore_permissions=True)
 			order.assign_driver(driver)
 			free = frappe.get_all("Container", filters={"status": "Available", "size": "10 ياردة"},
 				limit=1, pluck="name")[0]
@@ -856,7 +870,8 @@ def reminder_once_check():
 			order = frappe.get_doc({"doctype": "Container Order", "client": customer,
 				"order_type": "Cash", "container_size": "10 ياردة", "rental_days": due_in_days,
 				"rental_value": 300, "payment_method": "نقدي",
-				"rental_start_date": today()}).insert(ignore_permissions=True)
+				"rental_start_date": today(), "delivery_address": "موقع الاختبار",
+			"google_maps_link": "https://maps.app.goo.gl/test"}).insert(ignore_permissions=True)
 			order.assign_driver(driver)
 			free = frappe.get_all("Container", filters={"status": "Available", "size": "10 ياردة"},
 				limit=1, pluck="name")[0]
@@ -1026,7 +1041,8 @@ def representative_routing_check():
 		def run(use_rep):
 			order = frappe.get_doc({"doctype": "Container Order", "client": customer,
 				"order_type": "Cash", "container_size": "10 ياردة", "rental_days": 3,
-				"rental_value": 250, "payment_method": "نقدي", "rental_start_date": today(),
+				"rental_value": 250, "payment_method": "نقدي", "rental_start_date": today(), "delivery_address": "موقع الاختبار",
+			"google_maps_link": "https://maps.app.goo.gl/test",
 				"use_representative": 1 if use_rep else 0,
 				"representative_mobile": rep if use_rep else None}).insert(ignore_permissions=True)
 			order.reload()
