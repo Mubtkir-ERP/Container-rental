@@ -12,7 +12,17 @@ required_apps = ["erpnext", "frappe_whatsapp"]
 # as controller methods, which Frappe invokes automatically. We deliberately do
 # NOT register them again via `doc_events` — doing so would run every side
 # effect (container status changes, commission entries, trip decrements) twice.
-doc_events = {}
+doc_events = {
+	# A client's mobile identifies him across orders and WhatsApp replies —
+	# it is checked both where it is typed (a new Customer) and where it
+	# afterwards lives (the primary Contact).
+	"Customer": {
+		"validate": "container_rental.container_rental.customer_utils.validate_unique_mobile",
+	},
+	"Contact": {
+		"validate": "container_rental.container_rental.customer_utils.validate_contact_mobile",
+	},
+}
 
 # Drivers (Driver role only) are limited to the orders/unload requests assigned to them
 permission_query_conditions = {

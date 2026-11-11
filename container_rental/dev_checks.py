@@ -55,7 +55,9 @@ def e2e():
 
 	client = frappe.get_doc({
 		"doctype": "Customer", "customer_name": f"عميل اختبار E2E {suffix}",
-		"customer_type": "Individual", "mobile_no": "0559999999", "cr_account_type": "Cash",
+		"customer_type": "Individual", "cr_account_type": "Cash",
+		# a mobile is unique per customer now, so each run needs its own
+		"mobile_no": "05" + str(abs(hash(suffix)))[:8].ljust(8, "0"),
 	}).insert(ignore_permissions=True)
 
 	container = frappe.get_doc({
@@ -1144,3 +1146,64 @@ def emoji_marker_check():
 	doubled = whatsapp.add_emoji("🆕 طلب جديد", "supervisor_new_order", {})
 	plain = whatsapp.add_emoji("🗑 تم الإزالة", "unload_done", {})
 	print("no double marker:", doubled.count("🆕") == 1, "| variation-selector tolerant:", plain.count("🗑") == 1)
+
+def unique_mobile_check():
+	"""Two customers may not share a mobile — in any format, typed on the
+	customer or later on his primary contact — while records that already
+	clash stay editable."""
+	from container_rental.container_rental import customer_utils
+
+	suffix = frappe.generate_hash(length=4).upper()
+	base = frappe.get_doc({"doctype": "Customer", "customer_name": f"أصل {suffix}",
+		"customer_type": "Individual", "mobile_no": "0551234567"})
+	base.flags.ignore_permissions = True
+	base.insert()
+	print("normalisation:", {m: customer_utils.normalize_mobile(m) for m in
+		("0551234567", "+966 55 123 4567", "966551234567", "551234567")})
+
+	def try_new(mobile, label):
+		doc = frappe.get_doc({"doctype": "Customer", "customer_name": f"{label} {suffix}",
+			"customer_type": "Individual", "mobile_no": mobile})
+		doc.flags.ignore_permissions = True
+		try:
+			doc.insert()
+			print(f"{label:22} ({mobile:18}) → allowed")
+			return doc
+		except frappe.DuplicateEntryError:
+			print(f"{label:22} ({mobile:18}) → blocked")
+			return None
+
+	try_new("0551234567", "same format")
+	try_new("+966 55 123 4567", "international format")
+	try_new("966551234567", "country code")
+	other = try_new("0559998888", "different number")
+
+	# an existing record keeps saving (82 such pairs already exist on production)
+	dup = frappe.get_doc({"doctype": "Customer", "customer_name": f"مكرر قديم {suffix}",
+		"customer_type": "Individual"})
+	dup.flags.ignore_permissions = True
+	dup.insert()
+	frappe.db.set_value("Customer", dup.name, "mobile_no", "0551234567", update_modified=False)
+	dup.reload()
+	dup.customer_name = f"مكرر قديم معدَّل {suffix}"
+	try:
+		dup.save()
+		print("pre-existing duplicate still editable: True")
+	except frappe.DuplicateEntryError:
+		print("pre-existing duplicate still editable: FAILED")
+
+	# and the same rule applies on the primary contact
+	if other:
+		contact = frappe.db.get_value("Customer", other.name, "customer_primary_contact")
+		if contact:
+			c = frappe.get_doc("Contact", contact)
+			for row in c.phone_nos:
+				row.phone = "0551234567"
+			try:
+				c.save()
+				print("contact edit blocked: FAILED (allowed)")
+			except frappe.DuplicateEntryError:
+				print("contact edit blocked: True")
+		else:
+			print("contact edit blocked: (no primary contact created)")
+	frappe.db.rollback()

@@ -9,6 +9,7 @@ Clients are ERPNext Customers extended with app custom fields (module
 """
 
 import frappe
+from frappe import _
 
 
 def get_mobile(customer):
@@ -17,6 +18,82 @@ def get_mobile(customer):
 
 def get_name_and_mobile(customer):
 	return frappe.db.get_value("Customer", customer, ["customer_name", "mobile_no"])
+
+
+def normalize_mobile(mobile_no):
+	"""Digits only, last nine — so 0501234567, +966 50 123 4567 and
+	966501234567 are recognised as one and the same number."""
+	digits = "".join(ch for ch in str(mobile_no or "") if ch.isdigit())
+	return digits[-9:] if len(digits) >= 9 else digits
+
+
+def customer_with_mobile(mobile_no, exclude=None):
+	"""The other customer already holding this number, if any."""
+	normalized = normalize_mobile(mobile_no)
+	if not normalized:
+		return None
+	rows = frappe.db.sql(
+		"""
+		SELECT name, customer_name, mobile_no FROM `tabCustomer`
+		WHERE mobile_no IS NOT NULL AND mobile_no != ''
+		  AND RIGHT(REGEXP_REPLACE(mobile_no, '[^0-9]', ''), 9) = %(mobile)s
+		  AND name NOT IN %(exclude)s
+		LIMIT 1
+		""",
+		{"mobile": normalized, "exclude": tuple(exclude or ["__none__"]) or ("__none__",)},
+		as_dict=True,
+	)
+	return rows[0] if rows else None
+
+
+def _throw_duplicate(mobile_no, other):
+	frappe.throw(
+		_("رقم الجوال {0} مسجَّل بالفعل للعميل {1} ({2}) — لا يمكن تكرار الرقم بين عميلين").format(
+			mobile_no, other.customer_name or "", other.name
+		),
+		frappe.DuplicateEntryError,
+	)
+
+
+def validate_unique_mobile(doc, method=None):
+	"""A client's number identifies him across orders and WhatsApp replies, so
+	two customers must not share one. Records that already clash stay editable
+	— only a number being set or changed is checked."""
+	if not doc.mobile_no:
+		return
+	if not doc.is_new():
+		before = doc.get_doc_before_save()
+		if before and normalize_mobile(before.mobile_no) == normalize_mobile(doc.mobile_no):
+			return
+	other = customer_with_mobile(doc.mobile_no, exclude=[doc.name] if doc.name else None)
+	if other:
+		_throw_duplicate(doc.mobile_no, other)
+
+
+def validate_contact_mobile(doc, method=None):
+	"""The number lives on the customer's primary Contact once the customer
+	exists, so the same rule has to hold when it is edited there."""
+	mobile = doc.mobile_no or next(
+		(row.phone for row in (doc.phone_nos or []) if row.is_primary_mobile_no), None
+	)
+	if not mobile:
+		return
+	owners = [
+		link.link_name for link in (doc.links or [])
+		if link.link_doctype == "Customer" and link.link_name
+	]
+	if not owners:
+		return
+	# Saving a customer rewrites his primary contact; when the contact merely
+	# mirrors the number that customer already holds, this is an existing
+	# record rather than a new clash and must stay editable
+	normalized = normalize_mobile(mobile)
+	for owner in owners:
+		if normalize_mobile(frappe.db.get_value("Customer", owner, "mobile_no")) == normalized:
+			return
+	other = customer_with_mobile(mobile, exclude=owners)
+	if other:
+		_throw_duplicate(mobile, other)
 
 
 def get_default_address(customer):
