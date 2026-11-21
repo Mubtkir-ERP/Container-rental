@@ -1,3 +1,21 @@
+<!-- MUBTKIR-UNIFIED-README-START -->
+## نظام إدارة تأجير الحاويات | Container Rental
+
+تطبيق متكامل على Frappe/ERPNext لإدارة دورة تأجير الحاويات، التوصيل، السحب، العقود، والفوترة.
+* **الفئة المستهدفة:** شركات تأجير حاويات المخلفات والنقل والخدمات اللوجستية.
+
+A Frappe/ERPNext app for managing the full container rental lifecycle, dispatch, pickup, contracts, and billing.
+* **Target Audience:** Waste container rental companies, logistics providers, and contracting fleets.
+
+### تواصل معنا | Contact & Sales — [مبتكر للأنظمة السحابية | Mubtkir ERP](https://mubtkir.com)
+
+* 🌐 **الموقع الرسمي | Website:** [Mubtkir ERP — حلول ERPNext السحابية](https://mubtkir.com)
+* 📧 **البريد الإلكتروني | Email:** [sales@mubtkir.com](mailto:sales@mubtkir.com)
+* 📱 **الجوال | Mobile:** [+966547706865](tel:+966547706865)
+* 💬 **واتساب | WhatsApp:** [+966126810486](https://wa.me/966126810486)
+
+<!-- MUBTKIR-UNIFIED-README-END -->
+
 # نظام إدارة ومتابعة تأجير الحاويات — Container Rental
 
 تطبيق Frappe مستقل لإدارة دورة تأجير حاويات نقل الأنقاض/المخلفات كاملة:
