@@ -37,7 +37,7 @@
    "fieldname": "barcode_scan",
    "fieldtype": "Data",
    "label": "Scan Barcode",
-   "description": "امسح باركود الحاوية لتحديدها تلقائيًا"
+   "description": "Scan the container barcode to select it automatically"
   },
   {
    "fieldname": "container",
@@ -112,7 +112,7 @@
    "fieldname": "municipality_fee",
    "fieldtype": "Currency",
    "label": "Municipality / Unload Fee",
-   "description": "تُجمَّع ضمن تقرير المصروفات العام"
+   "description": "Aggregated in the General Expenses Report"
   },
   {
    "fieldname": "column_break_fees",
@@ -149,7 +149,7 @@
    "read_only": 1,
    "no_copy": 1,
    "in_list_view": 1,
-   "description": "حالة طلب التفريغ المرسل للسائق"
+   "description": "Status of the unload request sent to the driver"
   },
   {
    "fieldname": "unload_type",
@@ -160,7 +160,7 @@
    "reqd": 1,
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "description": "اختر النوع قبل الحفظ — تُرسل رسالة واحدة للسائق حسب اختيارك. وفي حالة الاستبدال يُنشأ طلب حاوية جديد تلقائيًا بعد تأكيده"
+   "description": "Select the type before saving — one message is sent to the driver based on your choice. For Replacement, a new container order is created automatically upon confirmation"
   }
  ],
  "is_submittable": 1,

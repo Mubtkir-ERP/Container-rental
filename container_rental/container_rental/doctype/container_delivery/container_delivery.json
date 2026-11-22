@@ -69,7 +69,7 @@
    "fieldname": "barcode_scan",
    "fieldtype": "Data",
    "label": "Scan Barcode",
-   "description": "امسح باركود الحاوية لتحديدها تلقائيًا"
+   "description": "Scan the container barcode to select it automatically"
   },
   {
    "fieldname": "container",
@@ -94,7 +94,7 @@
    "fieldname": "agreed_days",
    "fieldtype": "Int",
    "label": "Agreed Duration (Days)",
-   "description": "تلقائيًا من الطلب أو مدة الرحلة في العقد"
+   "description": "Automatically from the order or contract trip duration"
   },
   {
    "fieldname": "due_datetime",

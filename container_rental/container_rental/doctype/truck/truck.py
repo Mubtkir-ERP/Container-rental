@@ -33,36 +33,36 @@ def make_expense_voucher(truck, table, row_name, payout_account, expense_account
 	from frappe.utils import flt, today
 
 	if not set(frappe.get_roles()) & {"Container Manager", "Accounts Manager", "System Manager"}:
-		frappe.throw(_("صرف مصاريف السيارات يتطلب صلاحية مدير الحاويات"), frappe.PermissionError)
+		frappe.throw(_("Paying truck expenses requires Container Manager role"), frappe.PermissionError)
 	if table not in EXPENSE_TABLES:
-		frappe.throw(_("جدول غير معروف: {0}").format(table))
+		frappe.throw(_("Unknown table: {0}").format(table))
 	if not payout_account:
-		frappe.throw(_("اختر حساب الصرف (الصندوق أو البنك)"))
+		frappe.throw(_("Select the payment account (Cash or Bank)"))
 
 	doc = frappe.get_doc("Truck", truck)
 	row = next((r for r in (doc.get(table) or []) if r.name == row_name), None)
 	if not row:
-		frappe.throw(_("لم يُعثر على البند المطلوب"))
+		frappe.throw(_("Requested item was not found"))
 	if row.journal_entry:
-		frappe.throw(_("صُرف هذا البند بالفعل بالسند {0}").format(row.journal_entry))
+		frappe.throw(_("This item has already been paid via entry {0}").format(row.journal_entry))
 	if flt(row.cost) <= 0:
-		frappe.throw(_("أدخل تكلفة البند أولًا"))
+		frappe.throw(_("Enter the item cost first"))
 
 	account = expense_account or row.expense_account or frappe.db.get_single_value(
 		"Container Rental Settings", "maintenance_expense_account"
 	)
 	if not account:
-		frappe.throw(_("حدد حساب مصروف السيارات في إعدادات النظام أو في البند"))
+		frappe.throw(_("Set the vehicle expense account in System Settings or on the item"))
 
 	_dt, date_field, type_field = EXPENSE_TABLES[table]
-	label = row.get(type_field) if type_field else _("غيار زيت")
+	label = row.get(type_field) if type_field else _("Oil Change")
 	posting_date = posting_date or row.get(date_field) or today()
 	entry = frappe.get_doc({
 		"doctype": "Journal Entry",
 		"voucher_type": "Journal Entry",
 		"company": frappe.db.get_value("Account", account, "company"),
 		"posting_date": posting_date,
-		"user_remark": _("مصروف السيارة {0} — {1}").format(truck, label),
+		"user_remark": _("Truck expense {0} — {1}").format(truck, label),
 		"accounts": [
 			{"account": account, "debit_in_account_currency": flt(row.cost)},
 			{"account": payout_account, "credit_in_account_currency": flt(row.cost)},
@@ -76,7 +76,7 @@ def make_expense_voucher(truck, table, row_name, payout_account, expense_account
 	row.db_set("paid_on", posting_date)
 	if expense_account:
 		row.db_set("expense_account", account)
-	doc.add_comment("Info", _("سند صرف {0} لبند {1} بمبلغ {2}").format(entry.name, label, flt(row.cost)))
+	doc.add_comment("Info", _("Payment entry {0} for {1} of amount {2}").format(entry.name, label, flt(row.cost)))
 	return entry.name
 
 

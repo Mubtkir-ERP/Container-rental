@@ -30,20 +30,20 @@ class ContainerRental(Document):
 	def before_submit(self):
 		# Deferred mandatory checks so the 3-field quick entry can save a draft
 		if not self.client:
-			frappe.throw(_("العميل مطلوب قبل اعتماد الإيجار"))
+			frappe.throw(_("Client is required before submitting the rental"))
 		if self.payment_method == "نقدي" and not self.cash_box:
-			frappe.throw(_("الصندوق النقدي مطلوب عند التسديد النقدي"))
+			frappe.throw(_("Cash Account is required for cash payment"))
 
 	def validate_container(self):
 		info = frappe.db.get_value("Container", self.container, ["size", "status"], as_dict=True)
 		if info.size != self.container_size:
 			frappe.throw(
-				_("الحاوية {0} حجمها {1} ولا يطابق الحجم المطلوب {2}").format(
+				_("Container {0} has size {1} which does not match requested size {2}").format(
 					self.container, info.size, self.container_size
 				)
 			)
 		if info.status != "Available":
-			frappe.throw(_("الحاوية {0} غير متاحة (حالتها: {1})").format(self.container, info.status))
+			frappe.throw(_("Container {0} is not available (status: {1})").format(self.container, info.status))
 
 	def on_submit(self):
 		# Container goes out immediately (walk-in rental, no order workflow)
@@ -95,7 +95,7 @@ class ContainerRental(Document):
 		if record_name:
 			record = frappe.get_doc("Rental Record", record_name)
 			if record.status not in ("Rented", "Overdue"):
-				frappe.throw(_("لا يمكن إلغاء إيجار تم تفريغ/سحب حاويته"))
+				frappe.throw(_("Cannot cancel a rental whose container has been unloaded or withdrawn"))
 			record.flags.ignore_permissions = True
 			record.delete()
 

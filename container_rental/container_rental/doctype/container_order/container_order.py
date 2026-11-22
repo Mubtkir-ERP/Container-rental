@@ -24,7 +24,7 @@ STATUS_CANCELLED = "Cancelled"
 
 def _require_roles(*roles):
 	if not set(frappe.get_roles()) & set(roles + ("System Manager",)):
-		frappe.throw(_("هذا الإجراء يتطلب أحد الأدوار: {0}").format("، ".join(roles)), frappe.PermissionError)
+		frappe.throw(_("This action requires one of the roles: {0}").format("، ".join(roles)), frappe.PermissionError)
 
 
 class ContainerOrder(Document):
@@ -52,7 +52,7 @@ class ContainerOrder(Document):
 	def validate_rental_days(self):
 		# Fixed duration is mandatory for cash/transfer clients; open-ended only for long-term credit
 		if self.order_type != LONG_TERM and not self.rental_days:
-			frappe.throw(_("مدة التأجير مطلوبة لطلبات النقدي/التحويل والأجل قصير المدى"))
+			frappe.throw(_("Rental duration is required for Cash/Transfer and Short Credit orders"))
 
 	def after_insert(self):
 		# New flow: saving the order sends it straight to the drivers supervisor,
@@ -76,15 +76,15 @@ class ContainerOrder(Document):
 		context["driver_name"] = supervisor_name
 		whatsapp.send_event("supervisor_new_order", supervisor_mobile, context, reference_doc=self)
 		if returned_by:
-			subject = _("أعاد السائق {0} الطلب {1} — بحاجة لإسناد سائق آخر").format(
+			subject = _("Driver {0} returned order {1} — needs reassignment to another driver").format(
 				hr_utils.get_employee_name(returned_by) or returned_by, self.name)
 		else:
-			subject = _("طلب جديد {0} بانتظار إسناد سائق — {1}").format(self.name, context.get("client_name") or "")
+			subject = _("New order {0} awaiting driver assignment — {1}").format(self.name, context.get("client_name") or "")
 		frappe.get_doc({
 			"doctype": "Notification Log",
 			"for_user": supervisor_user,
 			"subject": subject,
-			"email_content": _("العنوان: {0}").format(self.delivery_address or "-"),
+			"email_content": _("Address: {0}").format(self.delivery_address or "-"),
 			"document_type": "Container Order",
 			"document_name": self.name,
 			"type": "Alert",
@@ -98,9 +98,9 @@ class ContainerOrder(Document):
 			if not info:
 				continue
 			if info.size != size:
-				frappe.throw(_("الحاوية {0} حجمها {1} ولا يطابق الحجم المطلوب {2}").format(container, info.size, size))
+				frappe.throw(_("Container {0} has size {1} which does not match requested size {2}").format(container, info.size, size))
 			if self.status in (STATUS_NEW, STATUS_AWAITING_TRANSFER, STATUS_AWAITING_DRIVER) and info.status != "Available":
-				frappe.throw(_("الحاوية {0} غير متاحة (حالتها: {1})").format(container, info.status))
+				frappe.throw(_("Container {0} is not available (status: {1})").format(container, info.status))
 
 	def _container_rows(self):
 		"""Yield (fieldname, size, container) for the primary + additional container rows."""
@@ -114,10 +114,10 @@ class ContainerOrder(Document):
 	def _transition(self, from_statuses, to_status):
 		if self.status not in from_statuses:
 			frappe.throw(
-				_("لا يمكن الانتقال من الحالة الحالية ({0}) إلى {1}").format(self.status, to_status)
+				_("Cannot transition from current status ({0}) to {1}").format(self.status, to_status)
 			)
 		self.db_set("status", to_status)
-		self.add_comment("Info", _("تغيير حالة الطلب إلى: {0}").format(to_status))
+		self.add_comment("Info", _("Order status changed to: {0}").format(to_status))
 
 	@frappe.whitelist()
 	def confirm_order(self):
@@ -158,7 +158,7 @@ class ContainerOrder(Document):
 		previous_driver = self.assigned_driver if self.status == STATUS_ASSIGNED else None
 		if previous_driver:
 			if previous_driver == driver:
-				frappe.throw(_("الطلب مُسنَد بالفعل لهذا السائق"))
+				frappe.throw(_("Order is already assigned to this driver"))
 			self._drop_unpaid_commission(previous_driver)
 		else:
 			self._transition([STATUS_AWAITING_DRIVER], STATUS_ASSIGNED)
@@ -185,7 +185,7 @@ class ContainerOrder(Document):
 		whatsapp.send_event("driver_assignment", driver_mobile, context, reference_doc=self,
 			instance=sender_instance)
 		if previous_driver:
-			self.add_comment("Info", _("أُعيد إسناد الطلب من السائق {0} إلى السائق {1} بواسطة {2}").format(
+			self.add_comment("Info", _("Order reassigned from driver {0} to driver {1} by {2}").format(
 				hr_utils.get_employee_name(previous_driver) or previous_driver,
 				hr_utils.get_employee_name(driver) or driver,
 				frappe.session.user,
@@ -198,18 +198,18 @@ class ContainerOrder(Document):
 		he cannot deliver): his unpaid commission is dropped and the size's
 		supervisor is asked to assign another driver."""
 		if self.status != STATUS_ASSIGNED:
-			frappe.throw(_("الطلب ليس في حالة مُسنَد لسائق"))
+			frappe.throw(_("Order is not in Assigned to Driver status"))
 		roles = set(frappe.get_roles())
 		if not roles & {"System Manager", "Container Manager", "Driver Supervisor"}:
 			driver_user = frappe.db.get_value("Employee", self.assigned_driver, "user_id")
 			if not driver_user or driver_user != frappe.session.user:
-				frappe.throw(_("هذا الطلب مُسنَد لسائق آخر"), frappe.PermissionError)
+				frappe.throw(_("This order is assigned to another driver"), frappe.PermissionError)
 		previous_driver = self.assigned_driver
 		self._drop_unpaid_commission(previous_driver)
 		self.db_set("assigned_driver", None)
 		self.db_set("assigned_vehicle", None)
 		self.db_set("status", STATUS_AWAITING_DRIVER)
-		self.add_comment("Info", _("أعاد السائق {0} الطلب للمشرف لإسناد سائق آخر").format(
+		self.add_comment("Info", _("Driver {0} returned the order to supervisor for reassignment").format(
 			hr_utils.get_employee_name(previous_driver) or previous_driver))
 		self.notify_supervisor_new_order(returned_by=previous_driver)
 		return STATUS_AWAITING_DRIVER
@@ -283,23 +283,23 @@ class ContainerOrder(Document):
 		credit orders, the delivery-note book number. Creates + submits the
 		Container Delivery behind the scenes."""
 		if self.status != STATUS_ASSIGNED:
-			frappe.throw(_("الطلب ليس في حالة مُسنَد لسائق"))
+			frappe.throw(_("Order is not in Assigned to Driver status"))
 
 		roles = set(frappe.get_roles())
 		if not roles & {"System Manager", "Container Manager", "Driver Supervisor"}:
 			driver_user = frappe.db.get_value("Employee", self.assigned_driver, "user_id")
 			if not driver_user or driver_user != frappe.session.user:
-				frappe.throw(_("هذا الطلب مُسنَد لسائق آخر"), frappe.PermissionError)
+				frappe.throw(_("This order is assigned to another driver"), frappe.PermissionError)
 
 		container_name = frappe.db.get_value("Container", {"container_no": container}) or container
 		info = frappe.db.get_value("Container", container_name, ["size", "status"], as_dict=True)
 		if not info:
-			frappe.throw(_("لا توجد حاوية بالرقم {0}").format(container))
+			frappe.throw(_("No container found with number {0}").format(container))
 		if info.size != self.container_size:
-			frappe.throw(_("حجم الحاوية {0} هو {1} ولا يطابق حجم الطلب {2}").format(
+			frappe.throw(_("Container {0} size is {1} and does not match order size {2}").format(
 				container, info.size, self.container_size))
 		if info.status != "Available":
-			frappe.throw(_("الحاوية {0} غير متاحة (حالتها: {1})").format(container, info.status))
+			frappe.throw(_("Container {0} is not available (status: {1})").format(container, info.status))
 
 		self.db_set("container", container_name)
 		if delivery_note_no:
@@ -309,7 +309,7 @@ class ContainerOrder(Document):
 		if payment_method and payment_method != self.payment_method:
 			previous = self.payment_method
 			self.db_set("payment_method", payment_method)
-			self.add_comment("Info", _("غيّر السائق طريقة الدفع من {0} إلى {1}").format(
+			self.add_comment("Info", _("Driver changed payment method from {0} to {1}").format(
 				previous or "-", payment_method))
 
 		delivery = frappe.get_doc({
@@ -334,7 +334,7 @@ class ContainerOrder(Document):
 		client-side party/company triggers that normally fetch it)."""
 		_require_roles("Customer Service", "Transfer Follow-up", "Container Manager")
 		if self.status != STATUS_DELIVERED:
-			frappe.throw(_("إنشاء الفاتورة متاح بعد اكتمال التوصيل فقط"))
+			frappe.throw(_("Invoice creation is only available after delivery is completed"))
 
 		item_code = _ensure_rental_item()
 		containers_count = len([c for _f, _s, c in self._container_rows() if c]) or 1
@@ -347,7 +347,7 @@ class ContainerOrder(Document):
 			"item_code": item_code,
 			"qty": containers_count,
 			"rate": frappe.utils.flt(self.rental_value),
-			"description": _("تأجير حاوية — الطلب {0} — الحاوية {1}").format(
+			"description": _("Container rental — Order {0} — Container {1}").format(
 				self.name, self.container or ""),
 		})
 		sales_person, _rate = hr_utils.get_commission_per_delivery(self.assigned_driver) if self.assigned_driver else (None, 0)
@@ -361,7 +361,7 @@ class ContainerOrder(Document):
 			invoice.cr_payment_method = self.payment_method
 		invoice.flags.ignore_permissions = True
 		invoice.insert()
-		self.add_comment("Info", _("أُنشئت فاتورة المبيعات {0}").format(invoice.name))
+		self.add_comment("Info", _("Sales Invoice {0} created").format(invoice.name))
 		return invoice.name
 
 	def get_notify_mobile(self):

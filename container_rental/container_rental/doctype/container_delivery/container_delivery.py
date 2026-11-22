@@ -22,7 +22,7 @@ class ContainerDelivery(Document):
 		if self.order:
 			order = frappe.get_doc("Container Order", self.order)
 			if order.status != "Assigned":
-				frappe.throw(_("الطلب {0} ليس في حالة مُسنَد لسائق (حالته: {1})").format(order.name, order.status))
+				frappe.throw(_("Order {0} is not in Assigned to Driver status (current: {1})").format(order.name, order.status))
 			self.client = order.client
 			self.address = self.address or order.delivery_address
 			self.contract = self.contract or order.contract
@@ -39,22 +39,22 @@ class ContainerDelivery(Document):
 		if self.contract and not self.order:
 			contract_client = frappe.db.get_value("Container Contract", self.contract, "client")
 			if self.client and self.client != contract_client:
-				frappe.throw(_("العميل لا يطابق عميل العقد {0}").format(self.contract))
+				frappe.throw(_("Client does not match contract {0} client").format(self.contract))
 			self.client = contract_client
 
 	def validate_container(self):
 		info = frappe.db.get_value("Container", self.container, ["size", "status"], as_dict=True)
 		if info.status != "Available":
-			frappe.throw(_("الحاوية {0} غير متاحة (حالتها: {1})").format(self.container, info.status))
+			frappe.throw(_("Container {0} is not available (status: {1})").format(self.container, info.status))
 		if self.order:
 			order = frappe.get_doc("Container Order", self.order)
 			allowed = [c for _f, _s, c in order._container_rows() if c]
 			sizes = {c: s for _f, s, c in order._container_rows() if c}
 			if allowed and self.container not in allowed:
 				if info.size not in {s for _f, s, _c in order._container_rows()}:
-					frappe.throw(_("الحاوية {0} ليست ضمن حاويات الطلب ولا تطابق أحجامه").format(self.container))
+					frappe.throw(_("Container {0} is not in the order containers and does not match its sizes").format(self.container))
 			elif self.container in sizes and info.size != sizes[self.container]:
-				frappe.throw(_("حجم الحاوية لا يطابق حجم الطلب"))
+				frappe.throw(_("Container size does not match order size"))
 
 	def compute_due(self):
 		if self.delivery_datetime and self.agreed_days:
@@ -126,7 +126,7 @@ class ContainerDelivery(Document):
 		if record_name:
 			record = frappe.get_doc("Rental Record", record_name)
 			if record.status not in ("Rented", "Overdue"):
-				frappe.throw(_("لا يمكن إلغاء توصيل حاوية تم تفريغها/سحبها"))
+				frappe.throw(_("Cannot cancel delivery of an unloaded or withdrawn container"))
 			record.flags.ignore_permissions = True
 			record.delete()
 

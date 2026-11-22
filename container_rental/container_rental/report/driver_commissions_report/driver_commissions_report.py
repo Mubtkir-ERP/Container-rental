@@ -11,16 +11,16 @@ def execute(filters=None):
 
 def get_columns():
 	return [
-		{"fieldname": "driver_name", "label": _("السائق"), "fieldtype": "Data", "width": 180},
-		{"fieldname": "entry", "label": _("قيد العمولة"), "fieldtype": "Link", "options": "Driver Commission Entry", "width": 140},
-		{"fieldname": "entry_date", "label": _("التاريخ"), "fieldtype": "Date", "width": 100},
-		{"fieldname": "container", "label": _("الحاوية"), "fieldtype": "Link", "options": "Container", "width": 110},
-		{"fieldname": "client_name", "label": _("العميل"), "fieldtype": "Data", "width": 150},
-		{"fieldname": "deliveries", "label": _("عدد التوصيلات"), "fieldtype": "Int", "width": 110},
-		{"fieldname": "commission_amount", "label": _("العمولة"), "fieldtype": "Currency", "width": 110},
-		{"fieldname": "due_amount", "label": _("المستحق"), "fieldtype": "Currency", "width": 110},
-		{"fieldname": "paid_amount", "label": _("المصروف"), "fieldtype": "Currency", "width": 110},
-		{"fieldname": "payout_status", "label": _("حالة الصرف"), "fieldtype": "Data", "width": 100},
+		{"fieldname": "driver_name", "label": _("Driver"), "fieldtype": "Data", "width": 180},
+		{"fieldname": "entry", "label": _("Commission Entry"), "fieldtype": "Link", "options": "Driver Commission Entry", "width": 140},
+		{"fieldname": "entry_date", "label": _("Date"), "fieldtype": "Date", "width": 100},
+		{"fieldname": "container", "label": _("Container"), "fieldtype": "Link", "options": "Container", "width": 110},
+		{"fieldname": "client_name", "label": _("Client"), "fieldtype": "Data", "width": 150},
+		{"fieldname": "deliveries", "label": _("Deliveries Count"), "fieldtype": "Int", "width": 110},
+		{"fieldname": "commission_amount", "label": _("Commission"), "fieldtype": "Currency", "width": 110},
+		{"fieldname": "due_amount", "label": _("Due Amount"), "fieldtype": "Currency", "width": 110},
+		{"fieldname": "paid_amount", "label": _("Paid Amount"), "fieldtype": "Currency", "width": 110},
+		{"fieldname": "payout_status", "label": _("Payout Status"), "fieldtype": "Data", "width": 100},
 	]
 
 

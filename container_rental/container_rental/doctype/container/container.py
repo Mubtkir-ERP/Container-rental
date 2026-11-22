@@ -30,18 +30,18 @@ def change_status(container, new_status):
 	doc = frappe.get_doc("Container", container)
 	valid = [s for s in (doc.meta.get_field("status").options or "").split("\n") if s]
 	if new_status not in valid:
-		frappe.throw(_("حالة غير صحيحة: {0}").format(new_status))
+		frappe.throw(_("Invalid status: {0}").format(new_status))
 
 	if new_status in RESTRICTED_STATUSES or doc.status in RESTRICTED_STATUSES:
 		if not set(frappe.get_roles()) & set(STATUS_AUTHORIZED_ROLES):
-			frappe.throw(_("تغيير الحالة إلى/من تالفة أو صيانة يتطلب صلاحية مشرف السواقين أو مدير الحاويات"))
+			frappe.throw(_("Changing status to/from Damaged or Maintenance requires Driver Supervisor or Container Manager role"))
 
 	if new_status == "Rented":
-		frappe.throw(_("حالة مؤجرة تُضبط تلقائيًا عبر عمليات التوصيل فقط"))
+		frappe.throw(_("Rented status is set automatically via delivery transactions only"))
 
 	old_status = doc.status
 	doc.db_set("status", new_status)
-	doc.add_comment("Info", _("تغيير الحالة من {0} إلى {1}").format(old_status, new_status))
+	doc.add_comment("Info", _("Status changed from {0} to {1}").format(old_status, new_status))
 	return new_status
 
 
@@ -51,9 +51,9 @@ def release_to_available(container):
 	frappe.only_for(("Container Manager", "Driver Supervisor", "System Manager"))
 	doc = frappe.get_doc("Container", container)
 	if doc.status != "Withdrawn":
-		frappe.throw(_("هذا الإجراء متاح فقط للحاويات المسحوبة"))
+		frappe.throw(_("This action is only available for withdrawn containers"))
 	doc.db_set("status", "Available")
-	doc.add_comment("Info", _("إعادة الحاوية للمتاح بعد الفحص"))
+	doc.add_comment("Info", _("Container returned to Available after inspection"))
 	return "Available"
 
 
@@ -72,7 +72,7 @@ def resolve_barcode(code):
 	"""Resolve a scanned barcode / container number to a Container name."""
 	name = frappe.db.get_value("Container", {"container_no": code})
 	if not name:
-		frappe.throw(_("لا توجد حاوية بهذا الباركود: {0}").format(code))
+		frappe.throw(_("No container found with barcode: {0}").format(code))
 	return name
 
 

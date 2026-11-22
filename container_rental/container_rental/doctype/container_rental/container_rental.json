@@ -62,7 +62,7 @@
    "fieldname": "period_to",
    "fieldtype": "Datetime",
    "label": "Rental Period To",
-   "description": "يُحسب تلقائيًا (المدة الافتراضية) إذا تُرك فارغًا"
+   "description": "Calculated automatically (default duration) if left blank"
   },
   {
    "fieldname": "container_section",
@@ -86,7 +86,7 @@
    "fieldname": "barcode_scan",
    "fieldtype": "Data",
    "label": "Scan Barcode",
-   "description": "امسح باركود الحاوية لتحديدها تلقائيًا"
+   "description": "Scan the container barcode to select it automatically"
   },
   {
    "fieldname": "column_break_container",
@@ -135,7 +135,7 @@
    "fieldtype": "Link",
    "label": "Cash Account",
    "options": "Account",
-   "description": "حساب الصندوق من الدليل المحاسبي (يضيفه المحاسبون يدويًا)"
+   "description": "Cash account from the Chart of Accounts (added manually by accountants)"
   },
   {
    "fieldname": "address",

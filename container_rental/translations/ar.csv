@@ -449,3 +449,174 @@ Total With VAT,الإجمالي شامل الضريبة
 Due Reminder Sent On,تاريخ إرسال تذكير الاستحقاق
 Send Messages to the Representative,إرسال الرسائل لرقم المندوب
 Representative Mobile,رقم المندوب
+"""Other""","""أخرى"""
+2 – 7 days,2 – 7 أيام
+A monthly invoice already exists for contract {0} for month {1},توجد فاتورة شهرية بالفعل للعقد {0} عن شهر {1}
+Actions,إجراءات
+Added By,أُضيف بواسطة
+Address: {0},العنوان: {0}
+Aggregated in the General Expenses Report,تُجمَّع ضمن تقرير المصروفات العام
+Automatically from the order or contract trip duration,تلقائيًا من الطلب أو مدة الرحلة في العقد
+Billed Trips,عدد الرحلات المفوترة
+CR Document Item,بند مستند
+Calculated automatically (default duration) if left blank,يُحسب تلقائيًا (المدة الافتراضية) إذا تُرك فارغًا
+"Calculated automatically when duration is entered, or enter manually",يُحسب تلقائيًا عند إدخال المدة، أو أدخله يدويًا
+Calculated from actual delivery date + duration; editing it recalculates the days,يُحسب من تاريخ التوصيل الفعلي + المدة؛ تعديله يعيد حساب عدد الأيام
+Cannot assign — request status: {0},لا يمكن الإسناد — حالة الطلب: {0}
+Cannot cancel a contract that has executed trips ({0} trips),لا يمكن إلغاء عقد نُفذت عليه رحلات ({0} رحلة)
+Cannot cancel a rental whose container has been unloaded or withdrawn,لا يمكن إلغاء إيجار تم تفريغ/سحب حاويته
+Cannot cancel delivery of an unloaded or withdrawn container,لا يمكن إلغاء توصيل حاوية تم تفريغها/سحبها
+Cannot cancel request — status: {0},لا يمكن إلغاء الطلب — حالته: {0}
+Cannot extend a container that has been unloaded or withdrawn,لا يمكن تمديد حاوية تم تفريغها أو سحبها
+Cannot transition from current status ({0}) to {1},لا يمكن الانتقال من الحالة الحالية ({0}) إلى {1}
+Cash Account is required for cash payment,الصندوق النقدي مطلوب عند التسديد النقدي
+Cash account from the Chart of Accounts (added manually by accountants),حساب الصندوق من الدليل المحاسبي (يضيفه المحاسبون يدويًا)
+Changing status to/from Damaged or Maintenance requires Driver Supervisor or Container Manager role,تغيير الحالة إلى/من تالفة أو صيانة يتطلب صلاحية مشرف السواقين أو مدير الحاويات
+Client Phone,رقم تليفون العميل
+Client does not match contract {0} client,العميل لا يطابق عميل العقد {0}
+Client is required before submitting the rental,العميل مطلوب قبل اعتماد الإيجار
+Client receives an unload reminder this many days before the rental period ends,يصل العميل تنبيه بالتفريغ قبل انتهاء المدة بهذا العدد من الأيام
+Client reminder before due date — sent once only,تذكير العميل قبل الاستحقاق — يُرسل مرة واحدة فقط
+Commission,العمولة
+Commission Entry,قيد العمولة
+"Commission expense account for this size — used in payout entries. If blank, the Settings account is used",حساب مصروف عمولات هذا الحجم — يُستخدم في قيد الصرف. إن تُرك فارغًا يُستخدم حساب الإعدادات
+Container rental — Order {0} — Container {1},تأجير حاوية — الطلب {0} — الحاوية {1}
+Container returned to Available after inspection,إعادة الحاوية للمتاح بعد الفحص
+Container size does not match order size,حجم الحاوية لا يطابق حجم الطلب
+Container {0} has size {1} which does not match requested size {2},الحاوية {0} حجمها {1} ولا يطابق الحجم المطلوب {2}
+Container {0} is not available (status: {1}),الحاوية {0} غير متاحة (حالتها: {1})
+Container {0} is not in the order containers and does not match its sizes,الحاوية {0} ليست ضمن حاويات الطلب ولا تطابق أحجامه
+Container {0} is not rented or overdue (status: {1}),الحاوية {0} ليست مؤجرة أو متأخرة (حالتها: {1})
+Container {0} size is {1} and does not match order size {2},حجم الحاوية {0} هو {1} ولا يطابق حجم الطلب {2}
+Contract Duration (Days),مدة التعاقد (أيام)
+Contract End Date,تاريخ انتهاء العقد
+Contract Start Date,تاريخ بداية العقد
+Contract Total,إجمالي التعاقد
+Contract renewal requires Container Manager role,تجديد التعاقد يتطلب صلاحية مدير الحاويات
+Contract renewed: end date extended from {0} to {1},تجديد التعاقد: تمديد النهاية من {0} إلى {1}
+Count,العدد
+Current Odometer (km),العداد الحالي (كم)
+Customer,العميل
+Deliveries Count,عدد التوصيلات
+Delivery location link on Google Maps,رابط موقع التسليم على خرائط قوقل
+Delivery note book number — filled in for credit payments,رقم دفتر التسليم — يُعبأ عند الدفع الآجل
+Description,البيان
+Designation,الوظيفة
+Document,المستند
+Document alerts ({0}) — Employees & Trucks,تنبيهات وثائق ({0}) — الموظفون والشاحنات
+"Driver Supervisor for this size — receives notifications for new orders and unload requests of this size. If blank, the default supervisor from Settings is used",مشرف السواقين لهذا الحجم — تصل له إشعارات الطلبات الجديدة وطلبات التفريغ لهذا الحجم. إن تُرك فارغًا يُستخدم المشرف الافتراضي من الإعدادات
+Driver changed payment method from {0} to {1},غيّر السائق طريقة الدفع من {0} إلى {1}
+Driver commission expense account — debited when paying out commissions,حساب مصروف عمولات السائقين — يُقيَّد عليه عند صرف العمولة
+Driver commission {0} — {1} deliveries,عمولة السائق {0} — {1} توصيلة
+Driver confirmed via unload request {0},تأكيد السائق عبر طلب التفريغ {0}
+Driver {0} confirmed unload — Proof: {1},أكد السائق {0} التفريغ — التوثيق: {1}
+Driver {0} declined the request,اعتذر السائق {0} عن التنفيذ
+Driver {0} returned order {1} — needs reassignment to another driver,أعاد السائق {0} الطلب {1} — بحاجة لإسناد سائق آخر
+Driver {0} returned the order to supervisor for reassignment,أعاد السائق {0} الطلب للمشرف لإسناد سائق آخر
+Due Amount,المستحق
+Duration each container stays with the client before unloading,مدة بقاء الحاوية الواحدة عند العميل قبل التفريغ
+Duration — end date is calculated automatically from the start date,المدة — يُحسب تاريخ النهاية تلقائيًا من تاريخ البداية
+Employee,الموظف
+Employee Name,اسم الموظف
+Employee Status,حالة الموظف
+Employee {0}: {1} expires on {2},الموظف {0}: انتهاء {1} بتاريخ {2}
+Enter the number of extension days,أدخل عدد أيام التمديد
+"Entered manually (transfer, cheque, cash...)",يُكتب يدويًا (تحويل، شيك، نقدي...)
+Example: 2026-07,مثال: 2026-07
+"Expense account — if left blank, the maintenance expense account from Settings is used",حساب المصروف — إن تُرك فارغًا يُستخدم حساب مصروف الصيانة من الإعدادات
+Extended {0} days until {1} — billed via order {2},تمديد {0} يوم حتى {1} — يُحاسب عبر الطلب {2}
+Extending rental duration is only allowed for this user. Leave blank to allow Customer Service and Supervisor roles,تمديد مدة التأجير يكون بإذن هذا المستخدم فقط (مثال: راكان). اتركه فارغًا للسماح لأدوار خدمة العملاء والمشرفين
+Extending rental duration is only permitted by user {0},تمديد مدة التأجير يكون بإذن من المستخدم {0} فقط
+Extension order for container {0} — extending record {1},طلب تمديد للحاوية {0} — امتداد للسجل {1}
+Extension requires Customer Service or Driver Supervisor role,التمديد يتطلب صلاحية خدمة العملاء أو مشرف السواقين
+First delivery site address — additional locations are in the Customer record,عنوان أول موقع تسليم — المواقع الإضافية في بطاقة العميل
+"Fixed (usually 10 days) for cash/transfer clients, or open for long-term credit clients",محددة (10 أيام غالبًا) لعملاء النقدي/التحويل، أو مفتوحة لعملاء الأجل الطويل
+Fixed amount for size {0},مبلغ ثابت للحجم {0}
+Fixed amount per delivery of this size,مبلغ ثابت لكل توصيلة بهذا الحجم
+For display on the contract only — does not affect accounting entries or invoices,للعرض في العقد فقط — لا يؤثر على القيود المحاسبية أو الفواتير
+Generate last month,توليد الشهر الماضي
+Generating invoices requires Container Manager role,توليد الفواتير يتطلب صلاحية مدير الحاويات
+Greater than 1 means the order was reassigned to another driver,أكبر من 1 يعني أن الطلب أُعيد إسناده لسائق آخر
+How the commission was calculated (percentage or fixed amount),كيف حُسبت العمولة (نسبة أو مبلغ ثابت)
+ID,الكود
+"Insurance, registration, operating card, permits... with automatic expiry alerts",التأمين، الاستمارة، كارت التشغيل، التصاريح... مع تنبيه تلقائي قبل الانتهاء
+Invalid status: {0},حالة غير صحيحة: {0}
+Invoice,الفاتورة
+Invoice creation is only available after delivery is completed,إنشاء الفاتورة متاح بعد اكتمال التوصيل فقط
+Iqama / Insurance / Registration / Driver Card / Operating Card,الإقامة / التأمين / الاستمارة / كارت السائق / كارت التشغيل
+Last Delivery,آخر توصيل
+Last Unload,آخر تفريغ
+Leave blank to use the default percentage from System Settings,اتركه فارغًا لاستخدام النسبة الافتراضية من إعدادات النظام
+Less than 2 days,أقل من يومين
+Manually or via auto-suggest from available containers of this size,يدويًا أو بزر الاقتراح التلقائي من الحاويات المتاحة لهذا الحجم
+Mobile number {0} is already registered to customer {1} ({2}) — duplicate numbers are not allowed,رقم الجوال {0} مسجَّل بالفعل للعميل {1} ({2}) — لا يمكن تكرار الرقم بين عميلين
+Month,الشهر
+More than a week,أكثر من أسبوع
+Municipality Fees,رسوم بلدية
+New order {0} awaiting driver assignment — {1},طلب جديد {0} بانتظار إسناد سائق — {1}
+Next Maintenance Km,كيلومتر الصيانة القادمة
+Next Oil Change,غيار الزيت القادم
+Next Oil Change (km),غيار الزيت / كم
+No container found with barcode: {0},لا توجد حاوية بهذا الباركود: {0}
+No container found with number {0},لا توجد حاوية بالرقم {0}
+No open rental record found for container {0},لا يوجد سجل تأجير مفتوح للحاوية {0}
+Notice: Contract {0} has exhausted its contracted trips — this delivery will be recorded as an extra trip,تنبيه: العقد {0} استنفد رحلاته المتعاقد عليها — التوصيل سيُسجل كرحلة إضافية
+Odometer at Maintenance,الكيلومتر عند الصيانة
+Order is already assigned to this driver,الطلب مُسنَد بالفعل لهذا السائق
+Order is not in Assigned to Driver status,الطلب ليس في حالة مُسنَد لسائق
+Order reassigned from driver {0} to driver {1} by {2},أُعيد إسناد الطلب من السائق {0} إلى السائق {1} بواسطة {2}
+Order status changed to: {0},تغيير حالة الطلب إلى: {0}
+Order {0} is not in Assigned to Driver status (current: {1}),الطلب {0} ليس في حالة مُسنَد لسائق (حالته: {1})
+Overdue {0}d {1}h,متأخرة {0} يوم {1} ساعة
+Paying out commissions requires Container Manager role,صرف العمولات يتطلب صلاحية مدير الحاويات
+Paying truck expenses requires Container Manager role,صرف مصاريف السيارات يتطلب صلاحية مدير الحاويات
+Payment entry {0} for {1} of amount {2},سند صرف {0} لبند {1} بمبلغ {2}
+Payment terms as agreed with the client,شروط السداد كما اتُّفق عليها مع العميل
+Percentage of order value,نسبة من قيمة الطلب
+Percentage of order value — calculated when assigning the order to a driver (unless set on Sales Person),نسبة من قيمة الطلب — تُحتسب عند إسناد الطلب للسائق (ما لم تُحدد نسبة على Sales Person)
+Receives unload requests and internal notifications; mobile number is read from their User profile,يستقبل طلبات التفريغ والإشعارات الداخلية، ورقم جواله من ملف المستخدم
+Renewal date must be after the current end date,تاريخ التجديد يجب أن يكون بعد تاريخ الانتهاء الحالي
+Rental duration is required for Cash/Transfer and Short Credit orders,مدة التأجير مطلوبة لطلبات النقدي/التحويل والأجل قصير المدى
+Rental record {0} is not open (status: {1}),سجل التأجير {0} ليس مفتوحًا (حالته: {1})
+Rented status is set automatically via delivery transactions only,حالة مؤجرة تُضبط تلقائيًا عبر عمليات التوصيل فقط
+"Replacement order for container {0} — via unload request {1}, assigned directly to confirming driver",طلب استبدال للحاوية {0} — عبر طلب التفريغ {1}، أُسند مباشرة للسائق المؤكِّد
+Request is not awaiting driver confirmation (status: {0}),الطلب ليس بانتظار تأكيد السائق (حالته: {0})
+Request type changed to: {0},تغيّر نوع الطلب إلى: {0}
+Requested item was not found,لم يُعثر على البند المطلوب
+Rows highlighted in red have documents that are expired or expiring before {0},الصفوف الملونة بالأحمر مستنداتها منتهية أو ستنتهي قبل {0}
+Sales Invoice {0} created,أُنشئت فاتورة المبيعات {0}
+Sales Person record linked to the driver — source of the commission rate,سجل المندوب المرتبط بالسائق — مصدر قيمة العمولة
+Scan the container barcode to select it automatically,امسح باركود الحاوية لتحديدها تلقائيًا
+Select the payment account (Cash or Bank),اختر حساب الصرف (الصندوق أو البنك)
+Select the payment account (Driver Cash or Bank),اختر حساب الصرف (صندوق السائق أو البنك)
+"Select the type before saving — one message is sent to the driver based on your choice. For Replacement, a new container order is created automatically upon confirmation",اختر النوع قبل الحفظ — تُرسل رسالة واحدة للسائق حسب اختيارك. وفي حالة الاستبدال يُنشأ طلب حاوية جديد تلقائيًا بعد تأكيده
+Selected employee is not a driver — set their designation to Driver or enable (Also Works as Driver) on the Employee record,الموظف المختار ليس سائقًا — اجعل مسماه الوظيفي (سائق) أو فعّل خيار (يعمل كسائق أيضًا) في بطاقة الموظف
+Send a copy of employee and truck document expiry alerts to the Driver Supervisor's WhatsApp,ترسل نسخة من تنبيهات انتهاء وثائق الموظفين والشاحنات إلى واتساب مشرف السواقين
+Set the commission expense account in Container Size or System Settings first,حدد حساب مصروف العمولات في حجم الحاوية أو في إعدادات النظام أولًا
+Set the vehicle expense account in System Settings or on the item,حدد حساب مصروف السيارات في إعدادات النظام أو في البند
+Settings,الإعدادات
+Status changed from {0} to {1},تغيير الحالة من {0} إلى {1}
+Status of the unload request sent to the driver,حالة طلب التفريغ المرسل للسائق
+This action is only available for withdrawn containers,هذا الإجراء متاح فقط للحاويات المسحوبة
+This action requires one of the roles: {0},هذا الإجراء يتطلب أحد الأدوار: {0}
+This item has already been paid via entry {0},صُرف هذا البند بالفعل بالسند {0}
+This order is assigned to another driver,هذا الطلب مُسنَد لسائق آخر
+This request is assigned to another driver,هذا الطلب مُسنَد لسائق آخر
+Truck Oil Change,غيار زيت الشاحنة
+Truck expense {0} — {1},مصروف السيارة {0} — {1}
+Truck {0}: oil change due (Date: {1} / Odometer: {2}),الشاحنة {0}: موعد غيار الزيت مستحق (التاريخ: {1} / الكيلومتر: {2})
+Truck {0}: {1} expires on {2},الشاحنة {0}: انتهاء {1} بتاريخ {2}
+Unknown table: {0},جدول غير معروف: {0}
+Unload container {0},تفريغ الحاوية {0}
+Unload for this container has already been recorded ({0}),تم تسجيل تفريغ هذه الحاوية بالفعل ({0})
+Unload request assigned to driver {0},أُسند طلب التفريغ إلى السائق {0}
+Unload request cancelled by {0},أُلغي طلب التفريغ بواسطة {0}
+Unload request for container {0} at {1},طلب تفريغ الحاوية {0} لدى {1}
+Unload request {0} needs driver assignment — Container {1},طلب التفريغ {0} بحاجة لإسناد سائق — الحاوية {1}
+Vehicle maintenance and oil change expense account — used in payment vouchers,حساب مصروف صيانة وغيار زيت السيارات — يُستخدم في سندات الصرف
+WhatsApp instance from which driver messages are sent for orders of this size,رقم الواتساب (Instance) الذي تُرسل منه رسائل السائق لطلبات هذا الحجم
+"When enabled, order messages are sent to the representative's number instead of the client's",عند تفعيله تُرسل رسائل هذا الطلب لرقم المندوب بدل رقم العميل
+Withdrawal = returning the container without unloading its contents (no municipality fee and no trip deduction),السحب = إرجاع الحاوية دون تفريغ محتواها (بلا رسوم بلدية ولا خصم رحلة)
+{0}% of order value,{0}% من قيمة الطلب
+{0}% of order value (size {1}),{0}% من قيمة الطلب (حجم {1})
+— Summary by Status / Size / Classification —,— ملخص حسب الحالة / الحجم / التصنيف —

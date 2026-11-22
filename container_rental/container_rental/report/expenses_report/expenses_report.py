@@ -10,13 +10,13 @@ def execute(filters=None):
 
 def get_columns():
 	return [
-		{"fieldname": "expense_date", "label": _("التاريخ"), "fieldtype": "Date", "width": 110},
-		{"fieldname": "expense_type", "label": _("نوع المصروف"), "fieldtype": "Data", "width": 140},
-		{"fieldname": "reference", "label": _("المرجع"), "fieldtype": "Dynamic Link", "options": "reference_doctype", "width": 150},
-		{"fieldname": "reference_doctype", "label": _("نوع المرجع"), "fieldtype": "Data", "width": 130, "hidden": 1},
-		{"fieldname": "branch", "label": _("الفرع"), "fieldtype": "Data", "width": 110},
-		{"fieldname": "description", "label": _("البيان"), "fieldtype": "Data", "width": 240},
-		{"fieldname": "amount", "label": _("المبلغ"), "fieldtype": "Currency", "width": 120},
+		{"fieldname": "expense_date", "label": _("Date"), "fieldtype": "Date", "width": 110},
+		{"fieldname": "expense_type", "label": _("Expense Type"), "fieldtype": "Data", "width": 140},
+		{"fieldname": "reference", "label": _("Reference"), "fieldtype": "Dynamic Link", "options": "reference_doctype", "width": 150},
+		{"fieldname": "reference_doctype", "label": _("Reference Type"), "fieldtype": "Data", "width": 130, "hidden": 1},
+		{"fieldname": "branch", "label": _("Branch"), "fieldtype": "Data", "width": 110},
+		{"fieldname": "description", "label": _("Description"), "fieldtype": "Data", "width": 240},
+		{"fieldname": "amount", "label": _("Amount"), "fieldtype": "Currency", "width": 120},
 	]
 
 
@@ -41,16 +41,16 @@ def get_data(filters):
 	rows = []
 	expense_type = filters.get("expense_type")
 
-	if expense_type in (None, "", "رسوم بلدية"):
+	if expense_type in (None, "", "Municipality Fees", "رسوم بلدية"):
 		rows += frappe.db.sql(
 			f"""
 			SELECT
 				u.unload_date AS expense_date,
-				'رسوم بلدية' AS expense_type,
+				'Municipality Fees' AS expense_type,
 				u.name AS reference,
 				'Container Unload' AS reference_doctype,
 				u.branch,
-				CONCAT('تفريغ الحاوية ', u.container) AS description,
+				u.container AS _container,
 				u.municipality_fee AS amount
 			FROM `tabContainer Unload` u
 			WHERE u.docstatus = 1 AND COALESCE(u.municipality_fee, 0) > 0
@@ -70,7 +70,7 @@ def get_data(filters):
 				m.parent AS reference,
 				'Truck' AS reference_doctype,
 				t.branch,
-				CONCAT(m.maintenance_type, ' — الشاحنة ', m.parent) AS description,
+				m.maintenance_type AS _maintenance_type,
 				m.cost AS amount
 			FROM `tabTruck Maintenance Log` m
 			JOIN `tabTruck` t ON t.name = m.parent
@@ -80,6 +80,13 @@ def get_data(filters):
 			values,
 			as_dict=True,
 		)
+
+	for r in rows:
+		if r.get("_container"):
+			r["description"] = _("Unload container {0}").format(r.pop("_container"))
+		elif r.get("_maintenance_type"):
+			r["description"] = f"{_(r.pop('_maintenance_type'))} — {_('Truck')} {r['reference']}"
+		r["expense_type"] = _(r["expense_type"])
 
 	rows.sort(key=lambda r: str(r.expense_date or ""), reverse=True)
 	return rows

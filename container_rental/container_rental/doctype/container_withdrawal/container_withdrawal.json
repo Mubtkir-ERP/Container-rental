@@ -29,7 +29,7 @@
    "fieldname": "barcode_scan",
    "fieldtype": "Data",
    "label": "Scan Barcode",
-   "description": "امسح باركود الحاوية لتحديدها تلقائيًا"
+   "description": "Scan the container barcode to select it automatically"
   },
   {
    "fieldname": "container",
@@ -96,7 +96,7 @@
    "fieldname": "notes",
    "fieldtype": "Text",
    "label": "Notes",
-   "description": "السحب = إرجاع الحاوية دون تفريغ محتواها (بلا رسوم بلدية ولا خصم رحلة)"
+   "description": "Withdrawal = returning the container without unloading its contents (no municipality fee and no trip deduction)"
   }
  ],
  "is_submittable": 1,

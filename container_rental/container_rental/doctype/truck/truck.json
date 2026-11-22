@@ -88,7 +88,7 @@
    "fieldtype": "Table",
    "label": "Truck Documents",
    "options": "CR Document Item",
-   "description": "التأمين، الاستمارة، كارت التشغيل، التصاريح... مع تنبيه تلقائي قبل الانتهاء"
+   "description": "Insurance, registration, operating card, permits... with automatic expiry alerts"
   },
   {
    "fieldname": "oil_tab",

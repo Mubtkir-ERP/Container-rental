@@ -17,7 +17,7 @@ frappe.query_reports["Contract Report"] = {
 			label: __("Contract Status"),
 			fieldtype: "Select",
 			options: ["", "Active", "Expire"],
-			default: "الكل",
+			default: "",
 		},
 		{ fieldname: "from_date", label: __("From Date"), fieldtype: "Date" },
 		{ fieldname: "to_date", label: __("To Date"), fieldtype: "Date" },
@@ -33,7 +33,7 @@ frappe.query_reports["Contract Report"] = {
 		}
 		if (column.fieldname === "contract_status" && data) {
 			const color = value === "Active" ? "green" : "red";
-			return `<span class="indicator-pill ${color}">${value}</span>`;
+			return `<span class="indicator-pill ${color}">${__(value)}</span>`;
 		}
 		return default_formatter(value, row, column, data);
 	},

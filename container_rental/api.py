@@ -158,16 +158,16 @@ def get_overdue_data(filters=None):
 		hours = max(0, row.overdue_hours or 0)
 		row["overdue_days"] = hours // 24
 		row["overdue_hours_part"] = hours % 24
-		row["overdue_text"] = _("متأخرة {0} يوم {1} ساعة").format(hours // 24, hours % 24)
+		row["overdue_text"] = _("Overdue {0}d {1}h").format(hours // 24, hours % 24)
 		if hours < 48:
 			row["severity"] = "yellow"
-			row["severity_label"] = _("أقل من يومين")
+			row["severity_label"] = _("Less than 2 days")
 		elif hours <= 168:
 			row["severity"] = "orange"
-			row["severity_label"] = _("2 – 7 أيام")
+			row["severity_label"] = _("2 – 7 days")
 		else:
 			row["severity"] = "red"
-			row["severity_label"] = _("أكثر من أسبوع")
+			row["severity_label"] = _("More than a week")
 
 	return rows
 
@@ -215,23 +215,23 @@ def extend_rental(rental_record, days, rental_value=0, payment_method=None):
 	if not set(frappe.get_roles()) & {
 		"Customer Service", "Driver Supervisor", "Container Manager", "System Manager",
 	}:
-		frappe.throw(_("التمديد يتطلب صلاحية خدمة العملاء أو مشرف السواقين"), frappe.PermissionError)
+		frappe.throw(_("Extension requires Customer Service or Driver Supervisor role"), frappe.PermissionError)
 
 	# When an authorized user is set in settings, extensions are HIS call only
 	authorized = frappe.db.get_single_value("Container Rental Settings", "extension_authorized_user")
 	if authorized and frappe.session.user not in (authorized, "Administrator"):
 		frappe.throw(
-			_("تمديد مدة التأجير يكون بإذن من المستخدم {0} فقط").format(authorized),
+			_("Extending rental duration is only permitted by user {0}").format(authorized),
 			frappe.PermissionError,
 		)
 
 	record = frappe.get_doc("Rental Record", rental_record)
 	if record.status not in ("Rented", "Overdue"):
-		frappe.throw(_("لا يمكن تمديد حاوية تم تفريغها أو سحبها"))
+		frappe.throw(_("Cannot extend a container that has been unloaded or withdrawn"))
 
 	days = frappe.utils.cint(days)
 	if days <= 0:
-		frappe.throw(_("أدخل عدد أيام التمديد"))
+		frappe.throw(_("Enter the number of extension days"))
 
 	base = record.due_on if record.due_on and get_datetime(record.due_on) > now_datetime() else now_datetime()
 	new_due = add_days(get_datetime(base), days)
@@ -252,7 +252,7 @@ def extend_rental(rental_record, days, rental_value=0, payment_method=None):
 	})
 	order.flags.ignore_permissions = True
 	order.insert()
-	order.add_comment("Info", _("طلب تمديد للحاوية {0} — امتداد للسجل {1}").format(
+	order.add_comment("Info", _("Extension order for container {0} — extending record {1}").format(
 		record.container, record.name))
 
 	# Move the due date forward and clear the overdue flags
@@ -261,7 +261,7 @@ def extend_rental(rental_record, days, rental_value=0, payment_method=None):
 		record.db_set("status", "Rented", update_modified=False)
 	if frappe.db.get_value("Container", record.container, "status") == "Overdue":
 		frappe.db.set_value("Container", record.container, "status", "Rented", update_modified=False)
-	record.add_comment("Info", _("تمديد {0} يوم حتى {1} — يُحاسب عبر الطلب {2}").format(
+	record.add_comment("Info", _("Extended {0} days until {1} — billed via order {2}").format(
 		days, frappe.format(new_due, {"fieldtype": "Datetime"}), order.name))
 
 	from container_rental.container_rental import customer_utils

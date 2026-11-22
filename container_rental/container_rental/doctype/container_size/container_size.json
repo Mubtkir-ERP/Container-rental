@@ -29,14 +29,14 @@
    "fieldtype": "Link",
    "label": "Sending WhatsApp Instance",
    "options": "Whatsapp Instance",
-   "description": "رقم الواتساب (Instance) الذي تُرسل منه رسائل السائق لطلبات هذا الحجم"
+   "description": "WhatsApp instance from which driver messages are sent for orders of this size"
   },
   {
    "fieldname": "supervisor",
    "fieldtype": "Link",
    "label": "Drivers Supervisor (User)",
    "options": "User",
-   "description": "مشرف السواقين لهذا الحجم — تصل له إشعارات الطلبات الجديدة وطلبات التفريغ لهذا الحجم. إن تُرك فارغًا يُستخدم المشرف الافتراضي من الإعدادات"
+   "description": "Driver Supervisor for this size — receives notifications for new orders and unload requests of this size. If blank, the default supervisor from Settings is used"
   },
   {
    "fieldname": "commission_section",
@@ -48,21 +48,21 @@
    "fieldtype": "Select",
    "label": "Commission Type",
    "options": "\nPercentage\nFixed Amount",
-   "description": "اتركه فارغًا لاستخدام النسبة الافتراضية من إعدادات النظام"
+   "description": "Leave blank to use the default percentage from System Settings"
   },
   {
    "fieldname": "commission_percent",
    "fieldtype": "Percent",
    "label": "Commission Percent",
    "depends_on": "eval:doc.commission_type=='Percentage'",
-   "description": "نسبة من قيمة الطلب"
+   "description": "Percentage of order value"
   },
   {
    "fieldname": "commission_amount",
    "fieldtype": "Currency",
    "label": "Commission Amount",
    "depends_on": "eval:doc.commission_type=='Fixed Amount'",
-   "description": "مبلغ ثابت لكل توصيلة بهذا الحجم"
+   "description": "Fixed amount per delivery of this size"
   },
   {
    "fieldname": "column_break_commission",
@@ -73,7 +73,7 @@
    "fieldtype": "Link",
    "label": "Commission Expense Account",
    "options": "Account",
-   "description": "حساب مصروف عمولات هذا الحجم — يُستخدم في قيد الصرف. إن تُرك فارغًا يُستخدم حساب الإعدادات"
+   "description": "Commission expense account for this size — used in payout entries. If blank, the Settings account is used"
   }
  ],
  "links": [],

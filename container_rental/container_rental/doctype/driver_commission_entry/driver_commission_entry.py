@@ -45,12 +45,12 @@ def mark_paid(names, payout_account=None, posting_date=None):
 	from frappe.utils import flt, today as _today
 
 	if not set(frappe.get_roles()) & {"Container Manager", "Accounts Manager", "System Manager"}:
-		frappe.throw(_("صرف العمولات يتطلب صلاحية مدير الحاويات"), frappe.PermissionError)
+		frappe.throw(_("Paying out commissions requires Container Manager role"), frappe.PermissionError)
 	if isinstance(names, str):
 		names = frappe.parse_json(names)
 	default_account = frappe.db.get_single_value("Container Rental Settings", "commission_expense_account")
 	if not payout_account:
-		frappe.throw(_("اختر حساب الصرف (صندوق السائق أو البنك)"))
+		frappe.throw(_("Select the payment account (Driver Cash or Bank)"))
 
 	posting_date = posting_date or _today()
 	# Each size can book its commissions to its own expense account, so entries
@@ -62,7 +62,7 @@ def mark_paid(names, payout_account=None, posting_date=None):
 			continue
 		account = doc.expense_account or default_account
 		if not account:
-			frappe.throw(_("حدد حساب مصروف العمولات في حجم الحاوية أو في إعدادات النظام أولًا"))
+			frappe.throw(_("Set the commission expense account in Container Size or System Settings first"))
 		by_driver.setdefault((doc.driver, account), []).append(doc)
 
 	count = 0
@@ -75,7 +75,7 @@ def mark_paid(names, payout_account=None, posting_date=None):
 			"voucher_type": "Journal Entry",
 			"company": company,
 			"posting_date": posting_date,
-			"user_remark": _("عمولة السائق {0} — {1} توصيلة").format(driver_name, len(docs)),
+			"user_remark": _("Driver commission {0} — {1} deliveries").format(driver_name, len(docs)),
 			"accounts": [
 				{"account": expense_account, "debit_in_account_currency": total},
 				{"account": payout_account, "credit_in_account_currency": total},

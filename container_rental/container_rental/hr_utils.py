@@ -24,8 +24,7 @@ def is_driver(employee):
 def ensure_driver(employee):
 	if not is_driver(employee):
 		frappe.throw(_(
-			"الموظف المختار ليس سائقًا — اجعل مسماه الوظيفي (سائق) أو فعّل خيار "
-			"(يعمل كسائق أيضًا) في بطاقة الموظف"
+			"Selected employee is not a driver — set their designation to Driver or enable (Also Works as Driver) on the Employee record"
 		))
 
 
@@ -143,16 +142,16 @@ def resolve_commission(employee, container_size=None, base_amount=0):
 
 	if size and size.commission_type == "Fixed Amount" and flt(size.commission_amount):
 		amount = flt(size.commission_amount)
-		return sales_person, amount, _("مبلغ ثابت للحجم {0}").format(container_size), expense_account
+		return sales_person, amount, _("Fixed amount for size {0}").format(container_size), expense_account
 
 	if size and size.commission_type == "Percentage" and flt(size.commission_percent):
 		percent = flt(size.commission_percent)
 		return (sales_person, flt(base_amount) * percent / 100,
-			_("{0}% من قيمة الطلب (حجم {1})").format(percent, container_size), expense_account)
+			_("{0}% of order value (size {1})").format(percent, container_size), expense_account)
 
 	_sp, percent = get_commission_percent(employee)
 	return (sales_person, flt(base_amount) * flt(percent) / 100,
-		_("{0}% من قيمة الطلب").format(percent), expense_account)
+		_("{0}% of order value").format(percent), expense_account)
 
 
 def get_commission_percent(employee):

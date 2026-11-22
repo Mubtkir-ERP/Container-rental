@@ -14,10 +14,10 @@ class ContainerWithdrawal(Document):
 	def validate(self):
 		status = frappe.db.get_value("Container", self.container, "status")
 		if status not in ("Rented", "Overdue"):
-			frappe.throw(_("الحاوية {0} ليست مؤجرة أو متأخرة (حالتها: {1})").format(self.container, status))
+			frappe.throw(_("Container {0} is not rented or overdue (status: {1})").format(self.container, status))
 		self.rental_record = get_open_record(self.container)
 		if not self.rental_record:
-			frappe.throw(_("لا يوجد سجل تأجير مفتوح للحاوية {0}").format(self.container))
+			frappe.throw(_("No open rental record found for container {0}").format(self.container))
 
 	def on_submit(self):
 		withdrawn_on = get_datetime(f"{self.withdrawal_date} {now_datetime().time()}")

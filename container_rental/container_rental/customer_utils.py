@@ -48,7 +48,7 @@ def customer_with_mobile(mobile_no, exclude=None):
 
 def _throw_duplicate(mobile_no, other):
 	frappe.throw(
-		_("رقم الجوال {0} مسجَّل بالفعل للعميل {1} ({2}) — لا يمكن تكرار الرقم بين عميلين").format(
+		_("Mobile number {0} is already registered to customer {1} ({2}) — duplicate numbers are not allowed").format(
 			mobile_no, other.customer_name or "", other.name
 		),
 		frappe.DuplicateEntryError,

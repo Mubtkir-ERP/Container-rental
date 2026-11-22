@@ -13,10 +13,10 @@ class ContainerUnload(Document):
 	def validate(self):
 		info = frappe.db.get_value("Container", self.container, "status")
 		if info not in ("Rented", "Overdue"):
-			frappe.throw(_("الحاوية {0} ليست مؤجرة أو متأخرة (حالتها: {1})").format(self.container, info))
+			frappe.throw(_("Container {0} is not rented or overdue (status: {1})").format(self.container, info))
 		self.rental_record = get_open_record(self.container)
 		if not self.rental_record:
-			frappe.throw(_("لا يوجد سجل تأجير مفتوح للحاوية {0}").format(self.container))
+			frappe.throw(_("No open rental record found for container {0}").format(self.container))
 		if not self.driver:
 			# Default to the driver who delivered this container — he is the one
 			# the unload request goes to, and the list view shows his name

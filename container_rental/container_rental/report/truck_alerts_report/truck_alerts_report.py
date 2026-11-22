@@ -10,15 +10,15 @@ def execute(filters=None):
 
 def get_columns():
 	return [
-		{"fieldname": "vehicle_no", "label": _("رقم السيارة"), "fieldtype": "Link", "options": "Truck", "width": 120},
-		{"fieldname": "branch", "label": _("الفرع"), "fieldtype": "Data", "width": 110},
-		{"fieldname": "driver_name", "label": _("السائق"), "fieldtype": "Data", "width": 140},
-		{"fieldname": "document_name", "label": _("المستند"), "fieldtype": "Data", "width": 150},
-		{"fieldname": "expiry_date", "label": _("تاريخ الانتهاء"), "fieldtype": "Date", "width": 120},
-		{"fieldname": "current_odometer_km", "label": _("العداد الحالي (كم)"), "fieldtype": "Int", "width": 120},
-		{"fieldname": "next_oil_date", "label": _("غيار الزيت القادم"), "fieldtype": "Date", "width": 120},
-		{"fieldname": "next_oil_km", "label": _("غيار الزيت / كم"), "fieldtype": "Int", "width": 110},
-		{"fieldname": "actions", "label": _("إجراءات"), "fieldtype": "Data", "width": 140},
+		{"fieldname": "vehicle_no", "label": _("Vehicle No"), "fieldtype": "Link", "options": "Truck", "width": 120},
+		{"fieldname": "branch", "label": _("Branch"), "fieldtype": "Data", "width": 110},
+		{"fieldname": "driver_name", "label": _("Driver"), "fieldtype": "Data", "width": 140},
+		{"fieldname": "document_name", "label": _("Document"), "fieldtype": "Data", "width": 150},
+		{"fieldname": "expiry_date", "label": _("Expiry Date"), "fieldtype": "Date", "width": 120},
+		{"fieldname": "current_odometer_km", "label": _("Current Odometer (km)"), "fieldtype": "Int", "width": 120},
+		{"fieldname": "next_oil_date", "label": _("Next Oil Change"), "fieldtype": "Date", "width": 120},
+		{"fieldname": "next_oil_km", "label": _("Next Oil Change (km)"), "fieldtype": "Int", "width": 110},
+		{"fieldname": "actions", "label": _("Actions"), "fieldtype": "Data", "width": 140},
 	]
 
 

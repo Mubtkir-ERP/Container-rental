@@ -176,7 +176,7 @@ def send_document_expiry_alerts(settings):
 		as_dict=True,
 	)
 	for row in employee_docs:
-		lines.append(f"الموظف {row.employee_name}: انتهاء {row.document_name} بتاريخ {row.expiry_date}")
+		lines.append(frappe._("Employee {0}: {1} expires on {2}").format(row.employee_name, row.document_name, row.expiry_date))
 
 	truck_docs = frappe.db.sql(
 		"""
@@ -190,7 +190,7 @@ def send_document_expiry_alerts(settings):
 		as_dict=True,
 	)
 	for row in truck_docs:
-		lines.append(f"الشاحنة {row.vehicle_no}: انتهاء {row.document_name} بتاريخ {row.expiry_date}")
+		lines.append(frappe._("Truck {0}: {1} expires on {2}").format(row.vehicle_no, row.document_name, row.expiry_date))
 
 	oil_overdue = frappe.db.sql(
 		"""
@@ -211,14 +211,15 @@ def send_document_expiry_alerts(settings):
 	)
 	for row in oil_overdue:
 		lines.append(
-			f"الشاحنة {row.vehicle_no}: موعد غيار الزيت مستحق "
-			f"(التاريخ: {row.next_change_date or '-'} / الكيلومتر: {row.next_change_km or '-'})"
+			frappe._("Truck {0}: oil change due (Date: {1} / Odometer: {2})").format(
+				row.vehicle_no, row.next_change_date or "-", row.next_change_km or "-"
+			)
 		)
 
 	if not lines:
 		return
 
-	subject = f"تنبيهات وثائق ({len(lines)}) — الموظفون والشاحنات"
+	subject = frappe._("Document alerts ({0}) — Employees & Trucks").format(len(lines))
 	message = "<br>".join(lines)
 	for user in _users_with_roles(["Container Manager", "Driver Supervisor"]):
 		_notify_user(user, subject, message)
@@ -275,7 +276,7 @@ def generate_monthly_invoices(month_key=None):
 		"Container Manager",
 		"System Manager",
 	}:
-		frappe.throw(frappe._("توليد الفواتير يتطلب صلاحية مدير الحاويات"), frappe.PermissionError)
+		frappe.throw(frappe._("Generating invoices requires Container Manager role"), frappe.PermissionError)
 
 	if month_key:
 		period_start = getdate(f"{month_key}-01")

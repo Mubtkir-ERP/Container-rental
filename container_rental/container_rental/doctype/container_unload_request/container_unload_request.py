@@ -22,7 +22,7 @@ ACTIVE_STATUSES = (STATUS_WAITING_DRIVER, STATUS_NEEDS_REASSIGN)
 
 def _require_roles(*roles):
 	if not set(frappe.get_roles()) & set(roles + ("System Manager",)):
-		frappe.throw(_("هذا الإجراء يتطلب أحد الأدوار: {0}").format("، ".join(roles)), frappe.PermissionError)
+		frappe.throw(_("This action requires one of the roles: {0}").format("، ".join(roles)), frappe.PermissionError)
 
 
 class ContainerUnloadRequest(Document):
@@ -34,7 +34,7 @@ class ContainerUnloadRequest(Document):
 	def pull_rental_context(self):
 		record = frappe.get_doc("Rental Record", self.rental_record)
 		if record.status not in ("Rented", "Overdue"):
-			frappe.throw(_("سجل التأجير {0} ليس مفتوحًا (حالته: {1})").format(record.name, record.status))
+			frappe.throw(_("Rental record {0} is not open (status: {1})").format(record.name, record.status))
 		self.container = record.container
 		self.container_size = record.container_size
 		self.client = record.client
@@ -81,7 +81,7 @@ class ContainerUnloadRequest(Document):
 		)
 		driver_user = frappe.db.get_value("Employee", self.assigned_driver, "user_id")
 		if driver_user:
-			self._notification(driver_user, _("طلب تفريغ الحاوية {0} لدى {1}").format(
+			self._notification(driver_user, _("Unload request for container {0} at {1}").format(
 				self.container, context["client_name"]))
 
 	def notify_supervisor(self, declined_by=None):
@@ -90,7 +90,7 @@ class ContainerUnloadRequest(Document):
 		context["driver_name"] = hr_utils.get_employee_name(declined_by) if declined_by else ""
 		whatsapp.send_event("unload_reassign_request", supervisor_mobile, context, reference_doc=self)
 		if supervisor_user:
-			self._notification(supervisor_user, _("طلب التفريغ {0} بحاجة لإسناد سائق — الحاوية {1}").format(
+			self._notification(supervisor_user, _("Unload request {0} needs driver assignment — Container {1}").format(
 				self.name, self.container))
 
 	def _notification(self, user, subject):
@@ -98,7 +98,7 @@ class ContainerUnloadRequest(Document):
 			"doctype": "Notification Log",
 			"for_user": user,
 			"subject": subject,
-			"email_content": _("العنوان: {0}").format(self.address or "-"),
+			"email_content": _("Address: {0}").format(self.address or "-"),
 			"document_type": self.doctype,
 			"document_name": self.name,
 			"type": "Alert",
@@ -110,14 +110,14 @@ class ContainerUnloadRequest(Document):
 			return
 		driver_user = frappe.db.get_value("Employee", self.assigned_driver, "user_id")
 		if not driver_user or driver_user != frappe.session.user:
-			frappe.throw(_("هذا الطلب مُسنَد لسائق آخر"), frappe.PermissionError)
+			frappe.throw(_("This request is assigned to another driver"), frappe.PermissionError)
 
 	@frappe.whitelist()
 	def driver_confirm(self):
 		"""The driver removed the container: record the unload and close the
 		request. A Replace request also re-orders a container for the client."""
 		if self.status != STATUS_WAITING_DRIVER:
-			frappe.throw(_("الطلب ليس بانتظار تأكيد السائق (حالته: {0})").format(self.status))
+			frappe.throw(_("Request is not awaiting driver confirmation (status: {0})").format(self.status))
 		self._check_assigned_driver_identity()
 
 		# The request may already carry the draft the operator created — submit
@@ -128,7 +128,7 @@ class ContainerUnloadRequest(Document):
 			if existing.docstatus == 0:
 				unload = existing
 			elif existing.docstatus == 1:
-				frappe.throw(_("تم تسجيل تفريغ هذه الحاوية بالفعل ({0})").format(existing.name))
+				frappe.throw(_("Unload for this container has already been recorded ({0})").format(existing.name))
 		if unload is None:
 			unload = frappe.get_doc({
 				"doctype": "Container Unload",
@@ -142,7 +142,7 @@ class ContainerUnloadRequest(Document):
 			unload.insert()
 		unload.db_set("driver", self.assigned_driver)
 		unload.driver = self.assigned_driver
-		unload.add_comment("Info", _("تأكيد السائق عبر طلب التفريغ {0}").format(self.name))
+		unload.add_comment("Info", _("Driver confirmed via unload request {0}").format(self.name))
 		unload.flags.ignore_permissions = True
 		unload.submit()
 		self.db_set("unload_reference", unload.name)
@@ -151,7 +151,7 @@ class ContainerUnloadRequest(Document):
 			self.db_set("new_order", self._create_replacement_order())
 
 		self.db_set("status", STATUS_CONFIRMED)
-		self.add_comment("Info", _("أكد السائق {0} التفريغ — التوثيق: {1}").format(
+		self.add_comment("Info", _("Driver {0} confirmed unload — Proof: {1}").format(
 			hr_utils.get_employee_name(self.assigned_driver) or "", unload.name))
 		return {"unload": unload.name, "new_order": self.new_order}
 
@@ -192,7 +192,7 @@ class ContainerUnloadRequest(Document):
 		order.flags.skip_supervisor_notification = True
 		order.insert()
 		order._do_assign_driver(self.assigned_driver)
-		order.add_comment("Info", _("طلب استبدال للحاوية {0} — عبر طلب التفريغ {1}، أُسند مباشرة للسائق المؤكِّد").format(
+		order.add_comment("Info", _("Replacement order for container {0} — via unload request {1}, assigned directly to confirming driver").format(
 			self.container, self.name))
 		return order.name
 
@@ -200,11 +200,11 @@ class ContainerUnloadRequest(Document):
 	def driver_decline(self):
 		"""The assigned driver cannot do the unload — hand it to the supervisor."""
 		if self.status != STATUS_WAITING_DRIVER:
-			frappe.throw(_("الطلب ليس بانتظار تأكيد السائق (حالته: {0})").format(self.status))
+			frappe.throw(_("Request is not awaiting driver confirmation (status: {0})").format(self.status))
 		self._check_assigned_driver_identity()
 		declined_by = self.assigned_driver
 		self.db_set("status", STATUS_NEEDS_REASSIGN)
-		self.add_comment("Info", _("اعتذر السائق {0} عن التنفيذ").format(
+		self.add_comment("Info", _("Driver {0} declined the request").format(
 			hr_utils.get_employee_name(declined_by) or declined_by))
 		self.notify_supervisor(declined_by=declined_by)
 		return STATUS_NEEDS_REASSIGN
@@ -215,10 +215,10 @@ class ContainerUnloadRequest(Document):
 		_require_roles("Driver Supervisor", "Customer Service", "Container Manager")
 		hr_utils.ensure_driver(driver)
 		if self.status not in ACTIVE_STATUSES:
-			frappe.throw(_("لا يمكن الإسناد — حالة الطلب: {0}").format(self.status))
+			frappe.throw(_("Cannot assign — request status: {0}").format(self.status))
 		self.db_set("assigned_driver", driver)
 		self.db_set("status", STATUS_WAITING_DRIVER)
-		self.add_comment("Info", _("أُسند طلب التفريغ إلى السائق {0}").format(
+		self.add_comment("Info", _("Unload request assigned to driver {0}").format(
 			hr_utils.get_employee_name(driver) or driver))
 		self.notify_driver()
 		return STATUS_WAITING_DRIVER
@@ -227,9 +227,9 @@ class ContainerUnloadRequest(Document):
 	def cancel_request(self):
 		_require_roles("Driver Supervisor", "Customer Service", "Container Manager")
 		if self.status not in ACTIVE_STATUSES:
-			frappe.throw(_("لا يمكن إلغاء الطلب — حالته: {0}").format(self.status))
+			frappe.throw(_("Cannot cancel request — status: {0}").format(self.status))
 		self.db_set("status", STATUS_CANCELLED)
-		self.add_comment("Info", _("أُلغي طلب التفريغ بواسطة {0}").format(frappe.session.user))
+		self.add_comment("Info", _("Unload request cancelled by {0}").format(frappe.session.user))
 		return STATUS_CANCELLED
 
 
@@ -260,7 +260,7 @@ def create_unload_request(rental_record, request_type="Unload", source="Customer
 		if request_type != request.request_type:
 			request.db_set("request_type", request_type)
 			request.db_set("source", source)
-			request.add_comment("Info", _("تغيّر نوع الطلب إلى: {0}").format(_(request_type)))
+			request.add_comment("Info", _("Request type changed to: {0}").format(_(request_type)))
 			request.reload()
 			if renotify and request.assigned_driver and request.status == STATUS_WAITING_DRIVER:
 				request.notify_driver()

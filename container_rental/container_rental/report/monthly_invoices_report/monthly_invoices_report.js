@@ -20,7 +20,7 @@ frappe.query_reports["Monthly Invoices Report"] = {
 						const created = r.message || [];
 						frappe.msgprint(
 							created.length
-								? __("Generated {0} invoices: {1}", [created.length, created.join("، ")])
+								? __("Generated {0} invoices: {1}", [created.length, created.join(", ")])
 								: __("No new invoices to generate")
 						);
 						frappe.query_report.refresh();

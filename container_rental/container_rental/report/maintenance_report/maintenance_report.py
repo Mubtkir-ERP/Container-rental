@@ -10,14 +10,14 @@ def execute(filters=None):
 
 def get_columns():
 	return [
-		{"fieldname": "vehicle_no", "label": _("رقم السيارة"), "fieldtype": "Link", "options": "Truck", "width": 130},
-		{"fieldname": "maintenance_date", "label": _("تاريخ الصيانة"), "fieldtype": "Date", "width": 110},
-		{"fieldname": "maintenance_type", "label": _("نوع الصيانة"), "fieldtype": "Data", "width": 120},
-		{"fieldname": "cost", "label": _("التكلفة"), "fieldtype": "Currency", "width": 110},
-		{"fieldname": "odometer_km", "label": _("الكيلومتر عند الصيانة"), "fieldtype": "Int", "width": 140},
-		{"fieldname": "next_maintenance_date", "label": _("تاريخ الصيانة القادمة"), "fieldtype": "Date", "width": 140},
-		{"fieldname": "next_maintenance_km", "label": _("كيلومتر الصيانة القادمة"), "fieldtype": "Int", "width": 150},
-		{"fieldname": "notes", "label": _("ملاحظات"), "fieldtype": "Data", "width": 180},
+		{"fieldname": "vehicle_no", "label": _("Vehicle No"), "fieldtype": "Link", "options": "Truck", "width": 130},
+		{"fieldname": "maintenance_date", "label": _("Maintenance Date"), "fieldtype": "Date", "width": 110},
+		{"fieldname": "maintenance_type", "label": _("Maintenance Type"), "fieldtype": "Data", "width": 120},
+		{"fieldname": "cost", "label": _("Cost"), "fieldtype": "Currency", "width": 110},
+		{"fieldname": "odometer_km", "label": _("Odometer at Maintenance"), "fieldtype": "Int", "width": 140},
+		{"fieldname": "next_maintenance_date", "label": _("Next Maintenance Date"), "fieldtype": "Date", "width": 140},
+		{"fieldname": "next_maintenance_km", "label": _("Next Maintenance Km"), "fieldtype": "Int", "width": 150},
+		{"fieldname": "notes", "label": _("Notes"), "fieldtype": "Data", "width": 180},
 	]
 
 

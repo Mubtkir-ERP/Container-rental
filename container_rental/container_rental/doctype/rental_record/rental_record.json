@@ -250,7 +250,7 @@
    "label": "Due Reminder Sent On",
    "read_only": 1,
    "no_copy": 1,
-   "description": "تذكير العميل قبل الاستحقاق — يُرسل مرة واحدة فقط"
+   "description": "Client reminder before due date — sent once only"
   }
  ],
  "in_create": 1,

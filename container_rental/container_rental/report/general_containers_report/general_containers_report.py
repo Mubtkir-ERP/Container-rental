@@ -13,15 +13,15 @@ def execute(filters=None):
 
 def get_columns():
 	return [
-		{"fieldname": "container_no", "label": _("رقم الحاوية"), "fieldtype": "Link", "options": "Container", "width": 130},
-		{"fieldname": "size", "label": _("الحجم"), "fieldtype": "Data", "width": 100},
-		{"fieldname": "classification", "label": _("التصنيف"), "fieldtype": "Data", "width": 120},
-		{"fieldname": "branch", "label": _("الفرع"), "fieldtype": "Data", "width": 120},
-		{"fieldname": "responsible_driver_name", "label": _("السائق المسؤول"), "fieldtype": "Data", "width": 140},
-		{"fieldname": "status", "label": _("الحالة"), "fieldtype": "Data", "width": 100},
-		{"fieldname": "last_delivery_datetime", "label": _("آخر توصيل"), "fieldtype": "Datetime", "width": 150},
-		{"fieldname": "last_unload_datetime", "label": _("آخر تفريغ"), "fieldtype": "Datetime", "width": 150},
-		{"fieldname": "count", "label": _("العدد"), "fieldtype": "Int", "width": 80},
+		{"fieldname": "container_no", "label": _("Container No"), "fieldtype": "Link", "options": "Container", "width": 130},
+		{"fieldname": "size", "label": _("Size"), "fieldtype": "Data", "width": 100},
+		{"fieldname": "classification", "label": _("Classification"), "fieldtype": "Data", "width": 120},
+		{"fieldname": "branch", "label": _("Branch"), "fieldtype": "Data", "width": 120},
+		{"fieldname": "responsible_driver_name", "label": _("Responsible Driver"), "fieldtype": "Data", "width": 140},
+		{"fieldname": "status", "label": _("Status"), "fieldtype": "Data", "width": 100},
+		{"fieldname": "last_delivery_datetime", "label": _("Last Delivery"), "fieldtype": "Datetime", "width": 150},
+		{"fieldname": "last_unload_datetime", "label": _("Last Unload"), "fieldtype": "Datetime", "width": 150},
+		{"fieldname": "count", "label": _("Count"), "fieldtype": "Int", "width": 80},
 	]
 
 
@@ -68,7 +68,7 @@ def get_summary_rows(filters):
 	)
 	if not summary:
 		return []
-	rows = [{}, {"container_no": _("— ملخص حسب الحالة / الحجم / التصنيف —")}]
+	rows = [{}, {"container_no": _("— Summary by Status / Size / Classification —")}]
 	for row in summary:
 		rows.append({
 			"container_no": "",

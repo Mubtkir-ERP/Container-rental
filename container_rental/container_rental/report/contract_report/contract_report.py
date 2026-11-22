@@ -10,20 +10,20 @@ def execute(filters=None):
 def get_columns():
 	return [
 		{"fieldname": "idx", "label": _("#"), "fieldtype": "Int", "width": 50},
-		{"fieldname": "contract_no", "label": _("رقم العقد"), "fieldtype": "Link", "options": "Container Contract", "width": 140},
-		{"fieldname": "client_name", "label": _("اسم العميل"), "fieldtype": "Data", "width": 160},
-		{"fieldname": "mobile_no", "label": _("رقم تليفون العميل"), "fieldtype": "Data", "width": 120},
-		{"fieldname": "duration_days", "label": _("مدة التعاقد (أيام)"), "fieldtype": "Int", "width": 110},
-		{"fieldname": "start_date", "label": _("تاريخ بداية العقد"), "fieldtype": "Date", "width": 110},
-		{"fieldname": "end_date", "label": _("تاريخ انتهاء العقد"), "fieldtype": "Date", "width": 110},
-		{"fieldname": "contract_value", "label": _("إجمالي التعاقد"), "fieldtype": "Currency", "width": 120},
-		{"fieldname": "payment_method", "label": _("طريقة الدفع"), "fieldtype": "Data", "width": 110},
-		{"fieldname": "total_trips", "label": _("عدد الرحلات"), "fieldtype": "Int", "width": 100},
-		{"fieldname": "remaining_trips", "label": _("الرحلات المتبقية"), "fieldtype": "Int", "width": 110},
-		{"fieldname": "last_container", "label": _("رقم آخر حاوية"), "fieldtype": "Link", "options": "Container", "width": 120},
-		{"fieldname": "owner_user", "label": _("أُضيف بواسطة"), "fieldtype": "Link", "options": "User", "width": 140},
-		{"fieldname": "contract_status", "label": _("حالة العقد"), "fieldtype": "Data", "width": 90},
-		{"fieldname": "actions", "label": _("إجراءات"), "fieldtype": "Data", "width": 200},
+		{"fieldname": "contract_no", "label": _("Contract No"), "fieldtype": "Link", "options": "Container Contract", "width": 140},
+		{"fieldname": "client_name", "label": _("Client Name"), "fieldtype": "Data", "width": 160},
+		{"fieldname": "mobile_no", "label": _("Client Phone"), "fieldtype": "Data", "width": 120},
+		{"fieldname": "duration_days", "label": _("Contract Duration (Days)"), "fieldtype": "Int", "width": 110},
+		{"fieldname": "start_date", "label": _("Contract Start Date"), "fieldtype": "Date", "width": 110},
+		{"fieldname": "end_date", "label": _("Contract End Date"), "fieldtype": "Date", "width": 110},
+		{"fieldname": "contract_value", "label": _("Contract Total"), "fieldtype": "Currency", "width": 120},
+		{"fieldname": "payment_method", "label": _("Payment Method"), "fieldtype": "Data", "width": 110},
+		{"fieldname": "total_trips", "label": _("Trips Count"), "fieldtype": "Int", "width": 100},
+		{"fieldname": "remaining_trips", "label": _("Remaining Trips"), "fieldtype": "Int", "width": 110},
+		{"fieldname": "last_container", "label": _("Last Container No"), "fieldtype": "Link", "options": "Container", "width": 120},
+		{"fieldname": "owner_user", "label": _("Added By"), "fieldtype": "Link", "options": "User", "width": 140},
+		{"fieldname": "contract_status", "label": _("Contract Status"), "fieldtype": "Data", "width": 90},
+		{"fieldname": "actions", "label": _("Actions"), "fieldtype": "Data", "width": 200},
 	]
 
 
@@ -37,7 +37,7 @@ def get_data(filters):
 	if filters.get("contract"):
 		conditions.append("c.name = %(contract)s")
 		values["contract"] = filters["contract"]
-	if filters.get("status") and filters["status"] != "الكل":
+	if filters.get("status"):
 		conditions.append("c.contract_status = %(status)s")
 		values["status"] = filters["status"]
 	if filters.get("from_date"):

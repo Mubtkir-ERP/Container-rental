@@ -67,7 +67,7 @@
    "label": "Invoice Month",
    "read_only": 1,
    "in_list_view": 1,
-   "description": "مثال: 2026-07"
+   "description": "Example: 2026-07"
   },
   {
    "fieldname": "period_start",

@@ -61,7 +61,7 @@
    "fieldname": "location",
    "fieldtype": "Small Text",
    "label": "Location",
-   "description": "عنوان أول موقع تسليم — المواقع الإضافية في بطاقة العميل"
+   "description": "First delivery site address — additional locations are in the Customer record"
   },
   {
    "fieldname": "column_break_header",
@@ -90,14 +90,14 @@
    "reqd": 1,
    "in_list_view": 1,
    "read_only_depends_on": "eval:doc.contract_duration > 0",
-   "description": "يُحسب تلقائيًا عند إدخال المدة، أو أدخله يدويًا"
+   "description": "Calculated automatically when duration is entered, or enter manually"
   },
   {
    "fieldname": "trip_duration_days",
    "fieldtype": "Int",
    "label": "Trip Duration (Days)",
    "reqd": 1,
-   "description": "مدة بقاء الحاوية الواحدة عند العميل قبل التفريغ"
+   "description": "Duration each container stays with the client before unloading"
   },
   {
    "fieldname": "items_section",
@@ -174,7 +174,7 @@
    "fieldname": "contract_duration",
    "fieldtype": "Int",
    "label": "Contract Duration",
-   "description": "المدة — يُحسب تاريخ النهاية تلقائيًا من تاريخ البداية"
+   "description": "Duration — end date is calculated automatically from the start date"
   },
   {
    "fieldname": "duration_unit",
@@ -192,7 +192,7 @@
    "fieldname": "payment_method",
    "fieldtype": "Data",
    "label": "Payment Method",
-   "description": "يُكتب يدويًا (تحويل، شيك، نقدي...)"
+   "description": "Entered manually (transfer, cheque, cash...)"
   },
   {
    "fieldname": "column_break_payment",
@@ -202,13 +202,13 @@
    "fieldname": "payment_terms",
    "fieldtype": "Small Text",
    "label": "Payment Terms",
-   "description": "شروط السداد كما اتُّفق عليها مع العميل"
+   "description": "Payment terms as agreed with the client"
   },
   {
    "fieldname": "apply_vat",
    "fieldtype": "Check",
    "label": "Calculate VAT on Value",
-   "description": "للعرض في العقد فقط — لا يؤثر على القيود المحاسبية أو الفواتير"
+   "description": "For display on the contract only — does not affect accounting entries or invoices"
   },
   {
    "fieldname": "vat_percent",

@@ -41,7 +41,7 @@
    "fieldtype": "Link",
    "label": "Drivers Supervisor (User)",
    "options": "User",
-   "description": "يستقبل طلبات التفريغ والإشعارات الداخلية، ورقم جواله من ملف المستخدم"
+   "description": "Receives unload requests and internal notifications; mobile number is read from their User profile"
   },
   {
    "fieldname": "alerts_section",
@@ -54,7 +54,7 @@
    "fieldtype": "Int",
    "label": "Expiry Alert Days",
    "reqd": 1,
-   "description": "الإقامة / التأمين / الاستمارة / كارت السائق / كارت التشغيل"
+   "description": "Iqama / Insurance / Registration / Driver Card / Operating Card"
   },
   {
    "default": "2",
@@ -62,7 +62,7 @@
    "fieldtype": "Int",
    "label": "Remind Client Before Due (Days)",
    "reqd": 1,
-   "description": "يصل العميل تنبيه بالتفريغ قبل انتهاء المدة بهذا العدد من الأيام"
+   "description": "Client receives an unload reminder this many days before the rental period ends"
   },
   {
    "fieldname": "column_break_alerts",
@@ -80,35 +80,35 @@
    "fieldname": "send_hr_alerts_via_whatsapp",
    "fieldtype": "Check",
    "label": "Send Document Expiry Alerts via WhatsApp",
-   "description": "ترسل نسخة من تنبيهات انتهاء وثائق الموظفين والشاحنات إلى واتساب مشرف السواقين"
+   "description": "Send a copy of employee and truck document expiry alerts to the Driver Supervisor's WhatsApp"
   },
   {
    "fieldname": "default_commission_percent",
    "fieldtype": "Percent",
    "label": "Default Driver Commission %",
    "default": "4",
-   "description": "نسبة من قيمة الطلب — تُحتسب عند إسناد الطلب للسائق (ما لم تُحدد نسبة على Sales Person)"
+   "description": "Percentage of order value — calculated when assigning the order to a driver (unless set on Sales Person)"
   },
   {
    "fieldname": "commission_expense_account",
    "fieldtype": "Link",
    "label": "Commission Expense Account",
    "options": "Account",
-   "description": "حساب مصروف عمولات السائقين — يُقيَّد عليه عند صرف العمولة"
+   "description": "Driver commission expense account — debited when paying out commissions"
   },
   {
    "fieldname": "extension_authorized_user",
    "fieldtype": "Link",
    "label": "Extension Authorized User",
    "options": "User",
-   "description": "تمديد مدة التأجير يكون بإذن هذا المستخدم فقط (مثال: راكان). اتركه فارغًا للسماح لأدوار خدمة العملاء والمشرفين"
+   "description": "Extending rental duration is only allowed for this user. Leave blank to allow Customer Service and Supervisor roles"
   },
   {
    "fieldname": "maintenance_expense_account",
    "fieldtype": "Link",
    "label": "Vehicle Expense Account",
    "options": "Account",
-   "description": "حساب مصروف صيانة وغيار زيت السيارات — يُستخدم في سندات الصرف"
+   "description": "Vehicle maintenance and oil change expense account — used in payment vouchers"
   }
  ],
  "issingle": 1,

@@ -64,7 +64,7 @@
    "fieldtype": "Link",
    "label": "Expense Account",
    "options": "Account",
-   "description": "حساب المصروف — إن تُرك فارغًا يُستخدم حساب مصروف الصيانة من الإعدادات"
+   "description": "Expense account — if left blank, the maintenance expense account from Settings is used"
   },
   {
    "fieldname": "journal_entry",

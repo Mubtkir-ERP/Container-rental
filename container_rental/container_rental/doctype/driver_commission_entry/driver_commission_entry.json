@@ -39,7 +39,7 @@
    "label": "Sales Person",
    "options": "Sales Person",
    "read_only": 1,
-   "description": "سجل المندوب المرتبط بالسائق — مصدر قيمة العمولة"
+   "description": "Sales Person record linked to the driver — source of the commission rate"
   },
   {
    "fieldname": "commission_amount",
@@ -128,7 +128,7 @@
    "fieldtype": "Data",
    "label": "Commission Basis",
    "read_only": 1,
-   "description": "كيف حُسبت العمولة (نسبة أو مبلغ ثابت)"
+   "description": "How the commission was calculated (percentage or fixed amount)"
   },
   {
    "fieldname": "expense_account",

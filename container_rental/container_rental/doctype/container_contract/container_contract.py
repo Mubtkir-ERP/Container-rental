@@ -54,7 +54,7 @@ class ContainerContract(Document):
 
 	def on_cancel(self):
 		if self.consumed_trips:
-			frappe.throw(_("لا يمكن إلغاء عقد نُفذت عليه رحلات ({0} رحلة)").format(self.consumed_trips))
+			frappe.throw(_("Cannot cancel a contract that has executed trips ({0} trips)").format(self.consumed_trips))
 		from container_rental.container_rental import customer_utils
 		customer_utils.refresh_balance(self.client)
 
@@ -62,7 +62,7 @@ class ContainerContract(Document):
 		"""Called by Container Delivery.on_submit for contract-based deliveries."""
 		if self.remaining_trips <= 0:
 			frappe.msgprint(
-				_("تنبيه: العقد {0} استنفد رحلاته المتعاقد عليها — التوصيل سيُسجل كرحلة إضافية").format(self.name)
+				_("Notice: Contract {0} has exhausted its contracted trips — this delivery will be recorded as an extra trip").format(self.name)
 			)
 		self.db_set("consumed_trips", int(self.consumed_trips or 0) + 1)
 		self.db_set("remaining_trips", int(self.total_trips or 0) - self.consumed_trips)
@@ -77,12 +77,12 @@ class ContainerContract(Document):
 	def renew_contract(self, new_end_date):
 		"""S10 row action 'تجديد التعاقد' — extend the contract period."""
 		if not set(frappe.get_roles()) & {"Container Manager", "System Manager"}:
-			frappe.throw(_("تجديد التعاقد يتطلب صلاحية مدير الحاويات"), frappe.PermissionError)
+			frappe.throw(_("Contract renewal requires Container Manager role"), frappe.PermissionError)
 		if getdate(new_end_date) <= getdate(self.end_date):
-			frappe.throw(_("تاريخ التجديد يجب أن يكون بعد تاريخ الانتهاء الحالي"))
+			frappe.throw(_("Renewal date must be after the current end date"))
 		old_end = self.end_date
 		self.db_set("end_date", getdate(new_end_date))
 		self.db_set("contract_status", "Active" if getdate(new_end_date) >= getdate(today()) else "Expire")
 		self.db_set("expiry_alert_sent_on", None, update_modified=False)
-		self.add_comment("Info", _("تجديد التعاقد: تمديد النهاية من {0} إلى {1}").format(old_end, new_end_date))
+		self.add_comment("Info", _("Contract renewed: end date extended from {0} to {1}").format(old_end, new_end_date))
 		return self.end_date

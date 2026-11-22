@@ -10,15 +10,15 @@ def execute(filters=None):
 
 def get_columns():
 	return [
-		{"fieldname": "invoice", "label": _("الفاتورة"), "fieldtype": "Link", "options": "Contract Monthly Invoice", "width": 150},
-		{"fieldname": "contract", "label": _("العقد"), "fieldtype": "Link", "options": "Container Contract", "width": 140},
-		{"fieldname": "client_name", "label": _("العميل"), "fieldtype": "Data", "width": 160},
-		{"fieldname": "month_key", "label": _("الشهر"), "fieldtype": "Data", "width": 90},
-		{"fieldname": "trips", "label": _("عدد الرحلات المفوترة"), "fieldtype": "Int", "width": 130},
-		{"fieldname": "total_amount", "label": _("الإجمالي"), "fieldtype": "Currency", "width": 120},
-		{"fieldname": "paid_amount", "label": _("المدفوع"), "fieldtype": "Currency", "width": 110},
-		{"fieldname": "payment_status", "label": _("حالة السداد"), "fieldtype": "Data", "width": 110},
-		{"fieldname": "whatsapp_sent", "label": _("أُرسلت واتساب"), "fieldtype": "Check", "width": 100},
+		{"fieldname": "invoice", "label": _("Invoice"), "fieldtype": "Link", "options": "Contract Monthly Invoice", "width": 150},
+		{"fieldname": "contract", "label": _("Contract"), "fieldtype": "Link", "options": "Container Contract", "width": 140},
+		{"fieldname": "client_name", "label": _("Client"), "fieldtype": "Data", "width": 160},
+		{"fieldname": "month_key", "label": _("Month"), "fieldtype": "Data", "width": 90},
+		{"fieldname": "trips", "label": _("Billed Trips"), "fieldtype": "Int", "width": 130},
+		{"fieldname": "total_amount", "label": _("Total"), "fieldtype": "Currency", "width": 120},
+		{"fieldname": "paid_amount", "label": _("Paid"), "fieldtype": "Currency", "width": 110},
+		{"fieldname": "payment_status", "label": _("Payment Status"), "fieldtype": "Data", "width": 110},
+		{"fieldname": "whatsapp_sent", "label": _("WhatsApp Sent"), "fieldtype": "Check", "width": 100},
 	]
 
 

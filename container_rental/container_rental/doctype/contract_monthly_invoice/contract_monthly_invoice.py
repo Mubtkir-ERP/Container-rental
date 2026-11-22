@@ -24,7 +24,7 @@ class ContractMonthlyInvoice(Document):
 			},
 		):
 			frappe.throw(
-				_("توجد فاتورة شهرية بالفعل للعقد {0} عن شهر {1}").format(self.contract, self.month_key)
+				_("A monthly invoice already exists for contract {0} for month {1}").format(self.contract, self.month_key)
 			)
 
 	def sync_payment_status(self):

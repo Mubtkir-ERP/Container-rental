@@ -1,4 +1,13 @@
 frappe.ui.form.on("Container Contract", {
+	start_date(frm) {
+		compute_end_date(frm);
+	},
+	contract_duration(frm) {
+		compute_end_date(frm);
+	},
+	duration_unit(frm) {
+		compute_end_date(frm);
+	},
 	refresh(frm) {
 		if (frm.doc.docstatus === 1) {
 			frm.add_custom_button(__("Renew Contract"), () => {
@@ -63,4 +72,24 @@ function compute_item(frm, cdt, cdn) {
 function compute_contract_value(frm) {
 	const total = (frm.doc.items || []).reduce((s, r) => s + (r.total || 0), 0);
 	frm.set_value("contract_value", total);
+}
+
+function compute_end_date(frm) {
+	if (!frm.doc.start_date || !frm.doc.contract_duration) {
+		return;
+	}
+	const duration = cint(frm.doc.contract_duration);
+	if (duration <= 0) {
+		return;
+	}
+	const unit = frm.doc.duration_unit || "Months";
+	let end_date;
+	if (unit === "Days") {
+		end_date = frappe.datetime.add_days(frm.doc.start_date, duration);
+	} else if (unit === "Years") {
+		end_date = frappe.datetime.add_months(frm.doc.start_date, duration * 12);
+	} else {
+		end_date = frappe.datetime.add_months(frm.doc.start_date, duration);
+	}
+	frm.set_value("end_date", end_date);
 }

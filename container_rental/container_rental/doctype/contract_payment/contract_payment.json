@@ -37,7 +37,7 @@
    "label": "Cash Account",
    "options": "Account",
    "in_list_view": 1,
-   "description": "حساب الصندوق من الدليل المحاسبي (يضيفه المحاسبون يدويًا)"
+   "description": "Cash account from the Chart of Accounts (added manually by accountants)"
   },
   {
    "fieldname": "notes",

@@ -5,7 +5,7 @@ frappe.query_reports["Maintenance Report"] = {
 			fieldname: "maintenance_type",
 			label: __("Maintenance Type"),
 			fieldtype: "Select",
-			options: ["", "Oil Change", "Tyres", "Brakes", "Battery", "Periodic Service", "Repair", "أخرى"],
+			options: ["", "Oil Change", "Tyres", "Brakes", "Battery", "Periodic Service", "Repair", "Other"],
 		},
 		{ fieldname: "from_date", label: __("From Date"), fieldtype: "Date" },
 		{ fieldname: "to_date", label: __("To Date"), fieldtype: "Date" },
